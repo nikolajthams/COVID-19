@@ -61,7 +61,8 @@ server <- function(input, output) {
       ungroup() %>% {
         LastDayBecoreConfirmedCase <- (.) %>% arrange(Date) %>% filter(LeadCases>0) %>% summarize(min(Date)) %>% pull()
         (.) %>% filter(Date >=LastDayBecoreConfirmedCase)
-      }
+      } %>% 
+      select(-LeadCases)
   })
   
   output$country_plot <- renderPlot({
