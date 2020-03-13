@@ -33,7 +33,8 @@ ui <- fluidPage(
     sidebarPanel(
       radioButtons("log","Scale", choices=c("unscaled", "log")),
       selectInput("countries", "Countries", choices=data$Country.Region, selected="Denmark", multiple = T),
-      radioButtons("output","Output", choices=c("Total confirmed cases" ="Cases", "New Confrimed cases"= "NewCases"))
+      radioButtons("output","Output", choices=c("Total confirmed cases" ="Cases", "New Confrimed cases"= "NewCases")),
+      downloadButton("downloadData", "Download Selected Data")
     ),
     
     # Main panel for displaying outputs ----
@@ -48,14 +49,30 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
 
-  output$country_plot <- renderPlot({
-    
+  datasetInput <- reactive({
     data_tmp = subset(data, Country.Region %in% c(input$countries)) %>% 
       mutate(Country.Region = factor(Country.Region,levels = c(input$countries)))
-    p = ggplot(data_tmp, aes_string(x="Date", y=input$output, colour="Country.Region")) + geom_line()
+  })
+  
+  output$country_plot <- renderPlot({
+    
+
+    
+    p = ggplot(datasetInput(), aes_string(x="Date", y=input$output, colour="Country.Region")) + geom_line()
     if (input$log == "log"){p = p+scale_y_continuous(trans='log10')}
     p = p + theme_minimal()
     p
+    
   })
+  
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("COVID19_",paste(sort(input$countries),collapse="_"),".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(datasetInput(), file, row.names = TRUE)
+    }
+  )
+  
 }
 shinyApp(ui = ui, server = server)
