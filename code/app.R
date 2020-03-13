@@ -3,6 +3,7 @@ library(reshape2)
 library(ggplot2)
 library(shiny)
 library(tidyverse)
+library(scales)
 # Load data
 data = read.csv2("../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv", sep=",")
 # Drop irrelevant data
@@ -19,6 +20,8 @@ data %<>%  group_by(Country.Region) %>%
   mutate(NewCases = Cases-lag(Cases),
          NewCases = ifelse(is.na(NewCases), 0, NewCases)) %>% 
   ungroup()
+
+
 # Define UI for app that draws a histogram ----
 ui <- fluidPage(
   
@@ -48,18 +51,27 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
 
+  number_ticks <- function(n) {function(limits) pretty(limits, n)}
+  
   datasetInput <- reactive({
     data_tmp = subset(data, Country.Region %in% c(input$countries)) %>% 
-      mutate(Country.Region = factor(Country.Region,levels = c(input$countries)))
+      mutate(Country.Region = factor(Country.Region,levels = c(input$countries))) %>% 
+      group_by(Country.Region) %>% 
+      mutate(LeadCases = ifelse(is.na(lead(Cases)),Inf,lead(Cases))) %>% 
+      ungroup() %>% {
+        LastDayBecoreConfirmedCase <- (.) %>% arrange(Date) %>% filter(LeadCases>0) %>% summarize(min(Date)) %>% pull()
+        (.) %>% filter(Date >=LastDayBecoreConfirmedCase)
+      }
   })
   
   output$country_plot <- renderPlot({
     
-
-    
-    p = ggplot(datasetInput(), aes_string(x="Date", y=input$output, colour="Country.Region")) + geom_line()
+    p = ggplot(datasetInput() , aes_string(x="Date", y=input$output, colour="Country.Region")) + 
+        geom_line()+
+        scale_x_date(breaks = date_breaks("week"),date_labels = "%b %d")
     if (input$log == "log"){p = p+scale_y_continuous(trans='log10')}
     p = p + theme_minimal()
+     # 
     p
     
   })
