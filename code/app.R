@@ -12,7 +12,6 @@ data = aggregate(.~Country.Region, data = data, FUN=sum)
 # Prepare for ggplot
 data = melt(data, id.vars="Country.Region", variable.name = "Date", value.name="Cases")
 data$Date = as.Date(substring(data$Date, 2), format="%m.%d.%y")
-subset(data, Country.Region == "US")
 
 
 data %<>%  group_by(Country.Region) %>% 
@@ -33,7 +32,7 @@ ui <- fluidPage(
     sidebarPanel(
       radioButtons("log","Scale", choices=c("unscaled", "log")),
       selectInput("countries", "Countries", choices=data$Country.Region, selected="Denmark", multiple = T),
-      radioButtons("output","Output", choices=c("Total confirmed cases" ="Cases", "New Confrimed cases"= "NewCases")),
+      radioButtons("output","Output", choices=c("Total confirmed cases" ="Cases", "New confirmed cases"= "NewCases")),
       downloadButton("downloadData", "Download Selected Data")
     ),
     
