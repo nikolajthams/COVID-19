@@ -247,58 +247,58 @@ data <- left_join(
     mm <- list()
 
     for (i in country) {
-      fm0 <- lm(
+      mm[[i]] <- lm(
         I(log(Cases + 1)) ~ t,
         data = dt,
         subset = Country.Region == i
-      ) %>% coef
-      names(fm0) <- c("l", "r")
+      ) #%>% coef
+      # names(fm0) <- c("l", "r")
 
-      mm[[i]] <- nls(
-        I(Cases + 1) ~ (1 + r)**(t - l),
-        data = dt,
-        subset = Country.Region == i,
-        start = fm0,
-        control = nls.control(maxiter = 1e4)
-      )
+      # mm[[i]] <- nls(
+      #   I(Cases + 1) ~ (1 + r)**(t - l),
+      #   data = dt,
+      #   subset = Country.Region == i,
+      #   start = fm0,
+      #   control = nls.control(maxiter = 1e4)
+      # )
     }
   } else {
-    fm0 <- lm(
+    mm <- lm(
       I(log(Cases + 1)) ~ t,
       data = dt,
       subset = Country.Region %in% country
-    ) %>% coef
-    names(fm0) <- c("l", "r")
+    ) #%>% coef
+    # names(fm0) <- c("l", "r")
 
-    mm <- NULL
-
-    try({
-      mm <- nls(
-        I(Cases + 1) ~ (1 + r)**(t - l),
-        data = filter(
-          dt,
-          Country.Region %in% country
-        ),
-        start = fm0,
-        control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10)
-      )
-    }, silent = T)
-
-    if (is.null(mm)) {
-      mm <- nls2(
-        I(Cases + 1) ~ (1 + r)**(t - l),
-        data = filter(
-          dt,
-          Country.Region %in% country
-        ),
-        start = expand.grid(
-          "l" = seq(1, 20, length.out = 100),
-          "r" = seq(0, 1, length.out = 100)
-        ),
-        control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10),
-        algorithm = "grid-search"
-      )
-    }
+    # mm <- NULL
+# 
+#     try({
+#       mm <- nls(
+#         I(Cases + 1) ~ (1 + r)**(t - l),
+#         data = filter(
+#           dt,
+#           Country.Region %in% country
+#         ),
+#         start = fm0,
+#         control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10)
+#       )
+#     }, silent = T)
+# 
+#     if (is.null(mm)) {
+#       mm <- nls2(
+#         I(Cases + 1) ~ (1 + r)**(t - l),
+#         data = filter(
+#           dt,
+#           Country.Region %in% country
+#         ),
+#         start = expand.grid(
+#           "l" = seq(1, 20, length.out = 100),
+#           "r" = seq(0, 1, length.out = 100)
+#         ),
+#         control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10),
+#         algorithm = "grid-search"
+#       )
+#     }
   }
 
   # fm0 <- lm(
@@ -350,7 +350,7 @@ data <- left_join(
 
     tmpdata$Cases <- predictions
   } else {
-    tmpdata$Cases <- predict(model, tmpdata) - 1
+    tmpdata$Cases <- exp(predict(model, tmpdata)) - 1
   }
 
   plotdata <- rbind(
