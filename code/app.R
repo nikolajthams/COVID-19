@@ -313,7 +313,7 @@ server <- function(input, output) {
                 )) +
       geom_line() +
       scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
-    if (input$log == "log") {
+    if (input$log == "Logarithmic scale") {
       p <- p + scale_y_continuous(trans = 'log10')
     }
     p <- p + theme_minimal()
