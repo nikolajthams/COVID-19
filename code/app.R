@@ -47,7 +47,11 @@ cdata <- "data/pop_data.csv" %>%
     Country = ifelse(
       Country == "United States",
       "US",
-      Country
+      ifelse(
+        Country == "South Korea",
+        "Korea, South",
+        Country
+      )
     )
   )
 
@@ -304,6 +308,8 @@ ui <- dashboardPage(
         tabName = "plots",
         
         fluidPage(
+          includeHTML("mainpage.html"),
+          
           sidebarLayout(
             sidebarPanel(
               radioButtons(
