@@ -7,7 +7,7 @@ library(scales)
 library(shinydashboard)
 library(nls2)
 
-# Load data ---------------------------------------------------------------
+# Load confirmed data ---------------------------------------------------------------
 data <- read.csv2(
   "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv",
   sep = ","
@@ -43,6 +43,11 @@ cdata <- "data/pop_data.csv" %>%
   mutate(
     "Urban population" = as.numeric(
       gsub('^\\%|\\%$', '', `Urban population`)
+    ),
+    Country = ifelse(
+      Country == "United States",
+      "US",
+      Country
     )
   )
 
@@ -60,6 +65,77 @@ data <- left_join(
   )
 )
 
+
+
+# Add recovery data ------------------------------------------------------
+data_r <- read.csv2(
+  "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv",
+  sep = ","
+)
+# Drop irrelevant data
+drops <- c("Lat", "Long", "Province.State")
+data_r <- data_r[,!(names(data_r) %in% drops)]
+data_r <- aggregate(. ~ Country.Region, data = data_r, FUN = sum)
+# Prepare for ggplot
+data_r <- melt(
+  data_r,
+  id.vars = "Country.Region",
+  variable.name = "Date",
+  value.name = "Cases"
+) %>%
+  mutate(
+    "Date" = as.Date(substring(Date, 2), format = "%m.%d.%y")
+  ) %>%
+  rename(
+    "Recovered" = "Cases"
+  )
+
+data <- left_join(
+  data,
+  data_r,
+  by = c(
+    "Date",
+    "Country.Region"
+  )
+)
+
+
+# Add mortality data ------------------------------------------------------
+data_r <- read.csv2(
+  "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv",
+  sep = ","
+)
+# Drop irrelevant data
+drops <- c("Lat", "Long", "Province.State")
+data_r <- data_r[,!(names(data_r) %in% drops)]
+data_r <- aggregate(. ~ Country.Region, data = data_r, FUN = sum)
+# Prepare for ggplot
+data_r <- melt(
+  data_r,
+  id.vars = "Country.Region",
+  variable.name = "Date",
+  value.name = "Cases"
+) %>%
+  mutate(
+    "Date" = as.Date(substring(Date, 2), format = "%m.%d.%y")
+  ) %>%
+  rename(
+    "Deaths" = "Cases"
+  )
+
+data <- left_join(
+  data,
+  data_r,
+  by = c(
+    "Date",
+    "Country.Region"
+  )
+) %>%
+  mutate(
+    "StillSick" = Cases - (Recovered + Deaths),
+    "MortalityRate" = (Deaths / Cases) * 100,
+    "RecoveryRate"  = (Recovered / Cases) * 100
+  )
 
 # Exponential growth models --------------------------------------------------------------
 .fit_nls <- function(country, dt) {
@@ -234,7 +310,7 @@ ui <- dashboardPage(
               radioButtons(
                 "log", 
                 "Y-axis scale", 
-                choices = c("Original scale", "Logarithmic scale")
+                choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log")
               ),
               
               selectInput(
@@ -251,7 +327,12 @@ ui <- dashboardPage(
                 choices = c(
                   "Total confirmed cases" = "Cases",
                   "New confirmed cases" = "NewCases",
-                  "Total cases as percentage of population" = "PercentageOfPopulation"
+                  "Total cases as percentage of population" = "PercentageOfPopulation",
+                  "Still sick" = "StillSick",
+                  "Recovered" = "Recovered",
+                  "Deaths" = "Deaths",
+                  "Proportion of deaths among infected" = "MortalityRate",
+                  "Proportion of recoveries among infected" = "RecoveryRate"
                 )
               ),
               
