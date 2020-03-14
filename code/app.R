@@ -565,6 +565,13 @@ server <- function(input, output) {
   )
   
   output$expmod_plot <- renderPlot({
+    validate(
+      need(
+        input$expmod_countries != "",
+        'Please select a country to analyse.'
+      )
+    )
+    
     plotdata <- data %>%
       filter(
         Country.Region %in% c(input$expmod_countries)
