@@ -5,6 +5,7 @@ library(shiny)
 library(tidyverse)
 library(scales)
 library(shinydashboard)
+library(nls2)
 
 # Load data ---------------------------------------------------------------
 data <- read.csv2(
@@ -89,13 +90,35 @@ data <- left_join(
     ) %>% coef
     names(fm0) <- c("l", "r")
     
-    mm <- nls(
-      I(Cases + 1) ~ (1 + r)**(t - l),
-      data = dt,
-      subset = Country.Region %in% country,
-      start = fm0,
-      control = nls.control(maxiter = 1e4)
-    )
+    mm <- NULL
+    
+    try({
+      mm <- nls(
+        I(Cases + 1) ~ (1 + r)**(t - l),
+        data = filter(
+          dt,
+          Country.Region %in% country
+        ),
+        start = fm0,
+        control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10)
+      )
+    }, silent = T)
+    
+    if (is.null(mm)) {
+      mm <- nls2(
+        I(Cases + 1) ~ (1 + r)**(t - l),
+        data = filter(
+          dt,
+          Country.Region %in% country
+        ),
+        start = expand.grid(
+          "l" = seq(1, 20, length.out = 100),
+          "r" = seq(0, 1, length.out = 100)
+        ),
+        control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10),
+        algorithm = "grid-search"
+      )
+    }
   }
   
   # fm0 <- lm(
@@ -160,7 +183,8 @@ data <- left_join(
   return({
     ggplot(
       data = plotdata,
-      aes(x = t-1, y = Cases, color = Method)#, group = Country.Region)
+      # aes(x = t-1, y = Cases, color = Method) #### TODO: Why should it be t-1?
+      aes(x = t, y = Cases, color = Method)
     ) + 
       geom_line(lwd = 1, alpha = 0.5) + 
       xlab("Days from first case") + 
