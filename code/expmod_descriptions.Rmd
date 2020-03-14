@@ -1,0 +1,6 @@
+---
+title: ''
+output: html_document
+---
+# Model description:
+We are here attempting to fit an exponential growth model, where we regress the cumulative confirmed cases of COVID19 onto the time passed since the first confirmed case. In many cases, this seems to be a reasonable model, although this model is far from rich enough to describe all cases. In China, for example, the disease spread has largely plateaued, and can therefore not be described properly by an exponential growth model. However, in order to show an output for every single country, we simply present here the best fit among $20^2$ tried model fits whenever an optimal solution cannot be found in $10^5$ attempts.

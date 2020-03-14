@@ -259,8 +259,7 @@ data <- left_join(
   return({
     ggplot(
       data = plotdata,
-      # aes(x = t-1, y = Cases, color = Method) #### TODO: Why should it be t-1?
-      aes(x = t, y = Cases, color = Method)
+      aes(x = t-1, y = Cases, color = Method)
     ) + 
       geom_line(lwd = 1, alpha = 0.5) + 
       xlab("Days from first case") + 
@@ -363,8 +362,10 @@ ui <- dashboardPage(
           
           box(
             plotOutput("expmod_plot"),
-            width = 10
-          )
+            width = 12
+          ),
+          
+          includeHTML("expmod_descriptions.html")
         )
       )
       
