@@ -326,10 +326,10 @@ ui <- dashboardPage(
                 choices = c(
                   "Total confirmed cases" = "Cases",
                   "New confirmed cases" = "NewCases",
-                  "Total cases as percentage of population" = "PercentageOfPopulation",
-                  "Still sick" = "StillSick",
+                  "Still infected" = "StillSick",
                   "Recovered" = "Recovered",
                   "Deaths" = "Deaths",
+                  "Percentage of population infected" = "PercentageOfPopulation",
                   "Proportion of deaths among infected" = "MortalityRate",
                   "Proportion of recoveries among infected" = "RecoveryRate"
                 )
@@ -374,6 +374,15 @@ ui <- dashboardPage(
 )
 
 
+yaxislab <- c(
+  "Total confirmed cases"= "Cases",
+  "New confirmed cases" = "NewCases",
+  "Still infected" = "StillSick",
+  "Population infected (%)"= "PercentageOfPopulation" ,
+  "Mortality rate (%)" = "MortalityRate",
+  "Recovery rate (%)" = "RecoveryRate")
+
+
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
   
@@ -410,7 +419,13 @@ server <- function(input, output) {
       )
   })
   
+  
+
   output$country_plot <- renderPlot({
+    
+
+    
+    
     p <- ggplot(datasetInput() ,
                 aes_string(
                   x = "Date",
@@ -420,9 +435,11 @@ server <- function(input, output) {
       geom_line() +
       scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
     if (input$log == "log") {
-      p <- p + scale_y_continuous(trans = 'log10')
+      p <- p + 
+        scale_y_continuous(trans = 'log10') 
     }
-    p <- p + theme_minimal()
+    p <- p + theme_minimal()+ 
+      ylab(names(yaxislab)[yaxislab == input$output])
     
     p
   })
