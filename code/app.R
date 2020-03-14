@@ -4,7 +4,6 @@ library(ggplot2)
 library(shiny)
 library(tidyverse)
 library(scales)
-
 library(shinydashboard)
 
 # Load data ---------------------------------------------------------------
@@ -128,7 +127,7 @@ data <- left_join(
       Cases, t, Country.Region
     ) %>%
     mutate(
-      "Method" = "Actual"
+      "Method" = "Actual cases"
     )
   
   if (is.null(tmax)) tmax <- max(plotdata$t)
@@ -161,7 +160,7 @@ data <- left_join(
   return({
     ggplot(
       data = plotdata,
-      aes(x = t, y = Cases, color = Method)#, group = Country.Region)
+      aes(x = t-1, y = Cases, color = Method)#, group = Country.Region)
     ) + 
       geom_line(lwd = 1, alpha = 0.5) + 
       xlab("Days from first case") + 
@@ -180,7 +179,8 @@ data <- left_join(
         )
       ) +
       theme_minimal() +
-      theme(text = element_text(size = 12))
+      theme(text = element_text(size = 12),legend.position="bottom")+
+      labs(colour ="Method:")
   })
 }
 
