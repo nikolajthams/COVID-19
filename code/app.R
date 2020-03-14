@@ -213,12 +213,6 @@ ui <- dashboardPage(
                 choices = c("Original scale", "Logarithmic scale")
               ),
               
-              radioButtons(
-                "response", 
-                "Show numbers as:", 
-                choices = c("Nominal level", "Percentage of population")
-              ),
-              
               selectInput(
                 "countries",
                 "Countries",
