@@ -5,7 +5,107 @@ library(shiny)
 library(tidyverse)
 library(scales)
 library(shinydashboard)
-library(nls2)
+
+
+# Function definitions ----------------------------------------------------
+
+nls2 <- function (formula, data = parent.frame(), start, control = nls.control(), 
+          algorithm = c("default", "plinear", "port", "brute-force", 
+                        "grid-search", "random-search", "plinear-brute", "plinear-random"), 
+          trace = FALSE, weights, ..., all = FALSE) 
+{
+  if (!inherits(formula, "formula")) 
+    formula <- as.formula(formula, env = parent.frame())
+  L <- list(formula = formula, data = data, control = control, 
+            trace = trace)
+  if (!missing(start)) {
+    if (inherits(start, "nls")) {
+      start <- coef(start)
+      start <- start[grep("^[^.]", names(start))]
+    }
+    L$start <- start
+  }
+  finIter <- NROW(L$start)
+  L <- append(L, list(...))
+  algorithm <- match.arg(algorithm)
+  if (algorithm == "grid-search") 
+    algorithm <- "brute-force"
+  call <- match.call()
+  if (algorithm == "brute-force" || algorithm == "random-search" || 
+      algorithm == "plinear-brute" || algorithm == "plinear-random") {
+    nls <- function(formula, data, start, weights, ...) {
+      nlsModel <- if (algorithm == "plinear-brute" || algorithm == 
+                      "plinear-random") 
+        stats:::nlsModel.plinear
+      else stats:::nlsModel
+      environment(nlsModel) <- environment()
+      stop <- function(...) {
+        msg <- "singular gradient matrix at initial parameter estimates"
+        if (list(...)[[1]] == msg) 
+          return()
+        stop(...)
+      }
+      m <- if (missing(weights)) {
+        nlsModel(formula, data, start)
+      }
+      else {
+        wts <- eval(substitute(weights), data, environment(formula))
+        nlsModel(formula, data, start, wts)
+      }
+      structure(list(m = m, call = call, convInfo = list(isConv = TRUE, 
+                                                         finIter = finIter, finTol = NA)), class = "nls")
+    }
+  }
+  else L$algorithm <- algorithm
+  if (missing(start)) 
+    return(do.call(nls, L))
+  else L$start <- as.data.frame(as.list(start))
+  if (NROW(L$start) == 1) 
+    return(do.call(nls, L))
+  if (NROW(L$start) == 2) {
+    if (algorithm == "brute-force" || algorithm == "plinear-brute") {
+      rng <- as.data.frame(lapply(start, range))
+      mn <- rng[1, ]
+      mx <- rng[2, ]
+      k1 <- pmax(ceiling(sum(mx > mn)), 1)
+      k <- pmax(ceiling(control$maxiter^(1/k1)), 1)
+      DF <- as.data.frame(rbind(mn, mx, k))
+      finIter <- k^k1
+      L$start <- expand.grid(lapply(DF, function(x) seq(x[1], 
+                                                        x[2], length = x[3])))
+    }
+    else {
+      finIter <- control$maxiter
+      u <- matrix(runif(finIter * NCOL(start)), NCOL(start))
+      L$start <- t(u * unlist(start[1, ]) + (1 - u) * unlist(start[2, 
+                                                                   ]))
+      L$start <- as.data.frame(L$start)
+      names(L$start) <- names(start)
+    }
+  }
+  result <- apply(L$start, 1, function(start) {
+    L$start <- start
+    xx <- try(do.call(nls, L))
+    yy <- if (inherits(xx, "try-error")) 
+      NA
+    else xx
+    if (trace) 
+      print(yy)
+    yy
+  })
+  if (all) {
+    for (i in seq_along(result)) result[[i]]$data <- substitute(data)
+  }
+  else {
+    ss <- lapply(result, function(x) if (identical(x, NA)) 
+      NA
+      else deviance(x))
+    result <- result[[which.min(ss)]]
+    result$data <- substitute(data)
+  }
+  result
+}
+
 
 # Load confirmed data ---------------------------------------------------------------
 data <- read.csv2(
