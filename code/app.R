@@ -427,6 +427,9 @@ ui <- dashboardPage(
                 selected = "Denmark",
                 multiple = T
               ),
+              checkboxInput("rebase", "Rebase?", FALSE),
+              conditionalPanel("input.rebase",
+                               numericInput('rebase.val', 'Rebase at', value=1, min=1, step=20)),
 
               radioButtons(
                 "output",
@@ -544,7 +547,8 @@ server <- function(input, output) {
                 )) +
       geom_line() +
       scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
-    if (input$log == "Logarithmic scale") {
+  
+    if (input$log == "log") {
       p <- p + scale_y_continuous(trans = 'log10')
     }
     p <- p + theme_minimal()+

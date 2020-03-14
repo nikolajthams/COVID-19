@@ -3,10 +3,12 @@ title: ''
 output: html_document
 ---
 
-Welcome to the COVID19 interactive analysis website. Here you can explore current data about the ongoing COVID19 infection that is gripping the world. You can find information about infection numbers, recoveries, mortalities, infection rates by population and so forth. Happy exploring!
+<!-- Welcome to the COVID19 interactive analysis website. Here you can explore current data about the ongoing COVID19 infection that is gripping the world. You can find information about infection numbers, recoveries, mortalities, infection rates by population and so forth. Happy exploring! -->
+John Hopkins University maintains a database of COVID-19 cases ([GitHub](https://github.com/CSSEGISandData/COVID-19), [Dashboard] (https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)). This dashboard lets you explore the data further by comparing individual countries and fitting exponential models. 
 
-**Authors:** Nikolaj Theodor Thams (<thams@math.ku.dk>), Martin Emil Jakobsen (<m.jakobsen@math.ku.dk>), Phillip Bredahl Mogensen (<pbm@math.ku.dk>); All Ph.d. students with the Department of Mathematics, University of Copenhagen.
+**Authors:** [Nikolaj Theodor Thams](mailto:thams@math.ku.dk), [Martin Emil Jakobsen](mailto:m.jakobsen@math.ku.dk), [Phillip Bredahl Mogensen](mailto:pbm@math.ku.dk)
+<!-- ; All Ph.d. students with the Department of Mathematics, University of Copenhagen. -->
 
-**COVID19 data:** ??? (Nikolaj, update this :))))))
+**COVID19 data:** Source: John Hopkins University ([GitHub](https://github.com/CSSEGISandData/COVID-19), [Dashboard] (https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)). 
 
 **Population data:** https://www.worldometers.info/world-population/population-by-country/
