@@ -4,82 +4,123 @@ library(ggplot2)
 library(shiny)
 library(tidyverse)
 library(scales)
-# Load data
-data = read.csv2("../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv", sep=",")
+
+
+# Load data ---------------------------------------------------------------
+data <- read.csv2(
+  "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv",
+  sep = ","
+)
 # Drop irrelevant data
-drops = c("Lat", "Long", "Province.State")
-data = data[ , !(names(data) %in% drops)]
-data = aggregate(.~Country.Region, data = data, FUN=sum)
+drops <- c("Lat", "Long", "Province.State")
+data <- data[,!(names(data) %in% drops)]
+data <- aggregate(. ~ Country.Region, data = data, FUN = sum)
 # Prepare for ggplot
-data = melt(data, id.vars="Country.Region", variable.name = "Date", value.name="Cases")
-data$Date = as.Date(substring(data$Date, 2), format="%m.%d.%y")
+data <- melt(
+  data,
+  id.vars = "Country.Region",
+  variable.name = "Date",
+  value.name = "Cases"
+) %>%
+  mutate(
+    "Date" = as.Date(substring(Date, 2), format = "%m.%d.%y")
+  )
 
-
-data %<>%  group_by(Country.Region) %>% 
-  arrange(Date) %>% 
-  mutate(NewCases = Cases-lag(Cases),
-         NewCases = ifelse(is.na(NewCases), 0, NewCases)) %>% 
+data %<>% group_by(Country.Region) %>%
+  arrange(Date) %>%
+  mutate(NewCases = Cases - lag(Cases),
+         NewCases = ifelse(is.na(NewCases), 0, NewCases)) %>%
   ungroup()
 
 
 # Define UI for app that draws a histogram ----
 ui <- fluidPage(
   
-  # App title ----
   titlePanel("COVID-19"),
   
-  # Sidebar layout with input and output definitions ----
   sidebarLayout(
-    
-    # Sidebar panel for inputs ----
     sidebarPanel(
-      radioButtons("log","Scale", choices=c("unscaled", "log")),
-      selectInput("countries", "Countries", choices=data$Country.Region, selected="Denmark", multiple = T),
-      radioButtons("output","Output", choices=c("Total confirmed cases" ="Cases", "New confirmed cases"= "NewCases")),
+      radioButtons("log", "Scale", choices = c("unscaled", "log")),
+      
+      selectInput(
+        "countries",
+        "Countries",
+        choices = data$Country.Region,
+        selected = "Denmark",
+        multiple = T
+      ),
+      
+      radioButtons(
+        "output",
+        "Output",
+        choices = c(
+          "Total confirmed cases" = "Cases",
+          "New confirmed cases" = "NewCases"
+        )
+      ),
+      
       downloadButton("downloadData", "Download Selected Data")
     ),
-    
-    # Main panel for displaying outputs ----
-    mainPanel(
-      # Output: Histogram ----
-      plotOutput("country_plot")
       
+    mainPanel(
+        plotOutput("country_plot")
     )
   )
 )
 
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
-
-  number_ticks <- function(n) {function(limits) pretty(limits, n)}
+  
+  number_ticks <- function(n) {
+    function(limits)
+      pretty(limits, n)
+  }
   
   datasetInput <- reactive({
-    data_tmp = subset(data, Country.Region %in% c(input$countries)) %>% 
-      mutate(Country.Region = factor(Country.Region,levels = c(input$countries))) %>% 
-      group_by(Country.Region) %>% 
-      mutate(LeadCases = ifelse(is.na(lead(Cases)),Inf,lead(Cases))) %>% 
-      ungroup() %>% {
-        LastDayBecoreConfirmedCase <- (.) %>% arrange(Date) %>% filter(LeadCases>0) %>% summarize(min(Date)) %>% pull()
-        (.) %>% filter(Date >=LastDayBecoreConfirmedCase)
-      } %>% 
+    data_tmp <- data %>%
+      filter(
+        Country.Region %in% c(input$countries)
+      ) %>%
+      mutate(
+        Country.Region = factor(Country.Region, levels = c(input$countries))
+      ) %>%
+      group_by(Country.Region) %>%
+      mutate(
+        LeadCases = ifelse(
+          is.na(lead(Cases)),
+          Inf,
+          lead(Cases)
+        )
+      ) %>%
+      ungroup %>% {
+        LastDayBecoreConfirmedCase <-
+          (.) %>% arrange(Date) %>% filter(LeadCases > 0) %>% summarize(min(Date)) %>% pull()
+        (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
+      } %>%
       select(-LeadCases)
   })
   
   output$country_plot <- renderPlot({
-    
-    p = ggplot(datasetInput() , aes_string(x="Date", y=input$output, colour="Country.Region")) + 
-        geom_line()+
-        scale_x_date(breaks = date_breaks("week"),date_labels = "%b %d")
-    if (input$log == "log"){p = p+scale_y_continuous(trans='log10')}
-    p = p + theme_minimal()
-     # 
+    p <- ggplot(datasetInput() ,
+               aes_string(
+                 x = "Date",
+                 y = input$output,
+                 colour = "Country.Region"
+               )) +
+      geom_line() +
+      scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
+    if (input$log == "log") {
+      p <- p + scale_y_continuous(trans = 'log10')
+    }
+    p <- p + theme_minimal()
+
     p
-    
   })
   
   output$downloadData <- downloadHandler(
     filename = function() {
-      paste("COVID19_",paste(sort(input$countries),collapse="_"),".csv", sep="")
+      paste("COVID19_", paste(sort(input$countries), collapse = "_"), ".csv", sep =
+              "")
     },
     content = function(file) {
       write.csv(datasetInput(), file, row.names = TRUE)
