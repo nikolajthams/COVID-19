@@ -207,7 +207,17 @@ ui <- dashboardPage(
         fluidPage(
           sidebarLayout(
             sidebarPanel(
-              radioButtons("log", "Scale", choices = c("unscaled", "log")),
+              radioButtons(
+                "log", 
+                "Y-axis scale", 
+                choices = c("Original scale", "Logarithmic scale")
+              ),
+              
+              radioButtons(
+                "response", 
+                "Show numbers as:", 
+                choices = c("Nominal level", "Percentage of population")
+              ),
               
               selectInput(
                 "countries",
@@ -222,9 +232,12 @@ ui <- dashboardPage(
                 "Output",
                 choices = c(
                   "Total confirmed cases" = "Cases",
-                  "New confirmed cases" = "NewCases"
+                  "New confirmed cases" = "NewCases",
+                  "Total cases as percentage of population" = "PercentageOfPopulation"
                 )
               ),
+              
+              
               
               downloadButton("downloadData", "Download Selected Data")
             ),
@@ -292,7 +305,8 @@ server <- function(input, output) {
       } %>%
       select(-LeadCases) %>%
       mutate(
-        "t" = (Date - as.Date(min(Date))) %>% as.numeric
+        "t" = (Date - as.Date(min(Date))) %>% as.numeric,
+        "PercentageOfPopulation" = (Cases / Population) * 100
       )
   })
   
