@@ -429,7 +429,7 @@ ui <- dashboardPage(
               ),
               checkboxInput("rebase", "Rebase?", FALSE),
               conditionalPanel("input.rebase",
-                               numericInput('rebase.val', 'Rebase at', value=1, min=1, step=20)),
+                               numericInput('rebase.value', 'Rebase at', value=1, min=1, step=20)),
 
               radioButtons(
                 "output",
@@ -522,9 +522,9 @@ server <- function(input, output) {
       ) %>%
       ungroup %>% {
         LastDayBecoreConfirmedCase <-
-          (.) %>% arrange(Date) %>% filter(LeadCases > 0) %>% summarize(min(Date)) %>% pull()
+          (.) %>% arrange(Date) %>% filter(LeadCases > input$rebase.value) %>% summarize(min(Date)) %>% pull()
         (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
-      } %>%
+      } %>% 
       select(-LeadCases) %>%
       mutate(
         "t" = (Date - as.Date(min(Date))) %>% as.numeric,
@@ -535,19 +535,19 @@ server <- function(input, output) {
 
 
   output$country_plot <- renderPlot({
-
-
-
-
     p <- ggplot(datasetInput() ,
                 aes_string(
-                  x = "Date",
+                  x = ifelse(input$rebase == FALSE, "Date", 't'),
                   y = input$output,
                   colour = "Country.Region"
                 )) +
-      geom_line() +
-      scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
-  
+      geom_line()
+    
+    if(input$rebase == FALSE){
+      p <- p + scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
+    } else {
+      p <- p + xlab(paste("Days since patient ", input$rebase.value))
+    }
     if (input$log == "log") {
       p <- p + scale_y_continuous(trans = 'log10')
     }
@@ -556,7 +556,7 @@ server <- function(input, output) {
 
     p
   })
-
+  
   output$downloadData <- downloadHandler(
     filename = function() {
       paste("COVID19_", paste(sort(input$countries), collapse = "_"), ".csv", sep =
