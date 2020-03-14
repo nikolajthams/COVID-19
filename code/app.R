@@ -378,7 +378,7 @@ yaxislab <- c(
   "Total confirmed cases"= "Cases",
   "New confirmed cases" = "NewCases",
   "Still infected" = "StillSick",
-  "Population infected (%)"= "PercentageOfPopulation" ,
+  "Percentage of population infected "= "PercentageOfPopulation" ,
   "Mortality rate (%)" = "MortalityRate",
   "Recovery rate (%)" = "RecoveryRate")
 
