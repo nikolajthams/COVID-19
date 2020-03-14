@@ -392,11 +392,11 @@ data <- left_join(
 # UI ----------------------------------------------------------------------
 ui <- dashboardPage(
   
-  dashboardHeader(title = "COVID-19"),
+  dashboardHeader(title = "COVID19"),
   
   dashboardSidebar(
     sidebarMenu(
-      menuItem(text = "Plots", tabName = "plots", icon = icon("dashboard")),
+      menuItem(text = "Plots", tabName = "plots", icon = icon("charts")),
       menuItem(text = "Exponential growth models", tabName = "expmod", icon = icon("dashboard"))
     )
   ),
@@ -408,7 +408,9 @@ ui <- dashboardPage(
         tabName = "plots",
         
         fluidPage(
-          includeHTML("mainpage.html"),
+          withMathJax(
+            includeMarkdown("mainpage.Rmd")
+          ),
           
           sidebarLayout(
             sidebarPanel(
@@ -468,10 +470,12 @@ ui <- dashboardPage(
           
           box(
             plotOutput("expmod_plot"),
-            width = 12
+            width = 11
           ),
           
-          includeHTML("expmod_descriptions.html")
+          withMathJax(
+            includeMarkdown("expmod_descriptions.Rmd")
+          )
         )
       )
       
