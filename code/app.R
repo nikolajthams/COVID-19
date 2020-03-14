@@ -470,7 +470,7 @@ ui <- dashboardPage(
           
           box(
             plotOutput("expmod_plot"),
-            width = 11
+            width = 12
           ),
           
           withMathJax(
