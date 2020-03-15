@@ -380,7 +380,7 @@ data <- left_join(
 
     tmpdata$Cases <- predictions
   } else {
-    tmpdata$Cases <- exp(predict(model, tmpdata)) - 1
+    tmpdata$Cases <- predict(model, tmpdata) - 1
   }
 
   plotdata <- rbind(
@@ -645,7 +645,7 @@ server <- function(input, output) {
         "t" = (Date - as.Date(min(Date))) %>% as.numeric
       )
 
-    modelfit <- .fit_nls(input$expmod_countries, plotdata)
+    modelfit <- .fit_nls(input$expmod_countries, plotdata, F)
     .get_plots(modelfit, input$expmod_countries, plotdata)
   })
   
