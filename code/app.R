@@ -537,7 +537,7 @@ server <- function(input, output) {
   output$country_plot <- renderPlot({
     p <- ggplot(datasetInput() ,
                 aes_string(
-                  x = ifelse(input$rebase == FALSE, "Date", 't'),
+                  x = ifelse((input$rebase == FALSE & is.integer(input$rebase.value)), "Date", 't'),
                   y = input$output,
                   colour = "Country.Region"
                 )) +
