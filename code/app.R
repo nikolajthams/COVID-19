@@ -5,7 +5,7 @@ library(shiny)
 library(tidyverse)
 library(scales)
 library(shinydashboard)
-
+library(DT)
 
 # Function definitions ----------------------------------------------------
 
@@ -242,63 +242,87 @@ data <- left_join(
   )
 
 # Exponential growth models --------------------------------------------------------------
-.fit_nls <- function(country, dt) {
+.fit_nls <- function(country, dt, get_convergence = F) {
   if (length(country) > 1) {
     mm <- list()
-
+    fm0 <- list()
+    conv <- list()
     for (i in country) {
-      mm[[i]] <- lm(
+      fm0[[i]] <- lm(
         I(log(Cases + 1)) ~ t,
         data = dt,
         subset = Country.Region == i
-      ) #%>% coef
-      # names(fm0) <- c("l", "r")
-
-      # mm[[i]] <- nls(
-      #   I(Cases + 1) ~ (1 + r)**(t - l),
-      #   data = dt,
-      #   subset = Country.Region == i,
-      #   start = fm0,
-      #   control = nls.control(maxiter = 1e4)
-      # )
+      ) %>% coef
+       names(fm0[[i]]) <- c("l", "r")
+      
+      try({
+        mm[[i]] <- nls(
+          I(Cases + 1) ~ (1 + r)**(t - l),
+          data = filter(
+            dt,
+            Country.Region == i
+          ),
+          start = fm0[[i]],
+          control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10)
+        )
+        conv[[i]] <- "Yes"
+      }, silent = T)
+      
+      if (is.null(mm[[i]])) {
+        mm[[i]] <- nls2(
+          I(Cases + 1) ~ (1 + r)**(t - l),
+          data = filter(
+            dt,
+            Country.Region == country
+          ),
+          start = expand.grid(
+            "l" = seq(1, 20, length.out = 40),
+            "r" = seq(0, 1, length.out = 100)
+          ),
+          control = nls.control(maxiter = 1e3, minFactor = 1 / 2**10),
+          algorithm = "grid-search"
+        )
+        conv[[i]] <- "No"
+      }
+      
     }
   } else {
-    mm <- lm(
+    fm0 <- lm(
       I(log(Cases + 1)) ~ t,
       data = dt,
       subset = Country.Region %in% country
-    ) #%>% coef
-    # names(fm0) <- c("l", "r")
+    ) %>% coef
+    names(fm0) <- c("l", "r")
 
-    # mm <- NULL
-# 
-#     try({
-#       mm <- nls(
-#         I(Cases + 1) ~ (1 + r)**(t - l),
-#         data = filter(
-#           dt,
-#           Country.Region %in% country
-#         ),
-#         start = fm0,
-#         control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10)
-#       )
-#     }, silent = T)
-# 
-#     if (is.null(mm)) {
-#       mm <- nls2(
-#         I(Cases + 1) ~ (1 + r)**(t - l),
-#         data = filter(
-#           dt,
-#           Country.Region %in% country
-#         ),
-#         start = expand.grid(
-#           "l" = seq(1, 20, length.out = 100),
-#           "r" = seq(0, 1, length.out = 100)
-#         ),
-#         control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10),
-#         algorithm = "grid-search"
-#       )
-#     }
+    mm <- NULL
+
+    try({
+      mm <- nls(
+        I(Cases + 1) ~ (1 + r)**(t - l),
+        data = filter(
+          dt,
+          Country.Region %in% country
+        ),
+        start = fm0,
+        control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10)
+      )
+    }, silent = T)
+
+    if (is.null(mm)) {
+      mm <- nls2(
+        I(Cases + 1) ~ (1 + r)**(t - l),
+        data = filter(
+          dt,
+          Country.Region %in% country
+        ),
+        start = expand.grid(
+          "l" = seq(1, 20, length.out = 40),
+          "r" = seq(0, 1, length.out = 100)
+        ),
+        control = nls.control(maxiter = 1e3, minFactor = 1 / 2**10),
+        algorithm = "grid-search"
+      )
+    }
   }
 
   # fm0 <- lm(
@@ -316,9 +340,15 @@ data <- left_join(
   #   control = nls.control(maxiter = 1e4)
   # )
 
-  return(
-    mm
-  )
+  if (get_convergence) {
+    return(
+      list(mm, conv)
+    )
+  } else {
+    return(
+      mm
+    )
+  }
 }
 
 .get_plots <- function(model, country, dt, tmax = NULL) {
@@ -350,7 +380,7 @@ data <- left_join(
 
     tmpdata$Cases <- predictions
   } else {
-    tmpdata$Cases <- exp(predict(model, tmpdata)) - 1
+    tmpdata$Cases <- predict(model, tmpdata) - 1
   }
 
   plotdata <- rbind(
@@ -396,8 +426,9 @@ ui <- dashboardPage(
 
   dashboardSidebar(
     sidebarMenu(
-      menuItem(text = "Plots", tabName = "plots", icon = icon("charts")),
-      menuItem(text = "Exponential growth models", tabName = "expmod", icon = icon("dashboard"))
+      menuItem(text = "Plots", tabName = "plots", icon = icon("bar-chart-o")),
+      menuItem(text = "Exponential growth models", tabName = "expmod", icon = icon("dashboard")),
+      menuItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
     )
   ),
 
@@ -480,6 +511,20 @@ ui <- dashboardPage(
             includeMarkdown("expmod_descriptions.Rmd")
           )
         )
+      ),
+      
+      # Pane with comparison between models
+      tabItem(
+        tabName = "tables",
+        
+        fluidPage(
+          actionButton(
+            "compute", "Compute all models (at least 50+ cases)"
+          ),
+          
+          dataTableOutput("expmod_tables")
+          
+        )
       )
 
     )
@@ -488,10 +533,10 @@ ui <- dashboardPage(
 
 
 yaxislab <- c(
-  "Total confirmed cases"= "Cases",
+  "Total confirmed cases" = "Cases",
   "New confirmed cases" = "NewCases",
   "Still infected" = "StillSick",
-  "Percentage of population infected "= "PercentageOfPopulation" ,
+  "Percentage of population infected " = "PercentageOfPopulation" ,
   "Mortality rate (%)" = "MortalityRate",
   "Recovery rate (%)" = "RecoveryRate")
 
@@ -600,9 +645,82 @@ server <- function(input, output) {
         "t" = (Date - as.Date(min(Date))) %>% as.numeric
       )
 
-    modelfit <- .fit_nls(input$expmod_countries, plotdata)
+    modelfit <- .fit_nls(input$expmod_countries, plotdata, F)
     .get_plots(modelfit, input$expmod_countries, plotdata)
   })
+  
+  observeEvent(
+    input$compute,
+    {
+      output$expmod_tables <- renderDataTable({
+        dt <- data %>%
+          group_by(Country.Region) %>%
+          filter(
+            max(Cases) >= 50
+          ) %>%
+          ungroup %>%
+          mutate(
+            Country.Region = as.factor(Country.Region)
+          ) %>%
+          group_by(Country.Region) %>%
+          mutate(
+            LeadCases = ifelse(
+              is.na(lead(Cases)),
+              Inf,
+              lead(Cases)
+            )
+          ) %>%
+          ungroup %>% {
+            LastDayBecoreConfirmedCase <-
+              (.) %>% arrange(Date) %>% filter(LeadCases > 0) %>% summarize(min(Date)) %>% pull()
+            (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
+          } %>% 
+          select(-LeadCases) %>%
+          mutate(
+            "t" = (Date - as.Date(min(Date))) %>% as.numeric,
+            "PercentageOfPopulation" = (Cases / Population) * 100
+          )
+        
+        country_list <- dt$Country.Region %>% unique
+        withProgress(
+          message = "Computing models, please stand by",
+          value = 0,
+          {
+            models <- .fit_nls(
+              country_list,
+              dt,
+              T
+            )
+            incProgress(1, detail = "")
+          }
+        )
+        
+        
+        tables <- lapply(
+          models[[1]],
+          FUN = function(x) round(abs(coef(x)), 4)
+        ) %>% do.call("rbind", .)
+        conv_status <- do.call("rbind", models[[2]])
+    
+        out <- as.data.frame(
+          cbind(
+            rownames(tables), 
+            tables,
+            conv_status
+          )
+        )
+        
+        names(out) <- c(
+          "Country",
+          "Estimated lag-phase", 
+          "Estimated rate of infection",
+          "Did the model converge?"
+        )
+        
+        out
+      })
+    }
+  )
 
 }
 shinyApp(ui = ui, server = server)
