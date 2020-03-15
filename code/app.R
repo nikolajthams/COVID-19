@@ -567,7 +567,7 @@ server <- function(input, output) {
       ) %>%
       ungroup %>% {
         LastDayBecoreConfirmedCase <-
-          (.) %>% arrange(Date) %>% filter(LeadCases > input$rebase.value) %>% summarize(min(Date)) %>% pull()
+          (.) %>% arrange(Date) %>% filter(LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)) %>% summarize(min(Date)) %>% pull()
         (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
       } %>% 
       select(-LeadCases) %>%
