@@ -601,16 +601,19 @@ server <- function(input, output) {
           lead(Cases)
         )
       ) %>%
-      ungroup %>% {
-        LastDayBecoreConfirmedCase <-
-          (.) %>% arrange(Date) %>% filter(LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)) %>% summarize(min(Date)) %>% pull()
-        (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
-      } %>% 
+      filter(
+        LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)
+      ) %>% 
+      # ungroup %>% {
+      #   LastDayBecoreConfirmedCase <-
+      #     (.) %>% arrange(Date) %>% filter(LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)) %>% summarize(min(Date)) %>% pull()
+      #   (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
+      # } %>% 
       select(-LeadCases) %>%
       mutate(
         "t" = (Date - as.Date(min(Date))) %>% as.numeric,
         "PercentageOfPopulation" = (Cases / Population) * 100
-      )
+      ) %>% ungroup
   })
 
 
