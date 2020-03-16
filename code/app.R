@@ -6,6 +6,7 @@ library(tidyverse)
 library(scales)
 library(shinydashboard)
 library(DT)
+library(plotly)
 
 
 # Define data paths -------------------------------------------------------
@@ -508,7 +509,7 @@ ui <- dashboardPage(
             ),
 
             mainPanel(
-              plotOutput("country_plot")
+              plotlyOutput("country_plot")
             )
           )
         )
@@ -615,15 +616,15 @@ server <- function(input, output) {
 
 
 
-  output$country_plot <- renderPlot({
-    p <- ggplot(datasetInput() ,
+  output$country_plot <- renderPlotly({
+    p <- ggplot(datasetInput(),
                 aes_string(
                   x = ifelse((input$rebase == FALSE & is.integer(input$rebase.value)), "Date", 't'),
                   y = input$output,
                   colour = "Country.Region"
                 )) +
-      geom_line()
-    
+      geom_line() + labs(colour="Country")
+
     if(input$rebase == FALSE){
       p <- p + scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
     } else {
@@ -635,6 +636,7 @@ server <- function(input, output) {
     p <- p + theme_minimal()+
       ylab(names(yaxislab)[yaxislab == input$output])
 
+    p = ggplotly(p)
     p
   })
   
