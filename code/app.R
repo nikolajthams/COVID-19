@@ -6,7 +6,7 @@ library(tidyverse)
 library(scales)
 library(shinydashboard)
 library(DT)
-library(plotly)
+# library(plotly)
 
 
 # Define data paths -------------------------------------------------------
@@ -14,7 +14,7 @@ source("data_paths.R")
 
 # Function definitions ----------------------------------------------------
 
-nls2 <- function (formula, data = parent.frame(), start, control = nls.control(),
+nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
           algorithm = c("default", "plinear", "port", "brute-force",
                         "grid-search", "random-search", "plinear-brute", "plinear-random"),
           trace = FALSE, weights, ..., all = FALSE)
@@ -452,6 +452,10 @@ ui <- dashboardPage(
   ),
 
   dashboardBody(
+    # tags$head(includeScript("GoogleAnalytics.js")),
+    tags$head(HTML("<script async src='https://www.googletagmanager.com/gtag/js?id=UA-160709431-1'
+></script>")),
+    tags$head(includeScript("analytics.js")),
     tabItems(
       # Welcome page
       tabItem(
@@ -509,7 +513,7 @@ ui <- dashboardPage(
             ),
 
             mainPanel(
-              plotlyOutput("country_plot")
+              plotOutput("country_plot")
             )
           )
         )
@@ -619,7 +623,7 @@ server <- function(input, output) {
 
 
 
-  output$country_plot <- renderPlotly({
+  output$country_plot <- renderPlot({
     p <- ggplot(datasetInput(),
                 aes_string(
                   x = ifelse((input$rebase == FALSE & is.integer(input$rebase.value)), "Date", 't'),
@@ -639,7 +643,7 @@ server <- function(input, output) {
     p <- p + theme_minimal()+
       ylab(names(yaxislab)[yaxislab == input$output])
 
-    p = ggplotly(p)
+    # p = ggplotly(p)
     p
   })
 
