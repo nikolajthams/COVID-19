@@ -259,8 +259,8 @@ data <- left_join(
         subset = Country.Region == i
       ) %>% coef
        names(fm0[[i]]) <- c("l", "r")
-       
-      
+
+
       try({
         mm[[i]] <- nls(
           I(Cases + 1) ~ (1 + r)**(t - l),
@@ -273,7 +273,7 @@ data <- left_join(
         )
         conv[[i]] <- "Yes"
       }, silent = T)
-      
+
       if (is.null(mm[[i]])) {
         mm[[i]] <- nls2(
           I(Cases + 1) ~ (1 + r)**(t - l),
@@ -290,7 +290,7 @@ data <- left_join(
         )
         conv[[i]] <- "No"
       }
-      
+
     }
   } else {
     fm0 <- lm(
@@ -456,14 +456,14 @@ ui <- dashboardPage(
       # Welcome page
       tabItem(
         tabName = "mainpage",
-        
+
         fluidPage(
           withMathJax(
             includeMarkdown("mainpage.Rmd")
           )
         )
       ),
-      
+
       # Pane with country plots
       tabItem(
         tabName = "plots",
@@ -538,29 +538,29 @@ ui <- dashboardPage(
           )
         )
       ),
-      
+
       # Pane with model text
       tabItem(
         tabName = "expmod_sub1",
-        
+
         fluidPage(
           withMathJax(
             includeMarkdown("expmod_detailed.Rmd")
           )
         )
       ),
-      
+
       # Pane with comparison between models
       tabItem(
         tabName = "tables",
-        
+
         fluidPage(
           actionButton(
             "compute", "Compute all models (at least 50+ cases)"
           ),
-          
+
           dataTableOutput("expmod_tables")
-          
+
         )
       )
 
@@ -602,16 +602,19 @@ server <- function(input, output) {
           lead(Cases)
         )
       ) %>%
-      ungroup %>% {
-        LastDayBecoreConfirmedCase <-
-          (.) %>% arrange(Date) %>% filter(LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)) %>% summarize(min(Date)) %>% pull()
-        (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
-      } %>% 
+      filter(
+        LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)
+      ) %>%
+      # ungroup %>% {
+      #   LastDayBecoreConfirmedCase <-
+      #     (.) %>% arrange(Date) %>% filter(LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)) %>% summarize(min(Date)) %>% pull()
+      #   (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
+      # } %>%
       select(-LeadCases) %>%
       mutate(
         "t" = (Date - as.Date(min(Date))) %>% as.numeric,
         "PercentageOfPopulation" = (Cases / Population) * 100
-      )
+      ) %>% ungroup
   })
 
 
@@ -639,7 +642,7 @@ server <- function(input, output) {
     p = ggplotly(p)
     p
   })
-  
+
   output$downloadData <- downloadHandler(
     filename = function() {
       paste("COVID19_", paste(sort(input$countries), collapse = "_"), ".csv", sep =
@@ -686,7 +689,7 @@ server <- function(input, output) {
     modelfit <- .fit_nls(input$expmod_countries, plotdata, F)
     .get_plots(modelfit, input$expmod_countries, plotdata)
   })
-  
+
   observeEvent(
     input$compute,
     {
@@ -710,14 +713,14 @@ server <- function(input, output) {
           ) %>%
           filter(
             LeadCases > 0
-          ) %>% 
+          ) %>%
           select(-LeadCases) %>%
           mutate(
             "t" = (Date - as.Date(min(Date))) %>% as.numeric,
             "PercentageOfPopulation" = (Cases / Population) * 100
           ) %>%
           ungroup
-        
+
         country_list <- dt$Country.Region %>% unique
         withProgress(
           message = "Computing models, please stand by",
@@ -731,32 +734,32 @@ server <- function(input, output) {
             incProgress(1, detail = "")
           }
         )
-        
-        
+
+
         tables <- lapply(
           models[[1]],
           FUN = function(x) round(abs(coef(x)), 4)
         ) %>% do.call("rbind", .)
         conv_status <- do.call("rbind", models[[2]])
-    
+
         out <- as.data.frame(
           cbind(
-            rownames(tables), 
+            rownames(tables),
             tables,
             conv_status
           )
         )
-        
+
         rownames(out) <- NULL
         names(out) <- c(
           "Country",
-          "Estimated lag-phase", 
+          "Estimated lag-phase",
           "Estimated rate of infection",
           "Did the model converge?"
         )
-        
+
         out <- arrange(out, Country)
-        
+
         out
       })
     }
