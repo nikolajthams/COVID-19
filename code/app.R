@@ -507,7 +507,7 @@ ui <- dashboardPage(
               downloadButton("downloadData", "Download Selected Data")
             ),
 
-            mainPanel(
+            mainPanel(width = 12,
               plotOutput("country_plot")
             )
           )
@@ -627,7 +627,7 @@ server <- function(input, output) {
                 )) +
       geom_line()
     
-    if(input$rebase == FALSE){
+    if (input$rebase == FALSE) {
       p <- p + scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
     } else {
       p <- p + xlab(paste("Days since patient ", input$rebase.value))
