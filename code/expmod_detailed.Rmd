@@ -1,0 +1,12 @@
+---
+title: ''
+output: html_document
+---
+
+# How to interpret the models:
+There are two parameters of interest in the models that we fit here; the rate of infection ($r$) and the lag-phase duration ($l$). The way that you should interpret can be illustrated with a small example:
+
+Suppose that Sweden has a rate of infection $r = 0.33$ and a lag-phase duration $l = 19.6$ -- these are the estimated values for the first $45$ days after the first confirmed case in Sweden. We -- loosely -- interpret the lag-phase as the time it takes until the disease spread really kicks in. That is, up until the $20^{\text{th}}$ day, the outbreak was relatively contained. After this point, we start seeing an exponential growth in the number of confirmed cases. In particular, after this point we estimate that the number of people that are infected by the virus increases by $33\%$ per day -- this is exactly the infection rate. That is, if there are $100$ people infected today, we expect that there will be $100\cdot 1.33 = 133$ patients infected tomorrow.
+
+# Limitations:
+While these models appear to accurately describe the disease spread in many countries at the time of writing (March 16, 2020), there are obvious limitations to this model class. The most obvious is, that we in no way account for the fact that people will start to become healthy again at some point, which reduces the number of infections. That is, we do not model the *current* number of infections. Instead, we are modelling the *cumulative* number of infections, i.e. how many infections have there been in total throughout the lifetime of the outbreak. The second limitation is that, after a while, we will start seeing a plateau in the number of infections. The worst-case-scenario is that everyone becomes infected, which would then cause the curve to flatten -- this is not captured by our models. A more likely scenario is that the disease spread becomes contained through both active and passive interventions, e.g. government interventions and awareness. This would, again, cause the curve to flatten. These models, then, should only be though of as a describtion of how the initial outbreak (up to any interventions) looked for a specific country.

@@ -7,6 +7,10 @@ library(scales)
 library(shinydashboard)
 library(DT)
 
+
+# Define data paths -------------------------------------------------------
+source("data_paths.R")
+
 # Function definitions ----------------------------------------------------
 
 nls2 <- function (formula, data = parent.frame(), start, control = nls.control(),
@@ -109,7 +113,7 @@ nls2 <- function (formula, data = parent.frame(), start, control = nls.control()
 
 # Load confirmed data ---------------------------------------------------------------
 data <- read.csv2(
-  "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv",
+  cases_path,
   sep = ","
 )
 # Drop irrelevant data
@@ -135,7 +139,7 @@ data %<>% group_by(Country.Region) %>%
 
 
 # Add population data -------------------------------------------------------------
-cdata <- "data/pop_data.csv" %>%
+cdata <- pop_path %>%
   read_delim(
     .,
     delim = ","
@@ -173,7 +177,7 @@ data <- left_join(
 
 # Add recovery data ------------------------------------------------------
 data_r <- read.csv2(
-  "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv",
+  recover_path,
   sep = ","
 )
 # Drop irrelevant data
@@ -206,7 +210,7 @@ data <- left_join(
 
 # Add mortality data ------------------------------------------------------
 data_r <- read.csv2(
-  "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv",
+  death_path,
   sep = ","
 )
 # Drop irrelevant data
@@ -254,6 +258,7 @@ data <- left_join(
         subset = Country.Region == i
       ) %>% coef
        names(fm0[[i]]) <- c("l", "r")
+       
       
       try({
         mm[[i]] <- nls(
@@ -424,25 +429,45 @@ ui <- dashboardPage(
 
   dashboardHeader(title = "COVID19"),
 
-  dashboardSidebar(
+  dashboardSidebar(width = 250,
     sidebarMenu(
+      menuItem(text = "Welcome page", tabName = "mainpage", icon = icon("file-alt")),
       menuItem(text = "Plots", tabName = "plots", icon = icon("bar-chart-o")),
-      menuItem(text = "Exponential growth models", tabName = "expmod", icon = icon("dashboard")),
+      menuItem(
+        text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
+        menuSubItem(
+          text = "Detailed model descriptions",
+          tabName = "expmod_sub1",
+          icon = icon("file-alt")
+        ),
+        menuSubItem(
+          text = "Fit models",
+          tabName = "expmod",
+          icon = icon("dashboard")
+        )
+      ),
       menuItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
     )
   ),
 
   dashboardBody(
     tabItems(
+      # Welcome page
+      tabItem(
+        tabName = "mainpage",
+        
+        fluidPage(
+          withMathJax(
+            includeMarkdown("mainpage.Rmd")
+          )
+        )
+      ),
+      
       # Pane with country plots
       tabItem(
         tabName = "plots",
 
         fluidPage(
-          withMathJax(
-            includeMarkdown("mainpage.Rmd")
-          ),
-
           sidebarLayout(
             sidebarPanel(
               radioButtons(
@@ -458,9 +483,9 @@ ui <- dashboardPage(
                 selected = "Denmark",
                 multiple = T
               ),
-              checkboxInput("rebase", "Rebase?", FALSE),
+              checkboxInput("rebase", "View graph from patient number x", FALSE),
               conditionalPanel("input.rebase",
-                               numericInput('rebase.value', 'Rebase at', value=1, min=1, step=20)),
+                               numericInput('rebase.value', 'Patient number', value=1, min=1, step=20)),
 
               radioButtons(
                 "output",
@@ -509,6 +534,17 @@ ui <- dashboardPage(
 
           withMathJax(
             includeMarkdown("expmod_descriptions.Rmd")
+          )
+        )
+      ),
+      
+      # Pane with model text
+      tabItem(
+        tabName = "expmod_sub1",
+        
+        fluidPage(
+          withMathJax(
+            includeMarkdown("expmod_detailed.Rmd")
           )
         )
       ),
@@ -670,16 +706,15 @@ server <- function(input, output) {
               lead(Cases)
             )
           ) %>%
-          ungroup %>% {
-            LastDayBecoreConfirmedCase <-
-              (.) %>% arrange(Date) %>% filter(LeadCases > 0) %>% summarize(min(Date)) %>% pull()
-            (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
-          } %>% 
+          filter(
+            LeadCases > 0
+          ) %>% 
           select(-LeadCases) %>%
           mutate(
             "t" = (Date - as.Date(min(Date))) %>% as.numeric,
             "PercentageOfPopulation" = (Cases / Population) * 100
-          )
+          ) %>%
+          ungroup
         
         country_list <- dt$Country.Region %>% unique
         withProgress(
@@ -710,12 +745,15 @@ server <- function(input, output) {
           )
         )
         
+        rownames(out) <- NULL
         names(out) <- c(
           "Country",
           "Estimated lag-phase", 
           "Estimated rate of infection",
           "Did the model converge?"
         )
+        
+        out <- arrange(out, Country)
         
         out
       })
