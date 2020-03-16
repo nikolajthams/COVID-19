@@ -6,6 +6,7 @@ library(tidyverse)
 library(scales)
 library(shinydashboard)
 library(DT)
+library(knitr)
 # library(plotly)
 
 
@@ -513,7 +514,8 @@ ui <- dashboardPage(
             ),
 
             mainPanel(
-              plotOutput("country_plot")
+              plotOutput("country_plot", hover = "plot_hover",hoverDelay = 0),
+              uiOutput("dynamic")
             )
           )
         )
@@ -630,7 +632,7 @@ server <- function(input, output) {
                   y = input$output,
                   colour = "Country.Region"
                 )) +
-      geom_line() + labs(colour="Country")
+      geom_line() + geom_point() + labs(colour="Country")
 
     if(input$rebase == FALSE){
       p <- p + scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
@@ -645,6 +647,18 @@ server <- function(input, output) {
 
     # p = ggplotly(p)
     p
+  })
+  
+  output$dynamic <- renderPrint({
+    req(input$plot_hover)
+    verbatimTextOutput("vals")
+  })
+  
+  output$vals <- renderPrint({
+    hover <- input$plot_hover
+    HoverData <- nearPoints(datasetInput(),input$plot_hover) %>%  select(Country.Region,Date,input$output)
+    req(nrow(HoverData) != 0)
+    knitr::kable(HoverData, "pandoc")
   })
 
   output$downloadData <- downloadHandler(
