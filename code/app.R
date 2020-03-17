@@ -7,7 +7,7 @@ library(scales)
 library(shinydashboard)
 library(DT)
 library(knitr)
-# library(plotly)
+library(plotly)
 
 
 # Define data paths -------------------------------------------------------
@@ -517,8 +517,8 @@ ui <- dashboardPage(
               
               div(
                 style = "position:relative",
-                plotOutput("country_plot", 
-                           hover = hoverOpts("plot_hover", delay = 100, delayType = "debounce")),
+                plotlyOutput("country_plot"), 
+                           # hover = hoverOpts("plot_hover", delay = 100, delayType = "debounce")),
                 uiOutput("hover_info")
               )
               
@@ -631,7 +631,7 @@ server <- function(input, output) {
 
 
 
-  output$country_plot <- renderPlot({
+  output$country_plot <- renderPlotly({
     p <- ggplot(datasetInput(),
                 aes_string(
                   x = ifelse((input$rebase == FALSE & is.integer(input$rebase.value)), "Date", 't'),
@@ -649,9 +649,11 @@ server <- function(input, output) {
       p <- p + scale_y_continuous(trans = 'log10')
     }
     p <- p + theme_minimal()+
+      ggtitle(names(yaxislab)[yaxislab == input$output]) + 
+      theme(plot.title = element_text(hjust = 0.5)) + 
       ylab(names(yaxislab)[yaxislab == input$output])
 
-    # p = ggplotly(p)
+    p = ggplotly(p)
     p
   })
   
