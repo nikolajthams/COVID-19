@@ -397,7 +397,7 @@ data <- left_join(
 
   plotdata$Group <- as.factor(plotdata$Method):as.factor(plotdata$Country.Region)
 
-  return({
+  return({ggplotly(
     ggplot(
       data = plotdata,
       aes(x = t-1, y = Cases, color = Method)
@@ -421,7 +421,7 @@ data <- left_join(
       theme_minimal() +
       theme(text = element_text(size = 12),legend.position="bottom")+
       labs(colour ="Method:")
-  })
+  )})
 }
 
 
@@ -541,7 +541,7 @@ ui <- dashboardPage(
           ),
 
           box(
-            plotOutput("expmod_plot"),
+            plotlyOutput("expmod_plot"),
             width = 12
           ),
 
@@ -711,7 +711,7 @@ server <- function(input, output) {
     }
   )
 
-  output$expmod_plot <- renderPlot({
+  output$expmod_plot <- renderPlotly({
     validate(
       need(
         input$expmod_countries != "",
