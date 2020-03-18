@@ -461,9 +461,9 @@ ui <- dashboardPage(
       menuItem(
         text = "Plots", tabName = "plots", icon = icon("bar-chart-o")
       ),
-      menuItem(
-        text = "Danish data", tabName = "ssidat", icon = icon("bar-chart-o")
-      ),
+      # menuItem(
+      #   text = "Danish data", tabName = "ssidat", icon = icon("bar-chart-o")
+      # ),
       menuItem(
         text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
         menuSubItem(
@@ -561,14 +561,14 @@ ui <- dashboardPage(
         )
       ),
       
-      # Pane with Danish data:
-      tabItem(
-        tabName = "ssidat",
-        
-        fluidPage(
-          plotlyOutput("ssiPlot")
-        )
-      ),
+      # # Pane with Danish data:
+      # tabItem(
+      #   tabName = "ssidat",
+      #   
+      #   fluidPage(
+      #     plotlyOutput("ssiPlot")
+      #   )
+      # ),
 
       # Pane with exponential growth models
       tabItem(
@@ -809,29 +809,29 @@ server <- function(input, output) {
     all_models
   })
   
-  output$ssiPlot <- renderPlotly({
-    ssiPlotData <- ssi %>%
-      select(
-        Date,
-        "Lab confirmed cases",
-        Tested
-      ) %>% melt(., id.vars = "Date")
-    
-    p1 <- ggplot(
-      data = ssiPlotData,
-      aes(
-        x = Date,
-        y = value,
-        colour = variable
-      )
-    ) + 
-      geom_line() + 
-      theme_minimal() + 
-      theme(text = element_text(size = 12), legend.position = "bottom") + 
-      xlab("Date") + ylab("Value") + labs(colour = "")
-    
-    ggplotly(p1)
-  })
+  # output$ssiPlot <- renderPlotly({
+  #   ssiPlotData <- ssi %>%
+  #     select(
+  #       Date,
+  #       "Lab confirmed cases",
+  #       Tested
+  #     ) %>% melt(., id.vars = "Date")
+  #   
+  #   p1 <- ggplot(
+  #     data = ssiPlotData,
+  #     aes(
+  #       x = Date,
+  #       y = value,
+  #       colour = variable
+  #     )
+  #   ) + 
+  #     geom_line() + 
+  #     theme_minimal() + 
+  #     theme(text = element_text(size = 12), legend.position = "bottom") + 
+  #     xlab("Date") + ylab("Value") + labs(colour = "")
+  #   
+  #   ggplotly(p1)
+  # })
   
 
 }
