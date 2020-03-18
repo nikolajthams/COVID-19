@@ -428,12 +428,10 @@ data <- left_join(
 
 # UI ----------------------------------------------------------------------
 ui <- dashboardPage(
-
   dashboardHeader(title = "COVID19"),
 
   dashboardSidebar(width = 250,
     sidebarMenu(
-      menuItem(text = "Welcome page", tabName = "mainpage", icon = icon("file-alt")),
       menuItem(text = "Plots", tabName = "plots", icon = icon("bar-chart-o")),
       menuItem(
         text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
@@ -448,7 +446,8 @@ ui <- dashboardPage(
           icon = icon("dashboard")
         )
       ),
-      menuItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
+      menuItem(text = "Compare models by country", tabName = "tables", icon = icon("table")),
+      menuItem(text = "About", tabName = "mainpage", icon = icon("file-alt"))
     )
   ),
 
@@ -520,8 +519,12 @@ ui <- dashboardPage(
                 plotlyOutput("country_plot"), 
                            # hover = hoverOpts("plot_hover", delay = 100, delayType = "debounce")),
                 uiOutput("hover_info")
+              ),
+              fluidPage(
+                withMathJax(
+                  includeMarkdown("text_below_plot.md")
+                )
               )
-              
             )
           )
         )
@@ -544,7 +547,8 @@ ui <- dashboardPage(
             plotlyOutput("expmod_plot"),
             width = 12
           ),
-
+          
+          br(), br(), br(),
           withMathJax(
             includeMarkdown("expmod_descriptions.Rmd")
           )
@@ -672,7 +676,7 @@ server <- function(input, output) {
     top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
     
     # create style property fot tooltip
-    # background color is set so tooltip is a bit transparent
+    # color is set so tooltip is a bit transparent
     # z-index is set so we are sure are tooltip will be on top
     style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                     "left:", left_px + 2, "px; top:", top_px + 2, "px;")
