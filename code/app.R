@@ -140,6 +140,16 @@ data %<>% group_by(Country.Region) %>%
   ungroup()
 
 
+
+
+# Load Danish data from SSI -----------------------------------------------
+ssi <- "data/ssi.csv" %>%
+  read_delim(
+    .,
+    delim = ","
+  ) %>%
+  dplyr::select(-X1)
+
 # Add population data -------------------------------------------------------------
 cdata <- pop_path %>%
   read_delim(
@@ -585,6 +595,8 @@ yaxislab <- c(
   "Total confirmed cases" = "Cases",
   "New confirmed cases" = "NewCases",
   "Still infected" = "StillSick",
+  "Cumulative recovered patients" = "Recovered",
+  "Cumulative deaths" = "Deaths",
   "Percentage of population infected " = "PercentageOfPopulation" ,
   "Mortality rate (%)" = "MortalityRate",
   "Recovery rate (%)" = "RecoveryRate")
