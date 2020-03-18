@@ -10,8 +10,10 @@ John Hopkins University maintains a database of world-wide confirmed COVID-19 ca
 
 **COVID19 data:** John Hopkins University ([GitHub](https://github.com/CSSEGISandData/COVID-19), [Dashboard] (https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)). 
 
-**Udate frequency:** The John Hopkins github database is currently updated once daily, shortly after which we feed this dashboards with the updated data. 
+**Update frequency:** The John Hopkins github database is currently updated once daily, shortly after which we feed this dashboards with the updated data. 
 
 **Validity of data:** The situation on COVID-19 is developing rapidly, and we're vastly grateful for the work done by John Hopkins. While there may be misreportings in the data, they are often quickly solved. 
 
 **Population data:** https://www.worldometers.info/world-population/population-by-country/
+
+**Terms of use:** Please be aware of the [terms of use](https://github.com/CSSEGISandData/COVID-19) for the John Hopkins data. If you wish to use our dashboard, naturally you must obey to these. Further, we take no responsibilities for the correctness of displayed data, processing nor modelling. 
