@@ -475,9 +475,10 @@ ui <- dashboardPage(
           text = "Fit models",
           tabName = "expmod",
           icon = icon("dashboard")
-        )
+        ),
+        menuSubItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
       ),
-      menuItem(text = "Compare models by country", tabName = "tables", icon = icon("table")),
+      
       menuItem(text = "About", tabName = "mainpage", icon = icon("file-alt"))
     )
   ),
@@ -557,7 +558,9 @@ ui <- dashboardPage(
                 )
               )
             )
-          )
+          ),
+          
+          textOutput("JH_data_lastupdate")
         )
       ),
       
@@ -672,7 +675,14 @@ server <- function(input, output) {
       ) %>% ungroup
   })
 
-
+  output$JH_data_lastupdate <- renderText({
+    paste(
+      "John Hopkins data was last updated at:",
+      file.info(cases_path)$mtime,
+      "(Central European Time)",
+      sep = " "
+    )
+  })
 
   output$country_plot <- renderPlotly({
     p <- ggplot(datasetInput(),
@@ -795,6 +805,7 @@ server <- function(input, output) {
     paste(
       "Models were last updated at:",
       file.info("data/all_models.csv")$mtime,
+      "(Central European Time)",
       sep = " "
     )
   })
