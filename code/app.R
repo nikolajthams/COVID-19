@@ -689,9 +689,9 @@ server <- function(input, output) {
       p <- p + xlab(paste("Days since patient ", input$rebase.value))
     }
     if (input$log == "log") {
-      p <- p + scale_y_continuous(trans = 'log10')
+      p <- p + scale_y_log10()
     }
-    p <- p + theme_minimal()+
+    p <- p + theme_minimal() +
       ggtitle(names(yaxislab)[yaxislab == input$output]) + 
       theme(plot.title = element_text(hjust = 0.5)) + 
       ylab(names(yaxislab)[yaxislab == input$output])
