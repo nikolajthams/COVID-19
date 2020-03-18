@@ -139,17 +139,6 @@ data %<>% group_by(Country.Region) %>%
          NewCases = ifelse(is.na(NewCases), 0, NewCases)) %>%
   ungroup()
 
-
-
-
-# Load Danish data from SSI -----------------------------------------------
-ssi <- "data/ssi.csv" %>%
-  read_delim(
-    .,
-    delim = ","
-  ) %>%
-  dplyr::select(-X1)
-
 # Add population data -------------------------------------------------------------
 cdata <- pop_path %>%
   read_delim(
@@ -256,6 +245,33 @@ data <- left_join(
     "MortalityRate" = (Deaths / Cases) * 100,
     "RecoveryRate"  = (Recovered / Cases) * 100
   )
+
+
+# Load Danish data from SSI -----------------------------------------------
+ssi <- "data/ssi.csv" %>%
+  read_delim(
+    .,
+    delim = ","
+  ) %>%
+  dplyr::select(-X1) %>%
+  mutate(
+    Date = ifelse(
+      Date == "27. januar - 3. marts",
+      "3. marts",
+      Date
+    ),
+    Date = gsub(". marts", "/03/2020", Date) %>% as.Date(., format = "%d/%m/%Y"),
+    InfectionRate = `Lab confirmed cases` / Tested
+  ) %>%
+  left_join(
+    .,
+    filter(
+      data,
+      Country.Region == "Denmark"
+    ),
+    by = "Date"
+  ) %>%
+  select(-Country.Region)
 
 # Exponential growth models --------------------------------------------------------------
 .fit_nls <- function(country, dt, get_convergence = F) {
@@ -429,7 +445,7 @@ data <- left_join(
         )
       ) +
       theme_minimal() +
-      theme(text = element_text(size = 12),legend.position="bottom")+
+      theme(text = element_text(size = 12),legend.position="bottom") +
       labs(colour ="Method:")
   )})
 }
@@ -442,7 +458,12 @@ ui <- dashboardPage(
 
   dashboardSidebar(width = 250,
     sidebarMenu(
-      menuItem(text = "Plots", tabName = "plots", icon = icon("bar-chart-o")),
+      menuItem(
+        text = "Plots", tabName = "plots", icon = icon("bar-chart-o")
+      ),
+      menuItem(
+        text = "Danish data", tabName = "ssidat", icon = icon("bar-chart-o")
+      ),
       menuItem(
         text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
         menuSubItem(
@@ -537,6 +558,15 @@ ui <- dashboardPage(
               )
             )
           )
+        )
+      ),
+      
+      # Pane with Danish data:
+      tabItem(
+        tabName = "ssidat",
+        
+        fluidPage(
+          plotlyOutput("ssiPlot")
         )
       ),
 
@@ -778,6 +808,31 @@ server <- function(input, output) {
     
     all_models
   })
+  
+  output$ssiPlot <- renderPlotly({
+    ssiPlotData <- ssi %>%
+      select(
+        Date,
+        "Lab confirmed cases",
+        Tested
+      ) %>% melt(., id.vars = "Date")
+    
+    p1 <- ggplot(
+      data = ssiPlotData,
+      aes(
+        x = Date,
+        y = value,
+        colour = variable
+      )
+    ) + 
+      geom_line() + 
+      theme_minimal() + 
+      theme(text = element_text(size = 12), legend.position = "bottom") + 
+      xlab("Date") + ylab("Value") + labs(colour = "")
+    
+    ggplotly(p1)
+  })
+  
 
 }
 shinyApp(ui = ui, server = server)
