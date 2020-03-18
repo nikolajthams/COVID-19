@@ -241,7 +241,7 @@ data <- left_join(
   )
 ) %>%
   mutate(
-    "StillSick" = Cases - (Recovered + Deaths),
+    "StillInfected" = Cases - (Recovered + Deaths),
     "MortalityRate" = (Deaths / Cases) * 100,
     "RecoveryRate"  = (Recovered / Cases) * 100
   )
@@ -510,19 +510,20 @@ ui <- dashboardPage(
               radioButtons(
                 "log",
                 "Y-axis scale",
-                choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log")
+                choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log"),
+                selected="log"
               ),
 
               selectInput(
                 "countries",
                 "Countries",
                 choices = data$Country.Region,
-                selected = "Denmark",
+                selected = c("Denmark", "Italy", "United Kingdom", "US", "Spain"),
                 multiple = T
               ),
-              checkboxInput("rebase", "View graph from patient number x", FALSE),
+              checkboxInput("rebase", "View graph from patient number x", TRUE),
               conditionalPanel("input.rebase",
-                               numericInput('rebase.value', 'Patient number', value=1, min=1, step=20)),
+                               numericInput('rebase.value', 'Patient number', value=100, min=1, step=20)),
 
               radioButtons(
                 "output",
@@ -530,7 +531,7 @@ ui <- dashboardPage(
                 choices = c(
                   "Total confirmed cases" = "Cases",
                   "New confirmed cases" = "NewCases",
-                  "Still infected" = "StillSick",
+                  "Still infected" = "StillInfected",
                   "Recovered" = "Recovered",
                   "Deaths" = "Deaths",
                   "Percentage of population infected" = "PercentageOfPopulation",
@@ -628,10 +629,10 @@ ui <- dashboardPage(
 yaxislab <- c(
   "Total confirmed cases" = "Cases",
   "New confirmed cases" = "NewCases",
-  "Still infected" = "StillSick",
+  "Still infected" = "StillInfected",
   "Cumulative recovered patients" = "Recovered",
   "Cumulative deaths" = "Deaths",
-  "Percentage of population infected " = "PercentageOfPopulation" ,
+  "Population infected (%)" = "PercentageOfPopulation" ,
   "Mortality rate (%)" = "MortalityRate",
   "Recovery rate (%)" = "RecoveryRate")
 
@@ -685,18 +686,25 @@ server <- function(input, output) {
   })
 
   output$country_plot <- renderPlotly({
-    p <- ggplot(datasetInput(),
-                aes_string(
-                  x = ifelse((input$rebase == FALSE & is.integer(input$rebase.value)), "Date", 't'),
-                  y = input$output,
-                  colour = "Country.Region"
-                )) +
-      geom_line() + geom_point() + labs(colour="Country")
-
-    if(input$rebase == FALSE){
-      p <- p + scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
+    patient.x.name = paste("Days since patient", input$rebase.value)
+    
+    if(input$rebase == TRUE){
+      p <- ggplot(datasetInput()%>%rename(!!patient.x.name:="t"),
+                  aes_string(
+                    x = paste("`", patient.x.name, "`", sep = ""),
+                    y = input$output,
+                    colour = "Country.Region", 
+                    label = "Date"
+                  )) + 
+        xlab(paste("Days since patient ", input$rebase.value)) + scale_x_continuous(breaks=c(0, seq(7,1000,7)))# + geom_point(aes_string(text = hover.date))
     } else {
-      p <- p + xlab(paste("Days since patient ", input$rebase.value))
+      p <- ggplot(datasetInput(),
+                  aes_string(
+                    x = "Date",
+                    y = input$output,
+                    colour = "Country.Region"
+                  )) + 
+        scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
     }
     if (input$log == "log") {
       p <- p + scale_y_log10()
@@ -705,7 +713,8 @@ server <- function(input, output) {
       ggtitle(names(yaxislab)[yaxislab == input$output]) + 
       theme(plot.title = element_text(hjust = 0.5)) + 
       ylab(names(yaxislab)[yaxislab == input$output])
-
+    
+    p = p + geom_line() + geom_point(alpha=0.5, size=1.2) + labs(colour="Country")
     p = ggplotly(p)
     p
   })
