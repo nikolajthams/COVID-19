@@ -247,31 +247,31 @@ data <- left_join(
   )
 
 
-# Load Danish data from SSI -----------------------------------------------
-ssi <- "data/ssi.csv" %>%
-  read_delim(
-    .,
-    delim = ","
-  ) %>%
-  dplyr::select(-X1) %>%
-  mutate(
-    Date = ifelse(
-      Date == "27. januar - 3. marts",
-      "3. marts",
-      Date
-    ),
-    Date = gsub(". marts", "/03/2020", Date) %>% as.Date(., format = "%d/%m/%Y"),
-    InfectionRate = `Lab confirmed cases` / Tested
-  ) %>%
-  left_join(
-    .,
-    filter(
-      data,
-      Country.Region == "Denmark"
-    ),
-    by = "Date"
-  ) %>%
-  select(-Country.Region)
+# # Load Danish data from SSI -----------------------------------------------
+# ssi <- "data/ssi.csv" %>%
+#   read_delim(
+#     .,
+#     delim = ","
+#   ) %>%
+#   dplyr::select(-X1) %>%
+#   mutate(
+#     Date = ifelse(
+#       Date == "27. januar - 3. marts",
+#       "3. marts",
+#       Date
+#     ),
+#     Date = gsub(". marts", "/03/2020", Date) %>% as.Date(., format = "%d/%m/%Y"),
+#     InfectionRate = `Lab confirmed cases` / Tested
+#   ) %>%
+#   left_join(
+#     .,
+#     filter(
+#       data,
+#       Country.Region == "Denmark"
+#     ),
+#     by = "Date"
+#   ) %>%
+#   select(-Country.Region)
 
 # Exponential growth models --------------------------------------------------------------
 .fit_nls <- function(country, dt, get_convergence = F) {
