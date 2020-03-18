@@ -16,9 +16,9 @@ source("data_paths.R")
 # Function definitions ----------------------------------------------------
 
 nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
-          algorithm = c("default", "plinear", "port", "brute-force",
-                        "grid-search", "random-search", "plinear-brute", "plinear-random"),
-          trace = FALSE, weights, ..., all = FALSE)
+                 algorithm = c("default", "plinear", "port", "brute-force",
+                               "grid-search", "random-search", "plinear-brute", "plinear-random"),
+                 trace = FALSE, weights, ..., all = FALSE)
 {
   if (!inherits(formula, "formula"))
     formula <- as.formula(formula, env = parent.frame())
@@ -269,9 +269,9 @@ data <- left_join(
         data = dt,
         subset = Country.Region == i
       ) %>% coef
-       names(fm0[[i]]) <- c("l", "r")
-
-
+      names(fm0[[i]]) <- c("l", "r")
+      
+      
       try({
         mm[[i]] <- nls(
           I(Cases + 1) ~ (1 + r)**(t - l),
@@ -284,7 +284,7 @@ data <- left_join(
         )
         conv[[i]] <- "Yes"
       }, silent = T)
-
+      
       if (is.null(mm[[i]])) {
         mm[[i]] <- nls2(
           I(Cases + 1) ~ (1 + r)**(t - l),
@@ -301,7 +301,7 @@ data <- left_join(
         )
         conv[[i]] <- "No"
       }
-
+      
     }
   } else {
     fm0 <- lm(
@@ -310,9 +310,9 @@ data <- left_join(
       subset = Country.Region %in% country
     ) %>% coef
     names(fm0) <- c("l", "r")
-
+    
     mm <- NULL
-
+    
     try({
       mm <- nls(
         I(Cases + 1) ~ (1 + r)**(t - l),
@@ -324,7 +324,7 @@ data <- left_join(
         control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10)
       )
     }, silent = T)
-
+    
     if (is.null(mm)) {
       mm <- nls2(
         I(Cases + 1) ~ (1 + r)**(t - l),
@@ -341,7 +341,7 @@ data <- left_join(
       )
     }
   }
-
+  
   # fm0 <- lm(
   #   I(log(Cases + 1)) ~ t,
   #   data = dt,
@@ -356,7 +356,7 @@ data <- left_join(
   #   start = fm0,
   #   control = nls.control(maxiter = 1e4)
   # )
-
+  
   if (get_convergence) {
     return(
       list(mm, conv)
@@ -379,34 +379,34 @@ data <- left_join(
     mutate(
       "Method" = "Actual cases"
     )
-
+  
   if (is.null(tmax)) tmax <- max(plotdata$t)
-
+  
   tmpdata <- expand.grid(
     "Country.Region" = country,
     "Method" = "Predicted cases\n(Assuming no interventions)",
     "t" = seq(0, tmax, by = 1)
   )
-
+  
   if (length(country) > 1) {
     predictions <- c()
-
+    
     for (i in country) {
       predictions <- c(predictions, predict(model[[i]], filter(tmpdata, Country.Region == i)) - 1)
     }
-
+    
     tmpdata$Cases <- predictions
   } else {
     tmpdata$Cases <- predict(model, tmpdata) - 1
   }
-
+  
   plotdata <- rbind(
     plotdata,
     select(tmpdata, Cases, t, Method, Country.Region)
   )
-
+  
   plotdata$Group <- as.factor(plotdata$Method):as.factor(plotdata$Country.Region)
-
+  
   return({ggplotly(
     ggplot(
       data = plotdata,
@@ -435,345 +435,66 @@ data <- left_join(
 }
 
 
-
-# UI ----------------------------------------------------------------------
-ui <- dashboardPage(
-
-  dashboardHeader(title = "COVID19"),
-
-  dashboardSidebar(width = 250,
-    sidebarMenu(
-      menuItem(text = "Welcome page", tabName = "mainpage", icon = icon("file-alt")),
-      menuItem(text = "Plots", tabName = "plots", icon = icon("bar-chart-o")),
-      menuItem(
-        text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
-        menuSubItem(
-          text = "Detailed model descriptions",
-          tabName = "expmod_sub1",
-          icon = icon("file-alt")
-        ),
-        menuSubItem(
-          text = "Fit models",
-          tabName = "expmod",
-          icon = icon("dashboard")
-        )
-      ),
-      menuItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
+dt <- data %>%
+  group_by(Country.Region) %>%
+  filter(
+    max(Cases) >= 50
+  ) %>%
+  ungroup %>%
+  mutate(
+    Country.Region = as.factor(Country.Region)
+  ) %>%
+  group_by(Country.Region) %>%
+  mutate(
+    LeadCases = ifelse(
+      is.na(lead(Cases)),
+      Inf,
+      lead(Cases)
     )
-  ),
+  ) %>%
+  filter(
+    LeadCases > 0
+  ) %>%
+  select(-LeadCases) %>%
+  mutate(
+    "t" = (Date - as.Date(min(Date))) %>% as.numeric,
+    "PercentageOfPopulation" = (Cases / Population) * 100
+  ) %>%
+  ungroup
 
-  dashboardBody(
-    # tags$head(includeScript("GoogleAnalytics.js")),
-    tags$head(HTML("<script async src='https://www.googletagmanager.com/gtag/js?id=UA-160709431-1'
-></script>")),
-    tags$head(includeScript("analytics.js")),
-    tabItems(
-      # Welcome page
-      tabItem(
-        tabName = "mainpage",
+country_list <- dt$Country.Region %>% unique
+models <- .fit_nls(
+  country_list,
+  dt,
+  T
+)
 
-        fluidPage(
-          withMathJax(
-            includeMarkdown("mainpage.Rmd")
-          )
-        )
-      ),
+tables <- lapply(
+  models[[1]],
+  FUN = function(x) round(abs(coef(x)), 4)
+) %>% do.call("rbind", .)
+conv_status <- do.call("rbind", models[[2]])
 
-      # Pane with country plots
-      tabItem(
-        tabName = "plots",
-
-        fluidPage(
-          sidebarLayout(
-            sidebarPanel(
-              radioButtons(
-                "log",
-                "Y-axis scale",
-                choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log")
-              ),
-
-              selectInput(
-                "countries",
-                "Countries",
-                choices = data$Country.Region,
-                selected = "Denmark",
-                multiple = T
-              ),
-              checkboxInput("rebase", "View graph from patient number x", FALSE),
-              conditionalPanel("input.rebase",
-                               numericInput('rebase.value', 'Patient number', value=1, min=1, step=20)),
-
-              radioButtons(
-                "output",
-                "Output",
-                choices = c(
-                  "Total confirmed cases" = "Cases",
-                  "New confirmed cases" = "NewCases",
-                  "Still infected" = "StillSick",
-                  "Recovered" = "Recovered",
-                  "Deaths" = "Deaths",
-                  "Percentage of population infected" = "PercentageOfPopulation",
-                  "Proportion of deaths among infected" = "MortalityRate",
-                  "Proportion of recoveries among infected" = "RecoveryRate"
-                )
-              ),
-
-
-
-              downloadButton("downloadData", "Download Selected Data")
-            ),
-
-            mainPanel(
-              
-              div(
-                style = "position:relative",
-                plotlyOutput("country_plot"), 
-                           # hover = hoverOpts("plot_hover", delay = 100, delayType = "debounce")),
-                uiOutput("hover_info")
-              )
-              
-            )
-          )
-        )
-      ),
-
-      # Pane with exponential growth models
-      tabItem(
-        tabName = "expmod",
-
-        fluidPage(
-          selectInput(
-            "expmod_countries",
-            "Fit an exponential growth model",
-            choices = data$Country.Region,
-            selected = "Denmark",
-            multiple = F
-          ),
-
-          box(
-            plotlyOutput("expmod_plot"),
-            width = 12
-          ),
-
-          withMathJax(
-            includeMarkdown("expmod_descriptions.Rmd")
-          )
-        )
-      ),
-
-      # Pane with model text
-      tabItem(
-        tabName = "expmod_sub1",
-
-        fluidPage(
-          withMathJax(
-            includeMarkdown("expmod_detailed.Rmd")
-          )
-        )
-      ),
-
-      # Pane with comparison between models
-      tabItem(
-        tabName = "tables",
-
-        fluidPage(
-          verbatimTextOutput("expmod_tables_lastupdate"),
-          
-          dataTableOutput("expmod_tables")
-        )
-      )
-
-    )
+out <- as.data.frame(
+  cbind(
+    rownames(tables),
+    tables,
+    conv_status
   )
 )
 
+rownames(out) <- NULL
+names(out) <- c(
+  "Country",
+  "Estimated lag-phase",
+  "Estimated rate of infection",
+  "Did the model converge?"
+)
 
-yaxislab <- c(
-  "Total confirmed cases" = "Cases",
-  "New confirmed cases" = "NewCases",
-  "Still infected" = "StillSick",
-  "Cumulative recovered patients" = "Recovered",
-  "Cumulative deaths" = "Deaths",
-  "Percentage of population infected " = "PercentageOfPopulation" ,
-  "Mortality rate (%)" = "MortalityRate",
-  "Recovery rate (%)" = "RecoveryRate")
+out <- arrange(out, Country)
 
-
-# Server ------------------------------------------------------------------
-server <- function(input, output) {
-
-  number_ticks <- function(n) {
-    function(limits)
-      pretty(limits, n)
-  }
-
-  datasetInput <- reactive({
-    data_tmp <- data %>%
-      filter(
-        Country.Region %in% c(input$countries)
-      ) %>%
-      mutate(
-        Country.Region = factor(Country.Region, levels = c(input$countries))
-      ) %>%
-      group_by(Country.Region) %>%
-      mutate(
-        LeadCases = ifelse(
-          is.na(lead(Cases)),
-          Inf,
-          lead(Cases)
-        )
-      ) %>%
-      filter(
-        LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)
-      ) %>%
-      # ungroup %>% {
-      #   LastDayBecoreConfirmedCase <-
-      #     (.) %>% arrange(Date) %>% filter(LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)) %>% summarize(min(Date)) %>% pull()
-      #   (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
-      # } %>%
-      select(-LeadCases) %>%
-      mutate(
-        "t" = (Date - as.Date(min(Date))) %>% as.numeric,
-        "PercentageOfPopulation" = (Cases / Population) * 100
-      ) %>% ungroup
-  })
-
-
-
-  output$country_plot <- renderPlotly({
-    p <- ggplot(datasetInput(),
-                aes_string(
-                  x = ifelse((input$rebase == FALSE & is.integer(input$rebase.value)), "Date", 't'),
-                  y = input$output,
-                  colour = "Country.Region"
-                )) +
-      geom_line() + geom_point() + labs(colour="Country")
-
-    if(input$rebase == FALSE){
-      p <- p + scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
-    } else {
-      p <- p + xlab(paste("Days since patient ", input$rebase.value))
-    }
-    if (input$log == "log") {
-      p <- p + scale_y_continuous(trans = 'log10')
-    }
-    p <- p + theme_minimal()+
-      ggtitle(names(yaxislab)[yaxislab == input$output]) + 
-      theme(plot.title = element_text(hjust = 0.5)) + 
-      ylab(names(yaxislab)[yaxislab == input$output])
-
-    p = ggplotly(p)
-    p
-  })
-  
-  output$hover_info <- renderUI({
-    hover <- input$plot_hover
-    point <- nearPoints(datasetInput(), hover, threshold = 10, maxpoints = 1, addDist = TRUE)
-    if (nrow(point) == 0) return(NULL)
-    
-    # calculate point position INSIDE the image as percent of total dimensions
-    # from left (horizontal) and from top (vertical)
-    left_pct <- (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
-    top_pct <- (hover$domain$top - hover$y) / (hover$domain$top - hover$domain$bottom)
-    
-    # calculate distance from left and bottom side of the picture in pixels
-    left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
-    top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
-    
-    # create style property fot tooltip
-    # background color is set so tooltip is a bit transparent
-    # z-index is set so we are sure are tooltip will be on top
-    style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
-                    "left:", left_px + 2, "px; top:", top_px + 2, "px;")
-    
-    # actual tooltip created as wellPanel
-    wellPanel(
-      style = style,
-      p(HTML(paste0("<b> Country: </b>", point$Country.Region, "<br/>",
-                    "<b> Date: </b>", point$Date, "<br/>",
-                    "<b> Value: </b>", point[,input$output], "<br/>"
-                    )))
-    )
-  })
-  
-  
-  
-  output$dynamic <- renderPrint({
-    req(input$plot_hover)
-    verbatimTextOutput("vals")
-  })
-  
-  output$vals <- renderPrint({
-    hover <- input$plot_hover
-    HoverData <- nearPoints(datasetInput(),input$plot_hover) %>%  select(Country.Region,Date,input$output)
-    req(nrow(HoverData) != 0)
-    knitr::kable(HoverData, "pandoc")
-  })
-
-  output$downloadData <- downloadHandler(
-    filename = function() {
-      paste("COVID19_", paste(sort(input$countries), collapse = "_"), ".csv", sep =
-              "")
-    },
-    content = function(file) {
-      write.csv(datasetInput(), file, row.names = TRUE)
-    }
-  )
-
-  output$expmod_plot <- renderPlotly({
-    validate(
-      need(
-        input$expmod_countries != "",
-        'Please select a country to analyse.'
-      )
-    )
-
-    plotdata <- data %>%
-      filter(
-        Country.Region %in% c(input$expmod_countries)
-      ) %>%
-      mutate(
-        Country.Region = factor(Country.Region, levels = c(input$expmod_countries))
-      ) %>%
-      group_by(Country.Region) %>%
-      mutate(
-        LeadCases = ifelse(
-          is.na(lead(Cases)),
-          Inf,
-          lead(Cases)
-        )
-      ) %>%
-      ungroup %>% {
-        LastDayBecoreConfirmedCase <-
-          (.) %>% arrange(Date) %>% filter(LeadCases > 0) %>% summarize(min(Date)) %>% pull()
-        (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
-      } %>%
-      select(-LeadCases) %>%
-      mutate(
-        "t" = (Date - as.Date(min(Date))) %>% as.numeric
-      )
-
-    modelfit <- .fit_nls(input$expmod_countries, plotdata, F)
-    .get_plots(modelfit, input$expmod_countries, plotdata)
-  })
-
-  output$expmod_tables_lastupdate <- renderText({
-    paste(
-      "Models were last updated at:",
-      file.info("data/all_models.csv")$mtime,
-      sep = " "
-    )
-  })
-  
-  output$expmod_tables <- renderDataTable({
-    all_models <- "data/all_models.csv" %>%
-      read_delim(
-        .,
-        delim = ";"
-      )
-    
-    all_models
-  })
-
-}
-shinyApp(ui = ui, server = server)
+write_delim(
+  out,
+  "data/all_models.csv",
+  delim = ";"
+)
