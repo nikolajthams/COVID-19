@@ -678,7 +678,7 @@ server <- function(input, output) {
 
   output$JH_data_lastupdate <- renderText({
     paste(
-      "John Hopkins data was last updated at:",
+      "Johns Hopkins data was last updated at:",
       file.info(cases_path)$mtime,
       "(Central European Time)",
       sep = " "

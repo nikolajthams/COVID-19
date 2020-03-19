@@ -4,16 +4,16 @@ output: html_document
 ---
 ## About this dashboard
 <!-- Welcome to the COVID19 interactive analysis website. Here you can explore current data about the ongoing COVID19 infection that is gripping the world. You can find information about infection numbers, recoveries, mortalities, infection rates by population and so forth. Happy exploring! -->
-John Hopkins University maintains a database of world-wide confirmed COVID-19 cases ([GitHub](https://github.com/CSSEGISandData/COVID-19), [Dashboard] (https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)). This dashboard lets you explore the data further by visualising data regarding the total confirmed cases, confirmed deaths and confirmed recoveries. These numbers can be seen nominally as well as relative to the country's population. You can compare these data across countries and you can fit exponential growth models to individual countries to see how the disease has spread so far.
+Johns Hopkins University maintains a database of world-wide confirmed COVID-19 cases ([GitHub](https://github.com/CSSEGISandData/COVID-19), [Dashboard] (https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)). This dashboard lets you explore the data further by visualising data regarding the total confirmed cases, confirmed deaths and confirmed recoveries. These numbers can be seen nominally as well as relative to the country's population. You can compare these data across countries and you can fit exponential growth models to individual countries to see how the disease has spread so far.
 
 **Authors:** This dashboard was created by [Nikolaj Theodor Thams](mailto:thams@math.ku.dk), [Martin Emil Jakobsen](mailto:m.jakobsen@math.ku.dk), [Phillip Bredahl Mogensen](mailto:pbm@math.ku.dk), all PhD-students in [Statistics at the University of Copenhagen](https://www.math.ku.dk/english/research/spt/cocala/). We would be happy to receive your feedback.
 
-**COVID19 data:** John Hopkins University ([GitHub](https://github.com/CSSEGISandData/COVID-19), [Dashboard] (https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)). 
+**COVID19 data:** Johns Hopkins University ([GitHub](https://github.com/CSSEGISandData/COVID-19), [Dashboard] (https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)). 
 
-**Update frequency:** The John Hopkins github database is currently updated once daily, shortly after which we feed this dashboards with the updated data. 
+**Update frequency:** The Johns Hopkins github database is currently updated once daily, shortly after which we feed this dashboards with the updated data. 
 
-**Validity of data:** The situation on COVID-19 is developing rapidly, and we're vastly grateful for the work done by John Hopkins. While there may be misreportings in the data, they are often quickly solved. 
+**Validity of data:** The situation on COVID-19 is developing rapidly, and we're vastly grateful for the work done by Johns Hopkins. While there may be misreportings in the data, they are often quickly solved. 
 
 **Population data:** https://www.worldometers.info/world-population/population-by-country/
 
-**Terms of use:** Please be aware of the [terms of use](https://github.com/CSSEGISandData/COVID-19) for the John Hopkins data. If you wish to use our dashboard, naturally you must obey to these. Further, we take no responsibilities for the correctness of displayed data, processing nor modelling. 
+**Terms of use:** Please be aware of the [terms of use](https://github.com/CSSEGISandData/COVID-19) for the Johns Hopkins data. If you wish to use our dashboard, naturally you must obey to these. Further, we take no responsibilities for the correctness of displayed data, processing nor modelling. 
