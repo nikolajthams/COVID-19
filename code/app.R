@@ -934,9 +934,10 @@ server <- function(input, output) {
       ) + 
         geom_line() + 
         geom_point() + 
+        scale_x_date(labels = date_format("%b %d")) + 
         facet_wrap(
           ~ variable,
-          scales = "free_y"
+          scales = "free"
         ) +
         theme_minimal() + 
         theme(
