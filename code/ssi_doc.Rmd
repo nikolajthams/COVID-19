@@ -1,0 +1,5 @@
+---
+title: ''
+output: html_document
+---
+The Danish State Serum Institute (SSI) provide are at the time of writing (March 20, 2020) publishing daily reports on the development of COVID-19 in Denmark. [The full reports can be found here](https://www.ssi.dk/aktuelt/sygdomsudbrud/coronavirus/covid-19-i-danmark-epidemiologisk-overvaagningsrapport). Included in these reports are, amongst other things, daily data on the number of tested people in Denmark as well as the number of confirmed positive tests. Furthermore, SSI provides cumulative data on the age distribution among the tested people. On this page you can visualise these data.

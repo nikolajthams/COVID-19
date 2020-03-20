@@ -247,31 +247,51 @@ data <- left_join(
   )
 
 
-# # Load Danish data from SSI -----------------------------------------------
-# ssi <- "data/ssi.csv" %>%
-#   read_delim(
-#     .,
-#     delim = ","
-#   ) %>%
-#   dplyr::select(-X1) %>%
-#   mutate(
-#     Date = ifelse(
-#       Date == "27. januar - 3. marts",
-#       "3. marts",
-#       Date
-#     ),
-#     Date = gsub(". marts", "/03/2020", Date) %>% as.Date(., format = "%d/%m/%Y"),
-#     InfectionRate = `Lab confirmed cases` / Tested
-#   ) %>%
-#   left_join(
-#     .,
-#     filter(
-#       data,
-#       Country.Region == "Denmark"
-#     ),
-#     by = "Date"
-#   ) %>%
-#   select(-Country.Region)
+# Load Danish data from SSI -----------------------------------------------
+ssi <- "data/ssi.csv" %>%
+  read_delim(
+    .,
+    delim = ",",
+    locale = locale(grouping_mark = ".")
+  ) %>%
+  dplyr::select(-X1) %>%
+  mutate(
+    Date = ifelse(
+      grepl("27. januar", Date, ignore.case = T),
+      # Date == "27. januar - 3. marts",
+      paste(
+        as.numeric(substr(lead(Date), 1, 1)) - 1,
+        ". marts",
+        sep = ""
+      ),
+      Date
+    ),
+    Date = gsub(". marts", "/03/2020", Date) %>% as.Date(., format = "%d/%m/%Y"),
+    InfectionRate = `Lab confirmed cases` / Tested
+  )
+
+agefiles <- list.files("data/ssi_agegroups/")
+agedata  <- lapply(
+  agefiles,
+  function(x) {
+    data <- read_delim(
+      paste("data/ssi_agegroups/", x, sep = ""), 
+      delim = ",",
+      locale = locale(decimal_mark = ",")
+    ) %>% 
+      select(-X1) %>%
+      mutate(
+        Date = as.Date(
+          substr(x, 6, 13), format = "%d%m%Y"
+        ),
+        `Antal testede personer` = `Antal testede personer` / 10
+      )
+    return(data)
+  }
+) %>% 
+  do.call("rbind", .) %>%
+  ungroup
+
 
 # Exponential growth models --------------------------------------------------------------
 .fit_nls <- function(country, dt, get_convergence = F) {
@@ -461,9 +481,9 @@ ui <- dashboardPage(
       menuItem(
         text = "Plots", tabName = "plots", icon = icon("bar-chart-o")
       ),
-      # menuItem(
-      #   text = "Danish data", tabName = "ssidat", icon = icon("bar-chart-o")
-      # ),
+      menuItem(
+        text = "Danish data on COVID19 tests", tabName = "ssidat", icon = icon("bar-chart-o")
+      ),
       menuItem(
         text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
         menuSubItem(
@@ -565,14 +585,27 @@ ui <- dashboardPage(
         )
       ),
       
-      # # Pane with Danish data:
-      # tabItem(
-      #   tabName = "ssidat",
-      #   
-      #   fluidPage(
-      #     plotlyOutput("ssiPlot")
-      #   )
-      # ),
+      # Pane with Danish data:
+      tabItem(
+        tabName = "ssidat",
+
+        fluidPage(
+          box(
+            includeMarkdown("ssi_doc.Rmd"),
+            width = 12
+          ),
+          
+          radioButtons(
+            "ageYN", "View:",
+            choices = c(
+              "Daily number of tests and percentage positive" = "tot",
+              "Cumulative Number of tests and percentage positive by age group" = "age"
+            )
+          ),
+
+          plotlyOutput("ssiplot")
+        )
+      ),
 
       # Pane with exponential growth models
       tabItem(
@@ -829,29 +862,98 @@ server <- function(input, output) {
     all_models
   })
   
-  # output$ssiPlot <- renderPlotly({
-  #   ssiPlotData <- ssi %>%
-  #     select(
-  #       Date,
-  #       "Lab confirmed cases",
-  #       Tested
-  #     ) %>% melt(., id.vars = "Date")
-  #   
-  #   p1 <- ggplot(
-  #     data = ssiPlotData,
-  #     aes(
-  #       x = Date,
-  #       y = value,
-  #       colour = variable
-  #     )
-  #   ) + 
-  #     geom_line() + 
-  #     theme_minimal() + 
-  #     theme(text = element_text(size = 12), legend.position = "bottom") + 
-  #     xlab("Date") + ylab("Value") + labs(colour = "")
-  #   
-  #   ggplotly(p1)
-  # })
+  output$ssiplot <- renderPlotly({
+    if (input$ageYN == "tot") {
+      p <- ggplot(
+        data = ssi %>%
+          mutate(
+            InfectionRate = round(InfectionRate * 100, 4)
+          ) %>%
+          rename(
+            "Number of tested people, daily" = Tested,
+            "Percentage of tests positive, daily" = InfectionRate
+          ) %>%
+          dplyr::select(
+            Date,
+            "Number of tested people, daily",
+            "Percentage of tests positive, daily"
+          ) %>%
+          melt(
+            id.vars = "Date"
+          ),
+        aes(
+          x = Date,
+          y = value,
+          colour = T
+        )
+      ) +
+        scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d") +
+        geom_line() +
+        geom_point() + 
+        facet_wrap(
+          ~ variable,
+          scales = "free_y"
+        ) + 
+        ylab("") +
+        theme_minimal()
+
+      p <- ggplotly(p, tooltip = c("Date", "value"))
+      for (i in 1:length(p$x$data)){
+        # p2$x$data[[i]]$text <- c(p$x$data[[i]]$text, "") 
+        p$x$data[[i]]$showlegend <- FALSE
+      }
+      p
+      
+      
+    } else {
+      plotdata <- agedata %>%
+        mutate(
+          "Percentage of tests positive, total" = round(Laboratoriebekræftede / `Antal testede personer` * 100, 4)
+        ) %>%
+        rename(
+          "Number of tested people, total" = "Antal testede personer"
+        ) %>%
+        dplyr::select(
+          Date,
+          Aldersgrupper,
+          "Number of tested people, total",
+          "Percentage of tests positive, total"
+        ) %>%
+        melt(
+          id.vars = c("Date", "Aldersgrupper")
+        )
+      
+      
+      p <- ggplot(
+        data = plotdata,
+        aes(
+          x = Date,
+          y = value,
+          colour = Aldersgrupper
+        )
+      ) + 
+        geom_line() + 
+        geom_point() + 
+        facet_wrap(
+          ~ variable,
+          scales = "free_y"
+        ) +
+        theme_minimal() + 
+        theme(
+          text = element_text(size = 12),
+          legend.position = "bottom"
+        ) +
+        ylab("")
+      
+      ggplotly(p) %>% 
+        layout(
+          legend = list(
+            orientation = "h",
+            y = -0.2
+          )
+        )
+    }
+  })
   
 
 }

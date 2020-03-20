@@ -10,7 +10,9 @@ Johns Hopkins University maintains a database of world-wide confirmed COVID-19 c
 
 **COVID19 data:** Johns Hopkins University ([GitHub](https://github.com/CSSEGISandData/COVID-19), [Dashboard] (https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6)). 
 
-**Update frequency:** The Johns Hopkins github database is currently updated once daily, shortly after which we feed this dashboards with the updated data. 
+**SSI data:** Danish State Serum Institute ([reports](https://www.ssi.dk/aktuelt/sygdomsudbrud/coronavirus/covid-19-i-danmark-epidemiologisk-overvaagningsrapport)).
+
+**Update frequency:** The Johns Hopkins github database is currently updated once daily, shortly after which we feed this dashboards with the updated data. The SSI reports are published daily between 12.00 and 13.00 Central European Time.
 
 **Validity of data:** The situation on COVID-19 is developing rapidly, and we're vastly grateful for the work done by Johns Hopkins. While there may be misreportings in the data, they are often quickly solved. 
 
