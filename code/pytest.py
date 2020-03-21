@@ -51,9 +51,11 @@ def get_AgeGroups(date):
 
     return tables[agegroups].drop([0, tables[agegroups].shape[0]-1])
 
+###### Get time series:
+get_timeseries(today)
 
 ###### Get age data:
-avail_dates = ['12032020', '13032020', '16032020','17032020', '18032020', '19032020']
+avail_dates = ['12032020', '13032020', '16032020','17032020', '18032020', '19032020', '20032020', '21032020']
 for date in avail_dates:
     datatable = get_AgeGroups(date)
     outfile = 'data/ssi_agegroups/data_' + date + '.csv'
