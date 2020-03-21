@@ -39,7 +39,10 @@ demographics_mat <- demographics_mat[,-10]
 relative.death.risk <- c(0, 0, 0, 0.001887880854,
                          0.004195290786, 0.01305784257,
                          0.06544653626, 0.2743720174, 0.6410404321)
-death.rate <- c(0, 0, 0, 0.01, 0.04, 0.06, 0.15, 0.24, 0.5)
+#death.rate <- c(0, 0, 0, 0.01, 0.04, 0.06, 0.15, 0.24, 0.5)
+# numbers from south korea
+# https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis
+death.rate <- c(0, 0, 0, 0.0011, 0.0008, 0.0042, 0.0152, 0.0628, 0.1024)
 
 ## Actual relevant computation
 active_mat <- matrix(NA, nrow(death_mat_unique), ncol(death_mat_unique))
@@ -55,3 +58,7 @@ for(i in 1:nrow(death_mat_unique)){
 ## Test plot for Italy
 plot(active_mat[66,], type="l", col="black")
 lines(death_mat_unique[66,], col="red")
+
+## Test plot for Denmark
+plot(active_mat[36,], type="l", col="black")
+lines(death_mat_unique[36,], col="red")
