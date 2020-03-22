@@ -334,8 +334,48 @@ of infected people in other countries.
 
 
 
-\paragraph{The estimator}
-JONAS IS WRITING HERE.
+%\paragraph{The estimator}
+%JONAS IS WRITING HERE.
+
+\paragraph{The estimator for known number of deaths per age group}
+%
+For every $a$ we have that 
+$$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
+and we thus obtain estimates 
+$$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a  X_{c,t}(a) / p_D(a)$$
+
+\paragraph{The estimator for unknown number of deaths per age group}
+%
+If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
+$$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_{t-\tau} = a \given D_{t} = 1))$$
+and hence obtain that
+\begin{align*}
+\hat{X}_{c,t}(a) = \E[X_{c,t}(a) \given X_{c,t}] 	
+&= X_{c,t} \cdot \P_c(A_{t-\tau} = a \given D_{t} = 1) \\
+     &= 
+X_{c,t} \cdot 
+\frac{  
+    \P_c(D_t = 1, A = a)}
+  {\P_c(D_t = 1)}\\
+    &= 
+X_{c,t} \cdot 
+\frac{  
+    \P_c(D_t = 1\given A = a)
+     \cdot \P_c(A = a)}
+  {\sum_{a^*}  
+    \P_c(D_t = 1\given A = a^*) \cdot \P_c(A = a^*)
+    }\\
+&= 
+X_{c,t} \cdot 
+\frac{
+  \frac{
+    \P_c(D_t = 1\given A = a)}
+    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a)}
+  {\sum_{a^*}  
+  \frac{
+    \P_c(D_t = 1\given A = a^*)}
+    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a^*)}
+\end{align*}
 
 
 \section{Mathematics and Real Life}
