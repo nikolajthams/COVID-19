@@ -57,7 +57,7 @@ activedata$Date = as.Date(activedata$Date)
 
 make_estimate_plot = function(input){
   p = ggplot(subset(activedata, Country %in% input$wvv.countries), 
-             aes(x = Date, y = Cases, colour=Country, group=Country)) + 
+             aes(x = Date - input$wvv.death_delay, y = Cases, colour=Country, group=Country)) + 
     geom_line() + geom_point() + 
     scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
   if (input$wvv.log == "log") {
@@ -65,8 +65,6 @@ make_estimate_plot = function(input){
   }
   return(p)
 }
-make_estimate_plot(c("Denmark", "Germany"))
-
 
 
 

@@ -641,6 +641,12 @@ ui <- dashboardPage(
                 choices = countries,
                 selected = c("Denmark", "Italy", "United Kingdom", "US", "Spain"),
                 multiple = T
+              ), 
+              numericInput(
+                "wvv.death_delay", 
+                "Days from infection to death",
+                value = 14, 
+                min = 1
               )
             ),
             
