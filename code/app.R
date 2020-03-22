@@ -799,6 +799,48 @@ server <- function(input, output) {
     }
     activedata.low = make_data(death_mat, rel.rate.low)
     activedata.high = make_data(death_mat, rel.rate.high)
+    
+    ## Actual relevant computation (given p_D(a)) -> Section 1.1
+    ## Function to compute binomial confidence bounds on n
+    find_confidence_bounds <- function(x, p, alpha=0.05){
+      n.est <- x/p
+      if(p>0){
+        # lower bound
+        lower.n <- floor(n.est)
+        prob <- 1
+        while(prob > alpha/2 & lower.n >= 0){
+          prob <- pbinom(x-1, lower.n, p, lower.tail=FALSE)
+          lower.n <- lower.n-1
+        }
+        lower.n <- lower.n + 1
+        # upper bound
+        upper.n <- ceiling(n.est)
+        prob <- 1
+        while(prob > alpha/2){
+          prob <- pbinom(x, upper.n, p)
+          upper.n <- upper.n+1
+        }
+        upper.n <- upper.n - 1
+        res <- c(lower.n, upper.n)
+      }
+      else{
+        res <- c(NA, NA)
+      }
+      return(res)
+    }
+    
+    # 
+    # # value for Italy
+    # num.italy <- c(0,0,0,9,25,83,312,1090,1528)
+    # active_cases_lower <- rep(NA, ncol(death_mat))
+    # active_cases_upper <- rep(NA, ncol(death_mat))
+    # for(j in 1:ncol(death_mat_unique)){
+    #   bounds <- sapply(death.rate, function(p)
+    #     find_confidence_bounds(death_mat[], p))
+    #   active_cases_lower[j] <- sum(bounds[1,]/death.rate, na.rm=TRUE)
+    #   active_cases_upper[j] <- sum(bounds[2,]/death.rate, na.rm=TRUE)
+    # }
+    
 
     activedata.low <- melt(
       activedata.low,
