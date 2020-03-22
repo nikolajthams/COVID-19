@@ -214,41 +214,44 @@ Section~\ref{sec:uncert} describes possible reasons for further uncertainty.
 
 
 \section{Modeling framework} \label{sec:model}
-Consider the following variables of an individual in country $c$: 
+The following variables describe an individual in country $c$ at time $t$:
 \begin{compactitem}
-\item $A \in \N$ denotes age (we assume age to be constant over $t$)
-\item $I \in \{0,1\}$ infection indicator
-\item $D \in \{0,1\}$ the indicator for a Corona-related death 
-\item $\tau > 0$ the time from infection to possible death. This is
-  estimated to be 20.2 (95\% CI: 15.1, 29.5) days on average according
-  to \citet{jung2020real}.\Niklas{Just realized that you guys had
-    already found \cite{linton2020epidemiological}. The paper I cited
-    cites that they updated the method from that paper to the new data
-  so I think the 20.2 should be more accurate.}
-\item $\P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)$ is the probability of dying, given one is infected and in age group $a$.
+\item $A \in \N$ denotes age (we assume age to be constant over time $t$)
+\item $I_t \in \{0,1\}$ infection indicator
+\item $D_t \in \{0,1\}$ the indicator for a Corona-related death
 \end{compactitem}
+Based on these variables the probability of dying, for a specific
+infected individual from an age group $a$ is given as
+\begin{equation*}
+  \P_c(D_{t+\tau} = 1 \given I_t = 1, A = a), 
+\end{equation*}
+where the parameter $\tau > 0$ the time from infection to possible
+death. This is estimated to be 20.2 (95\% CI: 15.1, 29.5) days on
+average according to \citet{jung2020real}. The slightly older paper
+\cite{linton2020epidemiological} estimates this to
+13.8 days (95\% CI: 11.8, 16.0).
 
-
-
-For each country, we are given data from several individuals and time points:
-
+For each country, we observe (either one or both of) the following data
 \begin{itemize}
 %\item $N_c$: number of individuals in country $c$
 %\item $A_{c,i}$: age of individual $i$ in country $c$
 %\item $I_{c,i,t}$: binary indicator of infection for individual $i$ in country $c$ at time $t$
 %\item $D_{c,i,t}$: binary indicator of Corona-related death for individual $i$ in country $c$ at time $t$
-\item $Y_{c,t}(a)$: number of infected individuals in country $c$ at age $a$ at time $t$
-\item $X_{c,t}(a)$: number of Corona-related deaths in country $c$ at age $a$ at time $t$
-\item $Y_{c,t} = \sum_a Y_{c,t}(a)$: total number of infected individuals in country $c$ at time $t$
-\item $X_{c,t} = \sum_a X_{c,t}(a)$: total number of Corona-related deaths in country $c$ at time $t$
+\item $X_{c,t}(a)$: number of Corona-related deaths in country $c$ at
+  time $t$ for age group $a$
+\item $X_{c,t} = \sum_a X_{c,t}(a)$: total number of Corona-related
+  deaths in country $c$ at time $t$
 %\item $\tau$: time from infection to possible death
 %\item $p_c(a) = \P(A_{c,i} = a)$: marginal age distribution of country $c$
 %\item $p_{I}(a) = \P(I_{c,i,t} = 1 \given A_{c,i} = a)$: infection rate at age $a$
 %\item $p_{D}(a) = \P(D_{c,i,t+\tau} = 1 \given I_{c,i,t} = 1, A_{c,i} = a)$ death rate at age $a$
 \end{itemize}
-%Both $p_I$ and $p_D$ are assumed to be the same across all countries $c$ and all time points $t$. 
-%
-Our goal is to estimate $Y_{c,t-\tau}$ from $X_{c,t}(a)$ (if available) or from $X_{c,t}$. 
+Our goal is to estimate are the total number of infected
+individuals in country $c$ at time $t$ given by
+$$Y_{c,t} = \sum_a Y_{c,t}(a),$$ where $Y_{c,t}(a)$ is the number of
+infected individuals in country $c$ at time $t$ for age group $a$.
+For this we propose an approach to estimate $Y_{c,t-\tau}$ from
+$X_{c,t}(a)$ if it is available and from $X_{c,t}$ otherwise.
 
 
 
