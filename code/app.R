@@ -655,7 +655,7 @@ ui <- dashboardPage(
               numericInput(
                 "wvv.death_delay",
                 "Days from infection to death",
-                value = 14,
+                value = 22,
                 min = 1
               ),
               textInput(
@@ -1003,7 +1003,8 @@ server <- function(input, output) {
 
       p = ggplot(subset(wvv.data, (Country %in% input$wvv.countries & Date >= firstDate)),
                  aes(colour=Country, group=Country)) +
-        scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
+        scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d") + 
+        ylab("Number of cases")
 
       if(input$wvv.compare_ouput == "confirmed_cases"){
         p = p + geom_line(aes(x = Date, y = ConfirmedCases), linetype="dashed")
