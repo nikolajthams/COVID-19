@@ -15,6 +15,8 @@
 \usepackage{hyperref}
 \usepackage{url}
 
+\usepackage{fancyvrb}
+
 % Colors and diagrams
 \usepackage[dvipsnames]{xcolor}
 \usepackage{tikz}
@@ -111,21 +113,24 @@ underestimate the number of total cases of infections, see e.g.,
 
 
 \section{The idea}
-We propose an to estimate the total number of infections using the 
+We propose to estimate the total number of infections using the 
 number of COVID fatalities. The latter number is more reliable in 
 that it is unlikely that many cases are missed. To do so, 
 we require knowledge of the following numbers (measured at a certain point in time):
-(1) the number of deaths in a certain age group $a$,
-(2) the death rate given that a person belongs to age group $a$.
+(i) the number of deaths in a certain age group $a$,
+(ii) the death rate given that a person belongs to age group $a$.
 We can then estimate the total number of infected people 
 (this differs from the active cases),
 by dividing the number of deaths in age group $a$ by the death rate for that age group. (Clearly, this approach fails if the death rate in a certain age group equals zero. We discuss this point in Section~\ref{sec:zerodeathrate}.)
-The death rates in (2) may be considered as parameters.
+Our method is readily implemented in \Verb+R+ and is available as ShinyApp
+at \url{http://shiny.science.ku.dk/pbm/COVID19%20-%20Copy/}.
+
+The death rates in (ii) may be considered as parameters.
 Their values may be provided by
 background knowledge. 
-In the app
-these can parameters can be set by hand,
-As standard values, we use the death rates 
+In the app,
+these parameters can be set by hand;
+as standard values, we use the death rates 
 measured in South Korea, 
 where, supposedly, many people have been tested for COVID,
 see
@@ -133,10 +138,10 @@ see
 %\todo{write about the idea to use fatalities per age group and
 %death rates from South Korea (nothing yet about what happens without age group data, that comes below)}
 %\todo{cite some other sources that are based on a similar idea.}
-This idea relies on the number of deaths per age group. 
-For many countries, however, 
-these data are unavailable. Under some
-assumptions, it is still possible to estimate the total number of infections, see Section~\ref{sec:noage}.
+Ideally, the death rates (i) can be directly calculated from the data. 
+For many countries, however, the deaths per age group are unavailable. 
+Under some assumptions, it is still possible to estimate the total number of infections
+from the total number of deaths, see Section~\ref{sec:noage}.
 We do not claim that our idea is novel, see Section~\ref{sec:disclaimer}.
 
 
@@ -160,14 +165,14 @@ for almost all countries
 (see, e.g., the website {\footnotesize
 \url{https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6}},
 last accessed on 22.03.2020, 7:30pm,
-which is run by the Center for Systems Science and Engineering ({CSSE}) at Johns Hopkins University ({JHU}).
-But for most of these countries we have not found the number of fatalities per age group. 
+which is run by the Center for Systems Science and Engineering ({CSSE}) at Johns Hopkins University ({JHU})), 
+for many of these countries we have not found the number of fatalities per age group. 
 We believe that it would be highly informative to add these numbers.\footnote{The numbers 
-are informative for two reasons: (1) It
+are informative for two reasons: (i) It
 becomes easier to estimate the 
 total number of infected cases in the 
 corresponding country.
-(2) They help us to better understand Assumption A2. Having these data from 
+(ii) They help us to better understand Assumption A2. Having these data from 
 more countries, for example, 
 allows us to 
 provide more accurate uncertainty bounds for 
@@ -185,12 +190,12 @@ differs between different countries (e.g., in some countries,
 where the pandemic has started earlier, there may be many more cases, which results in generally higher probabilities).
 Here, we assume that the \emph{relation} between these numbers for different age groups do not differ.
 E.g., if 
-in country $c$, there 
+in country $c$, the
 probability of being infected, given one is in age group $50-59$
 is twice as large as the probability of being infected, given 
 one belongs to the age group $60-69$, 
-we assume that the same ration, that is, 2, 
-also appears when dividing the analogous probabilities in country $\tilde{c} \neq c$ --- even though the probabilities themselves may be differ between the two countries. 
+we assume that the same ratio, that is, 2, 
+also appears when dividing the analogous probabilities in some other country $\tilde{c} \neq c$ --- even though the probabilities themselves may be differ between the two countries. 
 This assumption suffices to estimate the number of total infections
 from the total number of deaths.
 Below, in Section~\ref{sec:model}, `Modeling framework', we describe the idea in more detail. 
@@ -205,7 +210,7 @@ There is yet another way to look at this assumption.
 Again, the probabilities of 
 being infected, given that one belongs to a certain age group, $50-59$, say, differs between countries. If one assumes
 that this difference can be expressed by a multiplicative constant that is the same for all age groups, then 
-this implies Assumption~2, see Section~\ref{sec:uncert} below.
+this implies Assumption~2, see Section~\ref{sec:model} below.
 
 
 
@@ -221,11 +226,11 @@ the calculations.
 Also, we are certain that there is a lot of 
 related work to our approach that is not properly cited. 
 Thus, we do not claim that our idea is original, we just wanted
-to implement sth this weekend.
+to implement it this weekend.
 If you know related relevant work, please tell us.
 You can find our email addresses above.
 Some of the main assumptions underlying our prediction are described 
-as Assumptions~A1 and~A2 in Section~\ref{sec:model} and
+as Assumptions~A1 and~A2 in Section~\ref{sec:model}, and
 Section~\ref{sec:uncert} describes possible reasons for further uncertainty.
 
 
@@ -262,12 +267,12 @@ For each country, we observe (either one or both of) the following data
 %\item $p_{I}(a) = \P(I_{c,i,t} = 1 \given A_{c,i} = a)$: infection rate at age $a$
 %\item $p_{D}(a) = \P(D_{c,i,t+\tau} = 1 \given I_{c,i,t} = 1, A_{c,i} = a)$ death rate at age $a$
 \end{compactitem}
-Our goal is to estimate are the total number of infected
+Our goal is to estimate the total number of infected
 individuals in country $c$ at time $t$ given by
 $$Y_{c,t} = \sum_a Y_{c,t}(a),$$ where $Y_{c,t}(a)$ is the number of
 infected individuals in country $c$ at time $t$ for age group $a$.
 For this we propose an approach to estimate $Y_{c,t-\tau}$ from
-$X_{c,t}(a)$ if it is available and from $X_{c,t}$ otherwise.
+$X_{c,t}(a)$ if it is available and from $X_{c,t}$ otherwise. We require the following assumption.
 
 %Clearly, $\P_c(I_{t} = 1 \given A = a)$
 %differs between countries and changes throughout time.
@@ -281,6 +286,10 @@ are the same.
 Currently, we use the data from South Korea to 
 estimate these numbers (see also Section~\ref{sec:uncert} below). 
 
+%\vspace{5mm}
+\paragraph{}
+Under this assumption, we can estimate $Y_{c,t}$ from the $X_{c,t}(a)$, see Section~\ref{sec:known}. 
+If we only have access to the total number of fatalities $X_{c,t}$, we require an additional assumption.
 
 
 \paragraph{Assumption A2}
@@ -330,7 +339,7 @@ A2 holds. Then, Equation~\eqref{eq:a2equiv2} holds because of the following argu
 \end{align*}}
 
 
-\paragraph{Equivalent formulation of A2}
+\paragraph{Another equivalent formulation of A2}
 Assumption A2 is also equivalent to the following assumption. 
 Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$
 \begin{equation} \label{eq:equiv3}
@@ -362,8 +371,8 @@ P_c(D_t = 1,A = a)}
 
 
 \paragraph{Motivation for A2}
-The infection rate $a \mapsto \P_c(I_{t} = 1 \given A = a)$ within 
-each country changes through time with the same factor for each age. If, for each country, there exists a function $g_c$, such that for every $t$, the joint
+It may be reasonable to assume that the infection rate $a \mapsto \P_c(I_{t} = 1 \given A = a)$ within 
+each country changes through time with the same factor for each age. That is, for each country, there exists a function $g_c$, such that for every $t$, the joint
 density over $(A,I_t,D_{t+\tau})$ is given as
 %
 \begin{align*}
@@ -404,7 +413,7 @@ of infected people in other countries.
 %\paragraph{The estimator}
 %JONAS IS WRITING HERE.
 
-\paragraph{The estimator for known number of deaths per age group}
+\subsection{The estimator for known number of deaths per age group} \label{sec:known}
 %
 For every $a$ we have that 
 $$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
@@ -431,7 +440,8 @@ and to the upper bound
   X_{c,t}(a))>\tfrac{\alpha}{2}\} / p_D(a).
 \end{equation*}
 
-\paragraph{The estimator for unknown number of deaths per age group}
+\subsection{The estimator for unknown number of deaths per age group} \label{sec:unknown}
+
 %
 If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
 $$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_{t-\tau} = a \given D_{t} = 1))$$
@@ -467,16 +477,10 @@ X_{c,t} \cdot
 %\Niklas{todo: Get bounds here.}
 
 
-\section{The app}
-The app 
-can be found at 
-\url{http://shiny.science.ku.dk/pbm/COVID19%20-%20Copy/}.
-
-
 \section{Sources of uncertainty} \label{sec:uncert}
 We believe that there are 
 three main sources of uncertainty. 
-(1) Assumption~A1: 
+(i) Assumption~A1: 
 The death rates are not known exactly. Uncertainties in the 
 estimated rates
 contribute to uncertainties in the
@@ -485,7 +489,7 @@ The current version of the app does not consider
 this type of uncertainty, but assumes 
 that the estimated death rates from South Korea are correct.
 
-(2) Assumption~A2: We can check 
+(ii) Assumption~A2: We can check 
 how well the data supports 
 this assumption by using 
 the number of COVID related deaths in each age group for different countries. 
@@ -495,7 +499,7 @@ infer the range of values to expect in Equation~\eqref{eq:a2equiv}
 and represent this as uncertainty in the predicted values. 
 The current version of the app considers data that are currently available from a number of the disease epicenters.
 
-(3) Uncertainty from statistical inference: 
+(iii) Uncertainty from statistical inference: 
 Suppose that in an age group, the death rate is $0.1$ and we have 
 $0$ fatalities in that age group.
 A point estimate might then say that there are $0$ infected persons
