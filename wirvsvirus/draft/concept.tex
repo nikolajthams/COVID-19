@@ -68,6 +68,29 @@ Group: CausalityVsCorona}
 \maketitle
 
 
+\begin{center}
+\mybox{
+\begin{minipage}{0.95\textwidth}
+\centering
+Access to accurate numbers of infections during an epidemic is
+important to create useful
+public policy
+interventions
+and evaluate their effect.
+Due to various reasons, however, 
+the confirmed cases in a country are 
+believed to underestimate the true number.
+The number of confirmed fatalities is often believed to be more reliable that the number of confirmed infections
+and contains information about the total number of infected people,
+too.
+In this project, we estimate the total number of 
+infected people aged 30 or above, from fatality data and 
+age distributions.
+
+\end{minipage}
+}
+\end{center}
+
 
 
 \section{Why are there more COVID cases 
@@ -92,20 +115,17 @@ underestimate the number of total cases of infections.
 
 
 \section{The idea}
-Access to accurate numbers of infections during an epidemic is
-extremely important to evaluate to effect of public policy
-interventions.
-
+\todo{write about the idea to use fatalities per age group and
+death rates from South Korea (nothing yet about what happens without age group data, that comes below)}
 There are three important numbers that are all related. (1) The number
 of infected people, (2) the number of deaths from the disease (3) the
 death rate given that a person is effected.
 
 
-\todo{write about the idea to use fatalities}
 \todo{cite some other sources that are based on a similar idea.}
 \citet{linton2020epidemiological}
 
-\section{Age groups without zero death rate}
+\section{Age groups with zero death rate}
 In some age groups the death rate is estimated to be zero.
 (In South Korea, this is the case for people under 30,
 see \url{https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis}, 22.3.2020, 7:18pm.)
@@ -120,9 +140,13 @@ Currently, we cannot use the above idea to
 estimate the number of total cases in 
 several countries. The reason is that 
 while we found reported number of total fatalities 
-for almost all countries \citep[e.g.][]{JohnsHopkins},
-for most of these countries we have not found the number of fatalities \emph{per age group}. 
-(We believe it would be highly informative to add these numbers.\footnote{The numbers 
+for almost all countries 
+(see, e.g., the website {\footnotesize
+\url{https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6}},
+last accessed on 22.03.2020, 7:30pm,
+which is run by the Center for Systems Science and Engineering ({CSSE}) at Johns Hopkins University ({JHU}).
+But for most of these countries we have not found the number of fatalities per age group. 
+We believe that it would be highly informative to add these numbers.\footnote{The numbers 
 are informative for two reasons: (1) It
 becomes easier to estimate the 
 total number of infected cases in the 
@@ -131,12 +155,12 @@ corresponding country.
 more countries, for example, 
 allows us to 
 provide more accurate uncertainty bounds for 
-the remaining countries, see `Uncertainties of Assumption A1 and A2'.})
-
+the remaining countries, see `Uncertainties of Assumption A1 and A2'.}
+We therefore need to estimate the number of fatalities per age group using data available from the other countries.
 
 
 \section{... and a possible solution}
-asd \todo{}
+asd \todo{Describe the main idea}
 Below, under `Modeling Framework', we describe the idea in more detail. 
 We hope that it states
 clearly which assumptions the estimator
@@ -371,6 +395,9 @@ X_{c,t} \cdot
 \end{align*}
 
 
+\section{The App}
+\todo{include link to shiny app}
+
 
 \section{Mathematics and Real Life}
 Assumption~A1 looks like an assumption about mathematics. 
@@ -383,6 +410,7 @@ There is a lot of staff working hard to
 keep this probability as small as possible. 
 Thank, all of you working in the health systems in all different countries, for 
 your efforts to keep this number small. 
+
 
 
 
