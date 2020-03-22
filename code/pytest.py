@@ -55,13 +55,12 @@ def get_AgeGroups(date):
 get_timeseries(today)
 
 ###### Get age data:
-avail_dates = ['12032020', '13032020', '16032020','17032020', '18032020', '19032020', '20032020', '21032020']
+avail_dates = ['12032020', '13032020', '16032020','17032020', '18032020', '19032020', '20032020', '21032020', '22032020']
 for date in avail_dates:
     datatable = get_AgeGroups(date)
     outfile = 'data/ssi_agegroups/data_' + date + '.csv'
     datatable.to_csv(outfile)
     print('Wrote to file ' + outfile)
-
 
 ###### Testing data
 tables = tabula.read_pdf(file, pages=2, multiple_tables=True, stream=True)
