@@ -177,25 +177,42 @@ We therefore need to estimate the number of fatalities per age group using data 
 
 
 \section{... and a possible solution}
-asd 
-\todo{Describe the main idea}
+Inferring the number of deaths per age group from the total number of deaths requires an additional assumption. 
+Clearly, 
+the probability of
+being infected, given that one 
+belongs to a certain age group, $50-59$, say, 
+differs between different countries (e.g., in some countries, 
+where the pandemic has started earlier, there may be many more cases, which results in generally higher probabilities).
+Here, we assume that the \emph{relation} between these numbers for different age groups do not differ.
+E.g., if 
+in country $c$, there 
+probability of being infected, given one is in age group $50-59$
+is twice as large as the probability of being infected, given 
+one belongs to the age group $60-69$, 
+we assume that the same ration, that is, 2, 
+also appears when dividing the analogous probabilities in country $\tilde{c} \neq c$ --- even though the probabilities themselves may be differ between the two countries. 
+This assumption suffices to estimate the number of total infections
+from the total number of deaths.
+Below, in Section~\ref{sec:model}, `Modeling framework', we describe the idea in more detail. 
+There, Assumption~A2 allows us to 
+estimate the total number of fatalities, even if 
+no age information for the number of deaths are available.
+In fact, above we have described an equivalent version of Assumption~A2 that is described in Equation~\eqref{eq:equiv3}.
+%We hope that it states clearly which assumptions the estimator relies on.
 
-Below, under `Modeling Framework', we describe the idea in more detail. 
-The most important assumption that allows us to estimate 
-the 
-We hope that it states
-clearly which assumptions the estimator
-relies on.
 
+There is yet another way to look at this assumption.
+Again, the probabilities of 
+being infected, given that one belongs to a certain age group, $50-59$, say, differs between countries. If one assumes
+that this difference can be expressed by a multiplicative constant that is the same for all age groups, then 
+this implies Assumption~2, see `Motivation for A2' in Section~\ref{sec:model} below.
 
 
 
 
 \section{Disclaimer} \label{sec:disclaimer}
-\todo{
-put 
-\citet{linton2020epidemiological}
-at the right place}
+
 We 
 developed this idea, implemented it, and 
 wrote the 
@@ -232,7 +249,7 @@ average according to \citet{jung2020real}. The slightly older paper
 13.8 days (95\% CI: 11.8, 16.0).
 
 For each country, we observe (either one or both of) the following data
-\begin{itemize}
+\begin{compactitem}
 %\item $N_c$: number of individuals in country $c$
 %\item $A_{c,i}$: age of individual $i$ in country $c$
 %\item $I_{c,i,t}$: binary indicator of infection for individual $i$ in country $c$ at time $t$
@@ -245,7 +262,7 @@ For each country, we observe (either one or both of) the following data
 %\item $p_c(a) = \P(A_{c,i} = a)$: marginal age distribution of country $c$
 %\item $p_{I}(a) = \P(I_{c,i,t} = 1 \given A_{c,i} = a)$: infection rate at age $a$
 %\item $p_{D}(a) = \P(D_{c,i,t+\tau} = 1 \given I_{c,i,t} = 1, A_{c,i} = a)$ death rate at age $a$
-\end{itemize}
+\end{compactitem}
 Our goal is to estimate are the total number of infected
 individuals in country $c$ at time $t$ given by
 $$Y_{c,t} = \sum_a Y_{c,t}(a),$$ where $Y_{c,t}(a)$ is the number of
@@ -253,12 +270,8 @@ infected individuals in country $c$ at time $t$ for age group $a$.
 For this we propose an approach to estimate $Y_{c,t-\tau}$ from
 $X_{c,t}(a)$ if it is available and from $X_{c,t}$ otherwise.
 
-
-
-
-
-Clearly, $\P_c(I_{t} = 1 \given A = a)$
-differs between countries and changes throughout time.
+%Clearly, $\P_c(I_{t} = 1 \given A = a)$
+%differs between countries and changes throughout time.
 
 \paragraph{Assumption A1} Let $a$ be fixed. Then, for all $c$, we have
 \begin{equation}
@@ -266,7 +279,7 @@ P_c(D_{t+\tau} = 1\,|\,I_t = 1, A = a)
 \end{equation}
 are the same. 
 Currently, we use the data from South Korea to 
-estimate these numbers (see also `Uncertainties regarding A1 and A2' below). 
+estimate these numbers (see also Section~\ref{sec:uncert} below). 
 
 
 
@@ -320,7 +333,7 @@ A2 holds. Then, Equation~\eqref{eq:a2equiv2} holds because of the following argu
 \paragraph{Equivalent formulation of A2}
 Assumption A2 is also equivalent to the following assumption. 
 Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$
-\begin{equation}
+\begin{equation} \label{eq:equiv3}
 \frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
 \end{equation}
 is invariant.
@@ -508,7 +521,7 @@ your efforts to keep this number small.
 
 
 \section{Extrapolating infections into present/future}
-We would like to work on this. but we are running out of time for this weekend, so we may come back to that question only later.
+We would have liked to work on this, but we were running out of time for this weekend, so we may come back to that question only later.
 
 \section{Conclusions}
 
