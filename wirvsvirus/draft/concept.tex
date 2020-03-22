@@ -37,6 +37,9 @@
 \renewcommand\P{\mathbb{P}}
 \newcommand\E{\mathbb{E}}
 \renewcommand{\phi}{\varphi}
+\usepackage{tcolorbox}
+\newtcbox{\mybox}{nobeforeafter,colframe=black!50,colback=white,boxrule=1.8pt,arc=5pt,
+  boxsep=0pt,left=6pt,right=6pt,top=6pt,bottom=6pt,tcbox raise base}
 
 
 
@@ -134,7 +137,7 @@ and hence obtain that
 
 \section{The idea currently implemented (I think)}
 
-\paragraph{Why are there more COVID cases 
+\section{Why are there more COVID cases 
 than the reported confirmed cases?}
 There are various ways to test
 whether a patient has is infected by the COVID  virus. E.g., it is possible
@@ -156,7 +159,14 @@ the number
 of tests per 1,000,000 people 
 differs between 9 (Indonesia) and
 26,865 (Iceland).
-Furthermore, 
+The difference between 
+number of 
+deaths 
+per 1,000 confirmed cases
+(e.g., Germany: 3.8, UK: 46.1; 20.3.2020, 16:09pm)
+indicates further 
+differences in testing policies.
+Also 
 the definition of `confirmed case'
 changes between countries and time
 (\todo{add example cina})
@@ -164,12 +174,17 @@ changes between countries and time
 
 
 
-\paragraph{The idea} asdasd
+\section{The idea} asdasd
 \todo{write about the idea to use fatalities}
 \todo{cite some other sources that are based on a similar idea.}
 
 
-\paragraph{The challenge of missing data}
+\section{Age groups without fatality}
+asd 
+\todo{what do we do?}
+
+
+\section{Missing age group information}
 Currently, we cannot use the above idea to 
 estimate the number of total cases in 
 several countries. The reason is that 
@@ -189,13 +204,15 @@ the remaining countries, see `Uncertainties of Assumption A1 and A2'.})
 
 
 
-\paragraph{... and a possible solution}
+\section{... and a possible solution}
+asd \todo{}
+Below, under `Modeling Framework', we describe the idea in more detail. 
+We hope that it states
+clearly which assumptions the estimator
+relies on.
 
-Below, we describe the idea in more detail. 
-We hope that 
 
-
-\paragraph{Disclaimer}
+\section{Disclaimer}
 We 
 developed this idea, implemented it, and 
 wrote the 
@@ -204,7 +221,7 @@ in the document or possible errors in
 the calculations. You can find our email addresses above.
 
 
-\paragraph{Modeling Framework}
+\section{Modeling Framework}
 We consider the following variables: 
 \begin{compactitem}
 \item asdasd
@@ -315,7 +332,8 @@ $$
 and use this to estimate the total number 
 of infected people in other countries.
 
-\if0
+
+\section{Mathematics and Real Life}
 Assumption~A1 looks like an assumption about mathematics. 
 But it is not. 
 The conditional probability does not 
@@ -326,5 +344,17 @@ There is a lot of staff working hard to
 keep this probability as small as possible. 
 Thank, all of you working in the health systems in all different countries, for 
 your efforts to keep this number small. 
-\fi
+
+
+
+\section{Conclusions}
+
+\begin{center}
+\mybox{
+\begin{minipage}{0.96\textwidth}
+\centering
+Our analysis suggests that the true number of infected people is a lot higher than the reported numbers -- please respect social distancing to avoid overburdening the health system. And stay safe!
+\end{minipage}
+}
+\end{center}
 \end{document}%
