@@ -480,7 +480,9 @@ ui <- dashboardPage(
         menuSubItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
       ),
       
-      menuItem(text = "WirVsVirus", tabName = "wirvsvirus", icon = icon("file-alt")),
+      menuItem(
+        text = "WirVsVirus", tabName = "wirvsvirus", icon = icon("file-alt")
+      ),
       
       menuItem(text = "About", tabName = "mainpage", icon = icon("file-alt"))
     )
@@ -627,12 +629,14 @@ ui <- dashboardPage(
         tabName = "wirvsvirus",
         (
           sidebarLayout(
+            
             sidebarPanel(
+              
               radioButtons(
                 "wvv.log",
                 "Y-axis scale",
                 choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log"),
-                selected="log"
+                selected = "log"
               ),
               
               selectInput(
@@ -642,11 +646,68 @@ ui <- dashboardPage(
                 selected = c("Denmark", "Italy", "United Kingdom", "US", "Spain"),
                 multiple = T
               ), 
+              
               numericInput(
                 "wvv.death_delay", 
                 "Days from infection to death",
                 value = 14, 
                 min = 1
+              ),
+              
+              ## relative risk inputs ----
+              sliderInput(
+                "age1",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0, 0.01
+              ),
+              sliderInput(
+                "age2",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0, 0.01
+              ),
+              sliderInput(
+                "age3",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0, 0.01
+              ),
+              sliderInput(
+                "age4",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0.001887880854, 0.01
+              ),
+              sliderInput(
+                "age5",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0.004195290786, 0.01
+              ),
+              sliderInput(
+                "age6",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0.01305784257, 0.01
+              ),
+              sliderInput(
+                "age7",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0.06544653626, 0.01
+              ),
+              sliderInput(
+                "age8",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0.2743720174, 0.01
+              ),
+              sliderInput(
+                "age9",
+                "Relative risk, ages 0-9:",
+                0, 1,
+                0.6410404321, 0.01
               )
             ),
             
@@ -869,7 +930,8 @@ server <- function(input, output) {
   })
   
   output$wirvsvirus <- renderPlotly({
-    p = make_estimate_plot(input)
+    tst <- .get_estimates(input)
+    p = make_estimate_plot(input, tst)
     ggplotly(p)
     
   })
