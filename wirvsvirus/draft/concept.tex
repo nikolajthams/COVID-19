@@ -273,7 +273,8 @@ $X_{c,t}(a)$ if it is available and from $X_{c,t}$ otherwise.
 %Clearly, $\P_c(I_{t} = 1 \given A = a)$
 %differs between countries and changes throughout time.
 
-\paragraph{Assumption A1} Let $a$ be fixed. Then, for all $c$, we have
+\paragraph{Assumption A1} Let $a$ be fixed. Then, for all $c$ and for
+all $t$, we have
 \begin{equation}
 P_c(D_{t+\tau} = 1\,|\,I_t = 1, A = a)
 \end{equation}
@@ -284,7 +285,7 @@ estimate these numbers (see also Section~\ref{sec:uncert} below).
 
 
 \paragraph{Assumption A2}
-Let $\tilde{a}$ be fixed. Then, for all $c$,
+Let $\tilde{a}$ be fixed. Then, for all $c$ and for all $t$,
 \begin{equation} \label{eq:a2equiv}
 \frac{P_c(D_t = 1\,|\,A = \tilde{a})}
 {\sum_a \P_c(D_t = 1\,|\,A = a)}
@@ -324,7 +325,7 @@ A2 holds. Then, Equation~\eqref{eq:a2equiv2} holds because of the following argu
 \frac{P_c(D_t = 1\,|\,A = a^*)/\sum_a \P_c(D_t = 1\,|\,A = a)
 }
 {P_c(D_t = 1\,|\,A = \tilde{a})/\sum_a \P_c(D_t = 1\,|\,A = a)
-}
+}.
 %&=\frac{P_{\tilde{c}}(D_t = 1\,|\,A = a)}
 %{P_{\tilde{c}}(D_t = 1\,|\,A = \tilde{a})}.
 \end{align*}}
@@ -337,6 +338,7 @@ Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$
 \frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
 \end{equation}
 is invariant.
+
 {\color{gray} This can be seen as follows.
 \begin{align*}
 \frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
@@ -361,24 +363,24 @@ P_c(D_t = 1,A = a)}
 
 
 \paragraph{Motivation for A2}
-The infection rate $a \mapsto \P_c(I_{t} = 1 \given A_t = a)$ within 
+The infection rate $a \mapsto \P_c(I_{t} = 1 \given A = a)$ within 
 each country changes through time with the same factor for each age. If, for each country, there exists a function $g_c$, such that for every $t$, the joint
-density over $(A_t,I_t,D_{t+\tau})$ is given as
+density over $(A,I_t,D_{t+\tau})$ is given as
 %
 \begin{align*}
-\P_c(A_t = a, D_{t+\tau} = 1, I_t = 1)	&= \P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)  \P_c(I_t = 1 \given A_t = a) \P_c(A_t = a) \\
-															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} g_c(t) \underbrace{\P(I_1 = 1 \given A_1 = a)}_{=:p_I(a)} \underbrace{\P_c(A_t = a)}_{=:p_c(a)} \\
+\P_c(A = a, D_{t+\tau} = 1, I_t = 1)	&= \P_c(D_{t+\tau} = 1 \given I_t = 1, A = a)  \P_c(I_t = 1 \given A_t = a) \P_c(A_t = a) \\
+															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A = a)}_{=:p_D(a)} g_c(t) \underbrace{\P(I_1 = 1 \given A = a)}_{=:p_I(a)} \underbrace{\P_c(A = a)}_{=:p_c(a)} \\
 															&=  g_c(t) p_D(a) p_I(a) p_c(a)
 %															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} \underbrace{\P(I_0 = 1 \given A_0 = a)}_{:=p_I(a)} \underbrace{\P_c(A_0 = a)}_{:=p_c(a)}.
 \end{align*}
 %
 it follows that 
 $$
-\frac{\P_c(I_t = 1 \given A_t = a)}{\P_c(I_t = 1 \given A_t = \tilde{a})} 
+\frac{\P_c(I_t = 1 \given A = a)}{\P_c(I_t = 1 \given A = \tilde{a})} 
 = 
 \frac{
-g_c(t) \P(I_1 = 1 \given A_1 = a)}{
-g_c(t) \P(I_1 = 1 \given A_1 = \tilde{a})}
+g_c(t) \P(I_1 = 1 \given A = a)}{
+g_c(t) \P(I_1 = 1 \given A = \tilde{a})}
 $$
 is the same for all $c$. 
 
