@@ -668,6 +668,11 @@ ui <- dashboardPage(
                 "wvv.rel_risk",
                 "Relative risk (comma-separated)",
                 value=c("0, 0, 0, 0.0014,0.004,0.013,0.065,0.274,0.641")
+              ),
+              sliderInput(
+                "wvv.dr1",
+                "Death rate 0-9",
+                min=0, max=1, value=0
               )
             ),
 
