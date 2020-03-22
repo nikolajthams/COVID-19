@@ -12,6 +12,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{bbm}
+\usepackage{hyperref}
 \usepackage{url}
 
 % Colors and diagrams
@@ -176,8 +177,12 @@ We therefore need to estimate the number of fatalities per age group using data 
 
 
 \section{... and a possible solution}
-asd \todo{Describe the main idea}
+asd 
+\todo{Describe the main idea}
+
 Below, under `Modeling Framework', we describe the idea in more detail. 
+The most important assumption that allows us to estimate 
+the 
 We hope that it states
 clearly which assumptions the estimator
 relies on.
@@ -443,7 +448,7 @@ X_{c,t} \cdot
 \section{The app}
 The app 
 can be found at 
-\url{http://shiny.science.ku.dk/pbm/COVID19/}.
+\url{http://shiny.science.ku.dk/pbm/COVID19%20-%20Copy/}.
 
 
 \section{Sources of uncertainty} \label{sec:uncert}
@@ -510,6 +515,8 @@ Our analysis suggests that the true number of infected people is a lot higher th
 
 \bibliography{ref}
 
+
+\if0
 \Jonas{old stuff
 
 \section{Estimating past infections}
@@ -577,7 +584,7 @@ and hence obtain that
 %																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\sum_a p_D(a) p_I(a) p_c(a)} \\
 \end{align*}
 }
-
+\fi
 \end{document}
 
 %%% Local Variables:
