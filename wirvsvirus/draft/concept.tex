@@ -182,7 +182,7 @@ If you know related relevant work, please tell us.
 You can find our email addresses above.
 
 
-\section{Modeling Framework}
+\section{Modeling framework}
 Consider the following variables of an individual in country $c$: 
 \begin{compactitem}
 \item $A \in \N$ denotes age (we assume age to be constant over $t$)
@@ -243,7 +243,7 @@ is the same.
 
 
 
-\paragraph{Equivalent Formulation of A2}
+\paragraph{Equivalent formulation of A2}
 Assumption A2 is equivalent to the following assumption. 
 Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$, the ratios 
 \begin{equation} \label{eq:a2equiv2}
@@ -278,7 +278,7 @@ A2 holds. Then, Equation~\eqref{eq:a2equiv2} holds because of the following argu
 \end{align*}}
 
 
-\paragraph{Equivalent Formulation of A2}
+\paragraph{Equivalent formulation of A2}
 Assumption A2 is also equivalent to the following assumption. 
 Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$
 \begin{equation}
@@ -395,11 +395,23 @@ X_{c,t} \cdot
 \end{align*}
 
 
-\section{The App}
+\section{The app}
 \todo{include link to shiny app}
 
 
-\section{Mathematics and Real Life}
+\section{Further wources of uncertainty}
+There is one more source of uncertainty. 
+Suppose that in an age group, the death rate is $0.1$ and we have 
+$0$ fatalities in that age group.
+A point estimate might then say that there are $0$ infected persons
+in that age group. However, having $300$ infected persons, say,
+is a reasonable explanation of the data, too (in that case, we would expect $0.1\cdot 300 = 0.3$ fatalities).
+Currently, our estimate does not include this source of uncertainty. 
+\todo{We are not accounting for that yet, Niklas and Nikolaj, correct?}
+
+
+
+\section{Mathematics and real life}
 Assumption~A1 looks like an assumption about mathematics. 
 But it is not. 
 The conditional probability does not 
@@ -415,7 +427,7 @@ your efforts to keep this number small.
 
 
 \section{Extrapolating infections into present/future}
-We would like to work on this. but we are running out of time for this weekend.
+We would like to work on this. but we are running out of time for this weekend, so we may come back to that question only later.
 
 \section{Conclusions}
 
