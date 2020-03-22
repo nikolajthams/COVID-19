@@ -167,7 +167,7 @@ death rate given that a person is effected.
 
 \todo{write about the idea to use fatalities}
 \todo{cite some other sources that are based on a similar idea.}
-
+\citet{linton2020epidemiological}
 
 \section{Age groups without fatality}
 asd 
@@ -179,7 +179,7 @@ Currently, we cannot use the above idea to
 estimate the number of total cases in 
 several countries. The reason is that 
 while we found reported number of total fatalities 
-for almost all countries \citep[e.g.][]{JohnHopkins},
+for almost all countries \citep[e.g.][]{JohnsHopkins},
 for most of these countries we have not found the number of fatalities \emph{per age group}. 
 (We believe it would be highly informative to add these numbers.\footnote{The numbers 
 are informative for two reasons: (1) It
@@ -324,8 +324,48 @@ of infected people in other countries.
 
 
 
-\paragraph{The estimator}
-JONAS IS WRITING HERE.
+%\paragraph{The estimator}
+%JONAS IS WRITING HERE.
+
+\paragraph{The estimator for known number of deaths per age group}
+%
+For every $a$ we have that 
+$$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
+and we thus obtain estimates 
+$$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a  X_{c,t}(a) / p_D(a)$$
+
+\paragraph{The estimator for unknown number of deaths per age group}
+%
+If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
+$$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_{t-\tau} = a \given D_{t} = 1))$$
+and hence obtain that
+\begin{align*}
+\hat{X}_{c,t}(a) = \E[X_{c,t}(a) \given X_{c,t}] 	
+&= X_{c,t} \cdot \P_c(A_{t-\tau} = a \given D_{t} = 1) \\
+     &= 
+X_{c,t} \cdot 
+\frac{  
+    \P_c(D_t = 1, A = a)}
+  {\P_c(D_t = 1)}\\
+    &= 
+X_{c,t} \cdot 
+\frac{  
+    \P_c(D_t = 1\given A = a)
+     \cdot \P_c(A = a)}
+  {\sum_{a^*}  
+    \P_c(D_t = 1\given A = a^*) \cdot \P_c(A = a^*)
+    }\\
+&= 
+X_{c,t} \cdot 
+\frac{
+  \frac{
+    \P_c(D_t = 1\given A = a)}
+    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a)}
+  {\sum_{a^*}  
+  \frac{
+    \P_c(D_t = 1\given A = a^*)}
+    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a^*)}
+\end{align*}
 
 
 \section{Mathematics and Real Life}
@@ -352,6 +392,9 @@ Our analysis suggests that the true number of infected people is a lot higher th
 \end{minipage}
 }
 \end{center}
+
+\bibliography{ref}
+
 \end{document}
 
 
@@ -359,3 +402,8 @@ Our analysis suggests that the true number of infected people is a lot higher th
 %%% mode: latex
 %%% TeX-master: t
 %%% End:
+
+
+\end{document}%
+
+>>>>>>> cd175dcc36798c940cc894b2fde1f2eb9709b3c8
