@@ -116,21 +116,36 @@ underestimate the number of total cases of infections.
 
 \section{The idea}
 We propose an to estimate the total number of infections using the 
-number of fatalities. The latter number is more reliably
+number of COVID fatalities. The latter number is more reliable in 
+that it is unlikely that many cases are missed. To do so, 
+we require knowledge of the following numbers (measured at a certain point in time):
+(1) the number of deaths in a certain age group $a$,
+(2) the death rate given that a person belongs to age group $a$.
+We can then estimate the total number of infected people 
+(this differs from the active cases),
+by dividing the number of deaths in age group $a$ by the death rate for that age group. (Clearly, this approach fails if the death rate in a certain age group equals zero. We discuss this point in Section~\ref{sec:zerodeathrate}.)
+The death rates in (2) may be considered as parameters.
+Their values may be provided by
+background knowledge. 
+In the app
+these can parameters can be set by hand,
+As standard values, we use the death rates 
+measured in South Korea, 
+where, supposedly, many people have been tested for COVID,
+see
+\url{https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis}, 22.03.2020, 9:24pm.
+%\todo{write about the idea to use fatalities per age group and
+%death rates from South Korea (nothing yet about what happens without age group data, that comes below)}
+%\todo{cite some other sources that are based on a similar idea.}
+This idea relies on the number of deaths per age group. 
+For many countries, however, 
+these data are unavailable. Under some
+assumptions, it is still possible to estimate the total number of infections, see Section~\ref{sec:noage}.
+We do not claim that our idea is novel, see Section~\ref{sec:disclaimer}.
 
-Wir schlagen daher ein alternatives Verfahren vor: die vergangenen Infektionszahlen rückwirkend von den heutigen Todesfällen berechnen. Diese werden dann Anhand eines Wachstumsmodells in die Gegenwart/Zukunft projiziert. Warum? Die Todeszahlen sind (ganz im Gegensatz zu den Infektionszahlen) fast gänzlich erfasst, und stellen somit eine sehr verlässliche Datenquelle dar. 
-
-\todo{write about the idea to use fatalities per age group and
-death rates from South Korea (nothing yet about what happens without age group data, that comes below)}
-There are three important numbers that are all related. (1) The number
-of infected people, (2) the number of deaths from the disease (3) the
-death rate given that a person is effected.
 
 
-\todo{cite some other sources that are based on a similar idea.}
-\citet{linton2020epidemiological}
-
-\section{Age groups with zero death rate}
+\section{Age groups with zero death rate} \label{sec:zerodeathrate}
 In some age groups the death rate is estimated to be zero.
 (In South Korea, this is the case for people under 30,
 see \url{https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis}, 22.3.2020, 7:18pm.)
@@ -140,7 +155,7 @@ to estimate the number of infected people by the number of deaths.
 of infected people aged 30 or above.}
 
 
-\section{Missing age group information}
+\section{Missing age group information} \label{sec:noage}
 Currently, we cannot use the above idea to 
 estimate the number of total cases in 
 several countries. The reason is that 
@@ -172,7 +187,14 @@ clearly which assumptions the estimator
 relies on.
 
 
-\section{Disclaimer}
+
+
+
+\section{Disclaimer} \label{sec:disclaimer}
+\todo{
+put 
+\citet{linton2020epidemiological}
+at the right place}
 We 
 developed this idea, implemented it, and 
 wrote the 
