@@ -460,6 +460,9 @@ ui <- dashboardPage(
   dashboardSidebar(width = 250,
     sidebarMenu(
       menuItem(
+        text = "WirVsVirus", tabName = "wirvsvirus", icon = icon("file-alt")
+      ),
+      menuItem(
         text = "Plots", tabName = "plots", icon = icon("bar-chart-o")
       ),
       # menuItem(
@@ -478,10 +481,6 @@ ui <- dashboardPage(
           icon = icon("dashboard")
         ),
         menuSubItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
-      ),
-
-      menuItem(
-        text = "WirVsVirus", tabName = "wirvsvirus", icon = icon("file-alt")
       ),
 
       menuItem(text = "About", tabName = "mainpage", icon = icon("file-alt"))
@@ -649,7 +648,7 @@ ui <- dashboardPage(
                 "wvv.countries",
                 "Countries",
                 choices = data$Country.Region,
-                selected = c("Denmark", "Italy", "United Kingdom", "US", "Spain"),
+                selected = c("Germany", "Italy", "Spain"),
                 multiple = T
               ),
 
@@ -661,25 +660,27 @@ ui <- dashboardPage(
               ),
               textInput(
                 "wvv.death_rate",
-                "Death rate (comma-separated)",
+                "Death rate for each age group (0-9, 10-19, ...) [comma-separated]",
                 value=c("0, 0, 0, 0.0011, 0.0008, 0.0042, 0.0152, 0.0628, 0.1024")
               ),
-              textInput(
-                "wvv.rel_risk",
-                "Relative risk (comma-separated)",
-                value=c("0, 0, 0, 0.0014,0.004,0.013,0.065,0.274,0.641")
-              ),
-              sliderInput(
-                "wvv.dr1",
-                "Death rate 0-9",
-                min=0, max=1, value=0
-              )
+              h5("Default death rate: South Korea")
+              # textInput(
+              #   "wvv.rel_risk",
+              #   "Relative risk (comma-separated)",
+              #   value=c("0, 0, 0, 0.0014,0.004,0.013,0.065,0.274,0.641")
+              # ),
+              # sliderInput(
+              #   "wvv.dr1",
+              #   "Death rate 0-9",
+              #   min=0, max=1, value=0
+              # )
             ),
 
             mainPanel(
               div(
                 style = "position:relative",
-                plotlyOutput("wirvsvirus")
+                plotlyOutput("wirvsvirus"),
+                h5("Solid curves indicate confirmed numbers, shaded region estimated number of infected.")
               )
             )
           )
@@ -774,31 +775,47 @@ server <- function(input, output) {
 
     ## These two parameters need to be adjusted
     death.rate =  as.numeric(unlist(strsplit(input$wvv.death_rate,",")))
-    relative.death.risk = as.numeric(unlist(strsplit(input$wvv.rel_risk,",")))
+    # relative.death.risk = as.numeric(unlist(strsplit(input$wvv.rel_risk,",")))
+    rel.rate.high = c(0,0,0.003,0.003,0.008,0.038,0.134,0.271,0.909)
+    rel.rate.low = c(0,0,0,0,0,0.003,0.015,0.074,0.543)
 
     # numbers from south korea
     # https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis
     ## Actual relevant computation
-    activedata <- matrix(NA, nrow(death_mat), ncol(death_mat))
-    for(i in 1:nrow(activedata)){
-      for(j in 1:ncol(activedata)){
-        demo_adjusted_risk <- relative.death.risk * demographics[i,]
-        est.num.death <- demo_adjusted_risk*death_mat[i, j]/sum(demo_adjusted_risk)
-        activedata[i, j] <- sum(est.num.death/death.rate, na.rm=TRUE)
+    make_data = function(death_mat, relative.death.risk){
+      activedata <- matrix(NA, nrow(death_mat), ncol(death_mat))
+      for(i in 1:nrow(activedata)){
+        for(j in 1:ncol(activedata)){
+          demo_adjusted_risk <- relative.death.risk * demographics[i,]
+          est.num.death <- demo_adjusted_risk*death_mat[i, j]/sum(demo_adjusted_risk)
+          estimate = est.num.death/death.rate
+          activedata[i, j] <- sum(estimate*is.finite(estimate), na.rm=TRUE)
+        }
       }
+      activedata = data.frame(activedata)
+      colnames(activedata) = dates
+      activedata$Country = countries
+      return(activedata)
     }
-    activedata = data.frame(activedata)
-    colnames(activedata) = dates
-    activedata$Country = countries
+    activedata.low = make_data(death_mat, rel.rate.low)
+    activedata.high = make_data(death_mat, rel.rate.high)
 
-    activedata <- melt(
-      activedata,
+    activedata.low <- melt(
+      activedata.low,
       id.vars = "Country",
       variable.name = "Date",
-      value.name = "Cases"
+      value.name = "Cases.low"
     )
-    activedata$Date = as.Date(activedata$Date)
+    activedata.low$Date = as.Date(activedata.low$Date)
 
+    activedata.high <- melt(
+      activedata.high,
+      id.vars = "Country",
+      variable.name = "Date",
+      value.name = "Cases.high"
+    )
+    activedata.high$Date = as.Date(activedata.high$Date)
+    
     confirmeddata <- melt(
       confirmeddata,
       id.vars = "Country.Region",
@@ -815,8 +832,9 @@ server <- function(input, output) {
       value.name = "Deaths"
     )
     deathdata$Date = as.Date(substring(deathdata$Date, 2), format = "%m.%d.%y")
-
-    wvv.data = merge(activedata, deathdata, by.x=c("Country", "Date"), by.y=c("Country.Region", "Date"))
+    
+    wvv.data = merge(activedata.high, activedata.low, by = c("Country", "Date"))
+    wvv.data = merge(wvv.data, deathdata, by.x=c("Country", "Date"), by.y=c("Country.Region", "Date"))
     wvv.data = merge(wvv.data, confirmeddata, by.x=c("Country", "Date"), by.y=c("Country.Region", "Date"))
     wvv.data
   })
@@ -988,11 +1006,11 @@ server <- function(input, output) {
         scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
 
       if(input$wvv.compare_ouput == "confirmed_cases"){
-        p = p + geom_line(aes(x = Date, y = ConfirmedCases))
+        p = p + geom_line(aes(x = Date, y = ConfirmedCases), linetype="dashed")
       } else {
-        p = p + geom_line(aes(x = Date, y = Deaths))
+        p = p + geom_line(aes(x = Date, y = Deaths), linetype="dashed")
       }
-      p = p + geom_line(aes(x = Date - input$wvv.death_delay, y = Cases), linetype="dashed")
+      p = p + geom_ribbon(aes(x = Date - input$wvv.death_delay, ymin = Cases.low, ymax = Cases.high, fill = Country), alpha=0.3)
 
       if (input$wvv.log == "log") {
         p <- p + scale_y_log10()
