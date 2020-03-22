@@ -277,14 +277,14 @@ agedata  <- lapply(
     data <- read_delim(
       paste("data/ssi_agegroups/", x, sep = ""), 
       delim = ",",
-      locale = locale(decimal_mark = ",")
+      locale = locale(decimal_mark = ".")
     ) %>% 
       select(-X1) %>%
       mutate(
         Date = as.Date(
           substr(x, 6, 13), format = "%d%m%Y"
-        ),
-        `Antal testede personer` = `Antal testede personer` / 10
+        )# ,
+        # `Antal testede personer` = `Antal testede personer` / 10
       )
     return(data)
   }
