@@ -203,9 +203,12 @@ Thus, we do not claim that our idea is original, we just wanted
 to implement sth this weekend.
 If you know related relevant work, please tell us.
 You can find our email addresses above.
+Some of the main assumptions underlying our prediction are described 
+as Assumptions~A1 and~A2 in Section~\ref{sec:model} and
+Section~\ref{sec:uncert} describes possible reasons for further uncertainty.
 
 
-\section{Modeling framework}
+\section{Modeling framework} \label{sec:model}
 Consider the following variables of an individual in country $c$: 
 \begin{compactitem}
 \item $A \in \N$ denotes age (we assume age to be constant over $t$)
@@ -354,9 +357,6 @@ $$
 is the same for all $c$. 
 
 
-\paragraph{Uncertainties regarding A1 and A2}
-asd
-\todo{write sth regarding}
 
 
 \paragraph{Code}
@@ -441,11 +441,16 @@ X_{c,t} \cdot
 
 
 \section{The app}
-\todo{include link to shiny app}
+The app 
+can be found at 
+\url{http://shiny.science.ku.dk/pbm/COVID19/}.
 
 
-\section{Further wources of uncertainty}
-There is one more source of uncertainty. 
+\section{Sources of uncertainty} \label{sec:uncert}
+We believe that there are 
+three main sources of uncertainty. 
+\begin{enumerate}
+\item 
 Suppose that in an age group, the death rate is $0.1$ and we have 
 $0$ fatalities in that age group.
 A point estimate might then say that there are $0$ infected persons
@@ -453,6 +458,11 @@ in that age group. However, having $300$ infected persons, say,
 is a reasonable explanation of the data, too (in that case, we would expect $0.1\cdot 300 = 0.3$ fatalities).
 Currently, our estimate does not include this source of uncertainty. 
 \todo{We are not accounting for that yet, Niklas and Nikolaj, correct?}
+Furthermore, one should take into account the uncertainty of 
+death rates estimates. 
+
+\end{enumerate}
+
 
 
 
