@@ -363,22 +363,27 @@ of infected people in other countries.
 %
 For every $a$ we have that 
 $$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
-and we thus obtain estimates 
-$$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a
-X_{c,t}(a) / p_D(a)$$
+and we thus obtain estimates
+\begin{equation}
+  \label{eq:Y1}
+  \hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a
+  X_{c,t}(a) / p_D(a)
+\end{equation}
 Given that we only have access to $X_{c,t}(a)$ at some fixed time
 $t^*$ we estimate it by scaling to the total deaths as follows
 \begin{equation*}
   \hat{X}_{c,t}(a)=X_{c,t}\cdot\frac{X_{c,t^*}(a)}{\sum_a X_{c,t^*}(a)}
 \end{equation*}
-We can also compute confidence bounds using the Binomial distribution. This
-leads to the bounds
+We can also compute confidence bounds for the estimator \eqref{eq:Y1}
+using the Binomial distribution. This leads to the lower bound
 \begin{equation*}
-  \hat{Y}_{c,t-\tau}^{\text{lower}} = \inf\{n\in\N \,\vert\, \P(X\geq
-  x)>\frac{\alpha}{2}\}
-  \quad\text{and}\quad
-  \hat{Y}_{c,t-\tau}^{\text{upper}} = \sup\{n\in\N \,\vert\, \P(X\leq
-  x)>\frac{\alpha}{2}\}.
+  \hat{Y}_{c,t-\tau}^{\text{lower}} = \sum_a \inf\{n\in\N \,\vert\, \P(X\geq
+  X_{c,t}(a))>\tfrac{\alpha}{2}\} / p_D(a)
+\end{equation*}
+and to the upper bound
+\begin{equation*}
+  \hat{Y}_{c,t-\tau}^{\text{upper}} = \sum_a \sup\{n\in\N \,\vert\, \P(X\leq
+  X_{c,t}(a))>\tfrac{\alpha}{2}\} / p_D(a).
 \end{equation*}
 
 \paragraph{The estimator for unknown number of deaths per age group}
