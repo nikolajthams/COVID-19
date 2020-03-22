@@ -62,7 +62,7 @@
 \title{COVID-19: Estimating infections from deaths rates \\ \# WirVsVirus\\
 Group: CausalityVsCorona}
 %\author{Rune Christiansen\thanks{krunechristiansen@math.ku.dk} \ and Jonas Peters\thanks{jonas.peters@math.ku.dk}}
-\author{Rune Christiansen\thanks{krunechristiansen@math.ku.dk}, Phillip Mogensen\thanks{pbm@math.ku.dk}, Jonas Peters\thanks{jonas.peters@math.ku.dk}, Niklas Pfister\thanks{niklas.pfister@stat.math.ethz.ch}, Nikolaj Thams\thanks{thams@math.ku.dk}}
+\author{Rune Christiansen\thanks{krunechristiansen@math.ku.dk}, Phillip Mogensen\thanks{pbm@math.ku.dk}, Jonas Peters\thanks{jonas.peters@math.ku.dk}, Niklas Pfister\thanks{np@math.ku.dk}, Nikolaj Thams\thanks{thams@math.ku.dk}}
 \date{\today}
 \begin{document}
 \maketitle
@@ -364,7 +364,22 @@ of infected people in other countries.
 For every $a$ we have that 
 $$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
 and we thus obtain estimates 
-$$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a  X_{c,t}(a) / p_D(a)$$
+$$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a
+X_{c,t}(a) / p_D(a)$$
+Given that we only have access to $X_{c,t}(a)$ at some fixed time
+$t^*$ we estimate it by scaling to the total deaths as follows
+\begin{equation*}
+  \hat{X}_{c,t}(a)=X_{c,t}\cdot\frac{X_{c,t^*}(a)}{\sum_a X_{c,t^*}(a)}
+\end{equation*}
+We can also compute confidence bounds using the Binomial distribution. This
+leads to the bounds
+\begin{equation*}
+  \hat{Y}_{c,t-\tau}^{\text{lower}} = \inf\{n\in\N \,\vert\, \P(X\geq
+  x)>\frac{\alpha}{2}\}
+  \quad\text{and}\quad
+  \hat{Y}_{c,t-\tau}^{\text{upper}} = \sup\{n\in\N \,\vert\, \P(X\leq
+  x)>\frac{\alpha}{2}\}.
+\end{equation*}
 
 \paragraph{The estimator for unknown number of deaths per age group}
 %
@@ -398,6 +413,8 @@ X_{c,t} \cdot
     \P_c(D_t = 1\given A = a^*)}
     {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a^*)}
 \end{align*}
+
+\Niklas{todo: Get bounds here.}
 
 
 \section{The app}
