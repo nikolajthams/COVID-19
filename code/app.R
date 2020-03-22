@@ -655,7 +655,7 @@ ui <- dashboardPage(
               numericInput(
                 "wvv.death_delay",
                 "Days from infection to death",
-                value = 22,
+                value = 20,
                 min = 1
               ),
               textInput(
