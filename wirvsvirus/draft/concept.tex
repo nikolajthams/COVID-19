@@ -128,4 +128,40 @@ and hence obtain that
 
 \section{Extrapolating infections into present/future}
 
+
+\section{The idea currently implemented (I think)}
+
+\paragraph{Assumption} Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$, the ratios 
+$$
+\frac{P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
+$$
+are the same. Equivalently: Let $a$ be fixed. Then, for all $c$,
+$$
+\frac{P_c(D_t = 1\,|\,A = a)}
+{\sum_a P_c(D_t = 1\,|\,A = a)}
+$$
+is the same.
+
+
+\paragraph{Remark}
+Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$
+\begin{align*}
+\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
+&= k_1
+\frac{P_c(I_t = 1,A = a)P_c(A = \tilde{a})
+P(D_t = 1\,|\,I_t = 1, A = a)}
+{P_c(I_t = 1,A = \tilde{a})P_c(A = a)P(D_t = 1\,|\,I_t = 1, A = \tilde{a})} \\
+&= k_1
+\frac{P_c(A = \tilde{a})
+P_c(D_t = 1,I_t = 1, A = a)}
+{P_c(A = a)P_c(D_t = 1,I_t = 1, A = \tilde{a})}\\
+&= k_1
+\frac{P_c(A = \tilde{a})
+P_c(D_t = 1,A = a)}
+{P_c(A = a)P_c(D_t = 1, A = \tilde{a})}\\
+&= k_1
+\frac{P_c(D_t = 1\,|\,A = a)}
+{P_c(D_t = 1\,|\, A = \tilde{a})}
+\end{align*}
+is the same. This, we can replace the assumption by the corresponding one where $D$ is replaced with $I$.
 \end{document}%
