@@ -59,13 +59,350 @@
 \newcommand\Niklas[1]{{\color{Fuchsia}Niklas: #1}}
 \newcommand\Martin[1]{{\color{PineGreen}Nikolaj: #1}}
 
-\title{COVID-19: Estimating infections from deaths rates \\ \# WirVsVirus}
+\title{COVID-19: Estimating infections from deaths rates \\ \# WirVsVirus\\
+Group: CausalityVsCorona}
 %\author{Rune Christiansen\thanks{krunechristiansen@math.ku.dk} \ and Jonas Peters\thanks{jonas.peters@math.ku.dk}}
-\author{Rune Christiansen, Phillip Mogensen, Jonas Peters, Niklas Pfister, Nikolaj Thams}
+\author{Rune Christiansen\thanks{krunechristiansen@math.ku.dk}, Phillip Mogensen\thanks{pbm@math.ku.dk}, Jonas Peters\thanks{jonas.peters@math.ku.dk}, Niklas Pfister\thanks{niklas.pfister@stat.math.ethz.ch}, Nikolaj Thams\thanks{thams@math.ku.dk}}
 \date{\today}
-
 \begin{document}
 \maketitle
+
+
+
+
+\section{Why are there more COVID cases 
+than the reported confirmed cases?}
+There are various ways to test whether a patient is infected by the
+COVID virus. E.g., it is possible to detect the virus from respiratory
+samples.  Even if we assume perfect tests (no false positives and no
+false negatives), the number of confirmed cases is less than the true
+number of infections because not all infected cases get tested.
+Furthermore, the countries have different testing policies concerning
+whom gets tested and these may even change over time.  According to
+\url{https://en.wikipedia.org/wiki/COVID-19_testing} (20.03.2020,
+3:27pm), the number of tests per 1,000,000 people differs between 9
+(Indonesia) and 26,865 (Iceland).  The difference between number of
+deaths per 1,000 confirmed cases (e.g., Germany: 3.8, UK: 46.1;
+20.3.2020, 16:09pm) indicates further differences in testing policies.
+Also the definition of `confirmed case' changes between countries and
+time (cf.\ China's change of policy in February).
+% \todo{show figures and examples}
+It is widely accepted that the officially confirmed cases
+underestimate the number of total cases of infections.
+
+
+\section{The idea}
+Access to accurate numbers of infections during an epidemic is
+extremely important to evaluate to effect of public policy
+interventions.
+
+There are three important numbers that are all related. (1) The number
+of infected people, (2) the number of deaths from the disease (3) the
+death rate given that a person is effected.
+
+
+\todo{write about the idea to use fatalities}
+\todo{cite some other sources that are based on a similar idea.}
+\citet{linton2020epidemiological}
+
+\section{Age groups without zero death rate}
+In some age groups the death rate is estimated to be zero.
+(In South Korea, this is the case for people under 30,
+see \url{https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis}, 22.3.2020, 7:18pm.)
+If the death rate is zero, it is impossible 
+to estimate the number of infected people by the number of deaths.
+{\bf In this project, we there restrict ourselves to estimate the number
+of infected people aged 30 or above.}
+
+
+\section{Missing age group information}
+Currently, we cannot use the above idea to 
+estimate the number of total cases in 
+several countries. The reason is that 
+while we found reported number of total fatalities 
+for almost all countries \citep[e.g.][]{JohnsHopkins},
+for most of these countries we have not found the number of fatalities \emph{per age group}. 
+(We believe it would be highly informative to add these numbers.\footnote{The numbers 
+are informative for two reasons: (1) It
+becomes easier to estimate the 
+total number of infected cases in the 
+corresponding country.
+(2) They help us to better understand Assumption A2. Having these data from 
+more countries, for example, 
+allows us to 
+provide more accurate uncertainty bounds for 
+the remaining countries, see `Uncertainties of Assumption A1 and A2'.})
+
+
+
+\section{... and a possible solution}
+asd \todo{}
+Below, under `Modeling Framework', we describe the idea in more detail. 
+We hope that it states
+clearly which assumptions the estimator
+relies on.
+
+
+\section{Disclaimer}
+We 
+developed this idea, implemented it, and 
+wrote the 
+document in a short amount of time. Please tell us if you find any typos 
+in the document or possible errors in 
+the calculations. 
+Also, we are certain that there is a lot of 
+related work to our approach that is not properly cited. 
+Thus, we do not claim that our idea is original, we just wanted
+to implement sth this weekend.
+If you know related relevant work, please tell us.
+You can find our email addresses above.
+
+
+\section{Modeling Framework}
+Consider the following variables of an individual in country $c$: 
+\begin{compactitem}
+\item $A \in \N$ denotes age (we assume age to be constant over $t$)
+\item $I \in \{0,1\}$ infection indicator
+\item $D \in \{0,1\}$ the indicator for a Corona-related death 
+\item $\tau > 0$ the time from infection to possible death
+\item $\P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)$ is the probability of dying, given one is infected and in age group $a$.
+\end{compactitem}
+
+
+
+For each country, we are given data from several individuals and time points:
+
+\begin{itemize}
+%\item $N_c$: number of individuals in country $c$
+%\item $A_{c,i}$: age of individual $i$ in country $c$
+%\item $I_{c,i,t}$: binary indicator of infection for individual $i$ in country $c$ at time $t$
+%\item $D_{c,i,t}$: binary indicator of Corona-related death for individual $i$ in country $c$ at time $t$
+\item $Y_{c,t}(a)$: number of infected individuals in country $c$ at age $a$ at time $t$
+\item $X_{c,t}(a)$: number of Corona-related deaths in country $c$ at age $a$ at time $t$
+\item $Y_{c,t} = \sum_a Y_{c,t}(a)$: total number of infected individuals in country $c$ at time $t$
+\item $X_{c,t} = \sum_a X_{c,t}(a)$: total number of Corona-related deaths in country $c$ at time $t$
+%\item $\tau$: time from infection to possible death
+%\item $p_c(a) = \P(A_{c,i} = a)$: marginal age distribution of country $c$
+%\item $p_{I}(a) = \P(I_{c,i,t} = 1 \given A_{c,i} = a)$: infection rate at age $a$
+%\item $p_{D}(a) = \P(D_{c,i,t+\tau} = 1 \given I_{c,i,t} = 1, A_{c,i} = a)$ death rate at age $a$
+\end{itemize}
+%Both $p_I$ and $p_D$ are assumed to be the same across all countries $c$ and all time points $t$. 
+%
+Our goal is to estimate $Y_{c,t-\tau}$ from $X_{c,t}(a)$ (if available) or from $X_{c,t}$. 
+
+
+
+
+
+Clearly, $\P_c(I_{t} = 1 \given A = a)$
+differs between countries and changes throughout time.
+
+\paragraph{Assumption A1} Let $a$ be fixed. Then, for all $c$, we have
+\begin{equation}
+P_c(D_{t+\tau} = 1\,|\,I_t = 1, A = a)
+\end{equation}
+are the same. 
+Currently, we use the data from South Korea to 
+estimate these numbers (see also `Uncertainties regarding A1 and A2' below). 
+
+
+
+\paragraph{Assumption A2}
+Let $\tilde{a}$ be fixed. Then, for all $c$,
+\begin{equation} \label{eq:a2equiv}
+\frac{P_c(D_t = 1\,|\,A = \tilde{a})}
+{\sum_a \P_c(D_t = 1\,|\,A = a)}
+\end{equation}
+is the same.
+
+
+
+
+
+\paragraph{Equivalent Formulation of A2}
+Assumption A2 is equivalent to the following assumption. 
+Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$, the ratios 
+\begin{equation} \label{eq:a2equiv2}
+\frac{P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
+\end{equation}
+are the same. 
+
+{\color{gray} This can be seen as follows. Assume first that 
+that Equation~\eqref{eq:a2equiv2} holds. Let $\tilde{a}$ be fixed. We then have 
+\begin{align*}
+\frac{P_c(D_t = 1\,|\,A = \tilde{a})}
+{\sum_a \P_c(D_t = 1\,|\,A = a)}
+&= 
+\frac{1}{\frac{\sum_a \P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
+}\\
+&= 
+\frac{1}{\sum_a \frac{P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
+}
+\end{align*}
+Now, assume 
+A2 holds. Then, Equation~\eqref{eq:a2equiv2} holds because of the following argument:  Let $\tilde{a}$ and $a^*$ be fixed. We then have
+\begin{align*}
+\frac{P_c(D_t = 1\,|\,A = a^*)}
+{P_c(D_t = 1\,|\,A = \tilde{a})}
+&= 
+\frac{P_c(D_t = 1\,|\,A = a^*)/\sum_a \P_c(D_t = 1\,|\,A = a)
+}
+{P_c(D_t = 1\,|\,A = \tilde{a})/\sum_a \P_c(D_t = 1\,|\,A = a)
+}
+%&=\frac{P_{\tilde{c}}(D_t = 1\,|\,A = a)}
+%{P_{\tilde{c}}(D_t = 1\,|\,A = \tilde{a})}.
+\end{align*}}
+
+
+\paragraph{Equivalent Formulation of A2}
+Assumption A2 is also equivalent to the following assumption. 
+Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$
+\begin{equation}
+\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
+\end{equation}
+is invariant.
+{\color{gray} This can be seen as follows.
+\begin{align*}
+\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
+&= k_1
+\frac{P_c(I_t = 1,A = a)P_c(A = \tilde{a})
+P(D_t = 1\,|\,I_t = 1, A = a)}
+{P_c(I_t = 1,A = \tilde{a})P_c(A = a)P(D_t = 1\,|\,I_t = 1, A = \tilde{a})} \\
+&= k_1
+\frac{P_c(A = \tilde{a})
+P_c(D_t = 1,I_t = 1, A = a)}
+{P_c(A = a)P_c(D_t = 1,I_t = 1, A = \tilde{a})}\\
+&= k_1
+\frac{P_c(A = \tilde{a})
+P_c(D_t = 1,A = a)}
+{P_c(A = a)P_c(D_t = 1, A = \tilde{a})}\\
+&= k_1
+\frac{P_c(D_t = 1\,|\,A = a)}
+{P_c(D_t = 1\,|\, A = \tilde{a})}.
+\end{align*}
+}
+
+
+
+\paragraph{Motivation for A2}
+The infection rate $a \mapsto \P_c(I_{t} = 1 \given A_t = a)$ within 
+each country changes through time with the same factor for each age. If, for each country, there exists a function $g_c$, such that for every $t$, the joint
+density over $(A_t,I_t,D_{t+\tau})$ is given as
+%
+\begin{align*}
+\P_c(A_t = a, D_{t+\tau} = 1, I_t = 1)	&= \P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)  \P_c(I_t = 1 \given A_t = a) \P_c(A_t = a) \\
+															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} g_c(t) \underbrace{\P(I_1 = 1 \given A_1 = a)}_{=:p_I(a)} \underbrace{\P_c(A_t = a)}_{=:p_c(a)} \\
+															&=  g_c(t) p_D(a) p_I(a) p_c(a)
+%															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} \underbrace{\P(I_0 = 1 \given A_0 = a)}_{:=p_I(a)} \underbrace{\P_c(A_0 = a)}_{:=p_c(a)}.
+\end{align*}
+%
+it follows that 
+$$
+\frac{\P_c(I_t = 1 \given A_t = a)}{\P_c(I_t = 1 \given A_t = \tilde{a})} 
+= 
+\frac{
+g_c(t) \P(I_1 = 1 \given A_1 = a)}{
+g_c(t) \P(I_1 = 1 \given A_1 = \tilde{a})}
+$$
+is the same for all $c$. 
+
+
+\paragraph{Uncertainties regarding A1 and A2}
+asd
+\todo{write sth regarding}
+
+
+\paragraph{Code}
+In the code, we currently compute the following. 
+For one country $c$, e.g. South Korea, we compute, for all $a$,
+$$
+\frac{n_c \P_c(D_t = 1\,|\,A = a)}
+{\sum_a n_c \P_c(D_t = 1\,|\,A = a)}
+=
+\frac{P_c(D_t = 1\,|\,A = a)}
+{\sum_a \P_c(D_t = 1\,|\,A = a)}
+$$
+and use this to estimate the total number 
+of infected people in other countries.
+
+
+
+%\paragraph{The estimator}
+%JONAS IS WRITING HERE.
+
+\paragraph{The estimator for known number of deaths per age group}
+%
+For every $a$ we have that 
+$$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
+and we thus obtain estimates 
+$$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a  X_{c,t}(a) / p_D(a)$$
+
+\paragraph{The estimator for unknown number of deaths per age group}
+%
+If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
+$$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_{t-\tau} = a \given D_{t} = 1))$$
+and hence obtain that
+\begin{align*}
+\hat{X}_{c,t}(a) = \E[X_{c,t}(a) \given X_{c,t}] 	
+&= X_{c,t} \cdot \P_c(A_{t-\tau} = a \given D_{t} = 1) \\
+     &= 
+X_{c,t} \cdot 
+\frac{  
+    \P_c(D_t = 1, A = a)}
+  {\P_c(D_t = 1)}\\
+    &= 
+X_{c,t} \cdot 
+\frac{  
+    \P_c(D_t = 1\given A = a)
+     \cdot \P_c(A = a)}
+  {\sum_{a^*}  
+    \P_c(D_t = 1\given A = a^*) \cdot \P_c(A = a^*)
+    }\\
+&= 
+X_{c,t} \cdot 
+\frac{
+  \frac{
+    \P_c(D_t = 1\given A = a)}
+    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a)}
+  {\sum_{a^*}  
+  \frac{
+    \P_c(D_t = 1\given A = a^*)}
+    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a^*)}
+\end{align*}
+
+
+
+\section{Mathematics and Real Life}
+Assumption~A1 looks like an assumption about mathematics. 
+But it is not. 
+The conditional probability does not 
+only describe how
+the virus affects humans, 
+but also how the health system treats the patients. 
+There is a lot of staff working hard to 
+keep this probability as small as possible. 
+Thank, all of you working in the health systems in all different countries, for 
+your efforts to keep this number small. 
+
+
+
+\section{Extrapolating infections into present/future}
+We would like to work on this. but we are running out of time for this weekend.
+
+\section{Conclusions}
+
+\begin{center}
+\mybox{
+\begin{minipage}{0.96\textwidth}
+\centering
+Our analysis suggests that the true number of infected people is a lot higher than the reported numbers -- please respect social distancing to avoid overburdening the health system. And stay safe!
+\end{minipage}
+}
+\end{center}
+
+\bibliography{ref}
+
+\Jonas{old stuff
 
 \section{Estimating past infections}
 
@@ -132,271 +469,9 @@ and hence obtain that
 %																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\sum_a p_D(a) p_I(a) p_c(a)} \\
 \end{align*}
 
-\section{Extrapolating infections into present/future}
 
 
-\section{The idea currently implemented (I think)}
-
-\section{Why are there more COVID cases 
-than the reported confirmed cases?}
-There are various ways to test whether a patient is infected by the
-COVID virus. E.g., it is possible to detect the virus from respiratory
-samples.  Even if we assume perfect tests (no false positives and no
-false negatives), the number of confirmed cases is less than the true
-number of infections because not all infected cases get tested.
-Furthermore, the countries have different testing policies concerning
-whom gets tested and these may even change over time.  According to
-\url{https://en.wikipedia.org/wiki/COVID-19_testing} (20.03.2020,
-3:27pm), the number of tests per 1,000,000 people differs between 9
-(Indonesia) and 26,865 (Iceland).  The difference between number of
-deaths per 1,000 confirmed cases (e.g., Germany: 3.8, UK: 46.1;
-20.3.2020, 16:09pm) indicates further differences in testing policies.
-Also the definition of `confirmed case' changes between countries and
-time (\todo{add example cina}) \todo{show figures and examples}
-
-\section{The idea}
-
-Access to accurate numbers of infections during an epidemic is
-extremely important to evaluate to effect of public policy
-interventions.
-
-There are three important numbers that are all related. (1) The number
-of infected people, (2) the number of deaths from the disease (3) the
-death rate given that a person is effected.
-
-
-\todo{write about the idea to use fatalities}
-\todo{cite some other sources that are based on a similar idea.}
-\citet{linton2020epidemiological}
-
-\section{Age groups without fatality}
-asd 
-\todo{what do we do?}
-
-
-\section{Missing age group information}
-Currently, we cannot use the above idea to 
-estimate the number of total cases in 
-several countries. The reason is that 
-while we found reported number of total fatalities 
-for almost all countries \citep[e.g.][]{JohnsHopkins},
-for most of these countries we have not found the number of fatalities \emph{per age group}. 
-(We believe it would be highly informative to add these numbers.\footnote{The numbers 
-are informative for two reasons: (1) It
-becomes easier to estimate the 
-total number of infected cases in the 
-corresponding country.
-(2) They help us to better understand Assumption A2. Having these data from 
-more countries, for example, 
-allows us to 
-provide more accurate uncertainty bounds for 
-the remaining countries, see `Uncertainties of Assumption A1 and A2'.})
-
-
-
-\section{... and a possible solution}
-asd \todo{}
-Below, under `Modeling Framework', we describe the idea in more detail. 
-We hope that it states
-clearly which assumptions the estimator
-relies on.
-
-
-\section{Disclaimer}
-We 
-developed this idea, implemented it, and 
-wrote the 
-document in a short amount of time. Please tell us if you find any typos 
-in the document or possible errors in 
-the calculations. You can find our email addresses above.
-
-
-\section{Modeling Framework}
-We consider the following variables: 
-\begin{compactitem}
-\item asdasd
-\end{compactitem}
-Let $A \in \N$ denote age, $I \in \{0,1\}$ infection indicator, $D \in \{0,1\}$ the indicator for a Corona-related death and $\tau > 0$
-the time from infection to possible death. We assume that the death rate $a \mapsto \P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)$ is 
-the same for all countries $c$ and all time points $t$, and that the infection rate $a \mapsto \P_c(I_{t} = 1 \given A_t = a)$ within 
-each country changes through time with the same factor for each age.
-
-
-Clearly, $\P_c(I_{t} = 1 \given A = a)$
-differs between countries and changes throughout time.
-
-\paragraph{Assumption A1} Let $a$ be fixed. Then, for all $c$, we have
-\begin{equation}
-P_c(D_{t+\tau} = 1\,|\,I_t = 1, A = a)
-\end{equation}
-are the same. 
-Currently, we use the data from South Korea to 
-estimate these numbers (see also `Uncertainties regarding A1 and A2' below). 
-
-
-
-\paragraph{Assumption A2} Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$, the ratios 
-\begin{equation}
-\frac{P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
-\end{equation}
-are the same. 
-
-
-
-
-\paragraph{Remark}
-Assumption A2 is equivalent to the following assumption. Let $\tilde{a}$ be fixed. Then, for all $c$,
-\begin{equation} \label{eq:a2equiv}
-\frac{P_c(D_t = 1\,|\,A = \tilde{a})}
-{\sum_a P_c(D_t = 1\,|\,A = a)}
-\end{equation}
-is the same.
-{\color{gray} This can be seen as follows. Assume first that 
-A2 holds. Let $\tilde{a}$ be fixed. We then have 
-\begin{align*}
-\frac{P_c(D_t = 1\,|\,A = \tilde{a})}
-{\sum_a P_c(D_t = 1\,|\,A = a)}
-&= 
-\frac{1}{\frac{\sum_a P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
-}\\
-&= 
-\frac{1}{\sum_a \frac{P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
 }
-\end{align*}
-Now, assume that Equation~\eqref{eq:a2equiv} holds. Then, A2 holds because of the following argument:  Let $\tilde{a}$ and $a^*$ be fixed. We then have
-\begin{align*}
-\frac{P_c(D_t = 1\,|\,A = a^*)}
-{P_c(D_t = 1\,|\,A = \tilde{a})}
-&= 
-\frac{P_c(D_t = 1\,|\,A = a^*)/\sum_a P_c(D_t = 1\,|\,A = a)
-}
-{P_c(D_t = 1\,|\,A = \tilde{a})/\sum_a P_c(D_t = 1\,|\,A = a)
-}
-%&=\frac{P_{\tilde{c}}(D_t = 1\,|\,A = a)}
-%{P_{\tilde{c}}(D_t = 1\,|\,A = \tilde{a})}.
-\end{align*}}
-
-\paragraph{Remark}
-Assumption A2 is also equivalent to the following assumption. 
-Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$
-\begin{equation}
-\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
-\end{equation}
-is invariant.
-{\color{gray} This can be seen as follows.
-\begin{align*}
-\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
-&= k_1
-\frac{P_c(I_t = 1,A = a)P_c(A = \tilde{a})
-P(D_t = 1\,|\,I_t = 1, A = a)}
-{P_c(I_t = 1,A = \tilde{a})P_c(A = a)P(D_t = 1\,|\,I_t = 1, A = \tilde{a})} \\
-&= k_1
-\frac{P_c(A = \tilde{a})
-P_c(D_t = 1,I_t = 1, A = a)}
-{P_c(A = a)P_c(D_t = 1,I_t = 1, A = \tilde{a})}\\
-&= k_1
-\frac{P_c(A = \tilde{a})
-P_c(D_t = 1,A = a)}
-{P_c(A = a)P_c(D_t = 1, A = \tilde{a})}\\
-&= k_1
-\frac{P_c(D_t = 1\,|\,A = a)}
-{P_c(D_t = 1\,|\, A = \tilde{a})}.
-\end{align*}
-}
-
-\paragraph{Uncertainties regarding A1 and A2}
-asd
-\todo{write sth regarding}
-
-
-\paragraph{Code}
-In the code, we currently compute the following. 
-For one country $c$, e.g. South Korea, we compute, for all $a$,
-$$
-\frac{n_c P_c(D_t = 1\,|\,A = a)}
-{\sum_a n_c P_c(D_t = 1\,|\,A = a)}
-=
-\frac{P_c(D_t = 1\,|\,A = a)}
-{\sum_a P_c(D_t = 1\,|\,A = a)}
-$$
-and use this to estimate the total number 
-of infected people in other countries.
-
-
-
-%\paragraph{The estimator}
-%JONAS IS WRITING HERE.
-
-\paragraph{The estimator for known number of deaths per age group}
-%
-For every $a$ we have that 
-$$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
-and we thus obtain estimates 
-$$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a  X_{c,t}(a) / p_D(a)$$
-
-\paragraph{The estimator for unknown number of deaths per age group}
-%
-If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
-$$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_{t-\tau} = a \given D_{t} = 1))$$
-and hence obtain that
-\begin{align*}
-\hat{X}_{c,t}(a) = \E[X_{c,t}(a) \given X_{c,t}] 	
-&= X_{c,t} \cdot \P_c(A_{t-\tau} = a \given D_{t} = 1) \\
-     &= 
-X_{c,t} \cdot 
-\frac{  
-    \P_c(D_t = 1, A = a)}
-  {\P_c(D_t = 1)}\\
-    &= 
-X_{c,t} \cdot 
-\frac{  
-    \P_c(D_t = 1\given A = a)
-     \cdot \P_c(A = a)}
-  {\sum_{a^*}  
-    \P_c(D_t = 1\given A = a^*) \cdot \P_c(A = a^*)
-    }\\
-&= 
-X_{c,t} \cdot 
-\frac{
-  \frac{
-    \P_c(D_t = 1\given A = a)}
-    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a)}
-  {\sum_{a^*}  
-  \frac{
-    \P_c(D_t = 1\given A = a^*)}
-    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a^*)}
-\end{align*}
-
-
-\section{Mathematics and Real Life}
-Assumption~A1 looks like an assumption about mathematics. 
-But it is not. 
-The conditional probability does not 
-only describe how
-the virus affects humans, 
-but also how the health system treats the patients. 
-There is a lot of staff working hard to 
-keep this probability as small as possible. 
-Thank, all of you working in the health systems in all different countries, for 
-your efforts to keep this number small. 
-
-
-
-\section{Conclusions}
-
-\begin{center}
-\mybox{
-\begin{minipage}{0.96\textwidth}
-\centering
-Our analysis suggests that the true number of infected people is a lot higher than the reported numbers -- please respect social distancing to avoid overburdening the health system. And stay safe!
-\end{minipage}
-}
-\end{center}
-
-\bibliography{ref}
-
-\end{document}
-
 
 %%% Local Variables:
 %%% mode: latex
