@@ -54,17 +54,27 @@ activedata <- melt(
   value.name = "Cases"
 )
 activedata$Date = as.Date(activedata$Date)
+deathdata <- melt(
+  deathdata,
+  id.vars = "Country.Region", 
+  variable.name = "Date", 
+  value.name = "Deaths"
+)
+deathdata$Date = as.Date(substring(deathdata$Date, 2), format = "%m.%d.%y")
+
+wvv.data = merge(activedata, deathdata, by.x=c("Country", "Date"), by.y=c("Country.Region", "Date"))
 
 make_estimate_plot = function(input){
-  p = ggplot(subset(activedata, Country %in% input$wvv.countries), 
-             aes(x = Date - input$wvv.death_delay, y = Cases, colour=Country, group=Country)) + 
-    geom_line() + geom_point() + 
+  firstDeath = min(subset(wvv.data, (Deaths != 0 & Country %in% input$wvv.countries))$Date)
+  p = ggplot(subset(wvv.data, (Country %in% input$wvv.countries & Date >= firstDeath)), 
+             aes(colour=Country, group=Country)) + 
+    geom_line(aes(x = Date, y = Deaths)) +
+    geom_line(aes(x = Date - input$wvv.death_delay, y = Cases), linetype="dashed") +
     scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
   if (input$wvv.log == "log") {
     p <- p + scale_y_log10()
   }
   return(p)
 }
-
 
 
