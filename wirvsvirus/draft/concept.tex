@@ -12,6 +12,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{bbm}
+\usepackage{hyperref}
 \usepackage{url}
 
 % Colors and diagrams
@@ -176,8 +177,12 @@ We therefore need to estimate the number of fatalities per age group using data 
 
 
 \section{... and a possible solution}
-asd \todo{Describe the main idea}
+asd 
+\todo{Describe the main idea}
+
 Below, under `Modeling Framework', we describe the idea in more detail. 
+The most important assumption that allows us to estimate 
+the 
 We hope that it states
 clearly which assumptions the estimator
 relies on.
@@ -448,27 +453,40 @@ X_{c,t} \cdot
 \section{The app}
 The app 
 can be found at 
-\url{http://shiny.science.ku.dk/pbm/COVID19/}.
+\url{http://shiny.science.ku.dk/pbm/COVID19%20-%20Copy/}.
 
 
 \section{Sources of uncertainty} \label{sec:uncert}
 We believe that there are 
 three main sources of uncertainty. 
-\begin{enumerate}
-\item 
+(1) Assumption~A1: 
+The death rates are not known exactly. Uncertainties in the 
+estimated rates
+contribute to uncertainties in the
+predicted values.
+The current version of the app does not consider
+this type of uncertainty, but assumes 
+that the estimated death rates are correct.
+\todo{APP: check} 
+(2) Assumption~A2: We can check 
+how well the data supports 
+this assumption by using 
+the number of COVID related deaths in each age group for different countries. 
+In particular, A2 will not be satisfied exactly, but 
+considering several countries, we can 
+infer the range of values to expect in Equation~\eqref{eq:a2equiv}
+and represent this as uncertainty in the predicted values. 
+The current version of the app considers
+all data that are currently available.
+\todo{APP: check}
+(3) Uncertainty from statistical inference: 
 Suppose that in an age group, the death rate is $0.1$ and we have 
 $0$ fatalities in that age group.
 A point estimate might then say that there are $0$ infected persons
 in that age group. However, having $300$ infected persons, say,
 is a reasonable explanation of the data, too (in that case, we would expect $0.1\cdot 300 = 0.3$ fatalities).
 Currently, our estimate does not include this source of uncertainty. 
-\todo{We are not accounting for that yet, Niklas and Nikolaj, correct?}
-Furthermore, one should take into account the uncertainty of 
-death rates estimates. 
-
-\end{enumerate}
-
-
+\todo{APP: check}
 
 
 \section{Mathematics and real life}
@@ -502,6 +520,8 @@ Our analysis suggests that the true number of infected people is a lot higher th
 
 \bibliography{ref}
 
+
+\if0
 \Jonas{old stuff
 
 \section{Estimating past infections}
@@ -569,7 +589,7 @@ and hence obtain that
 %																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\sum_a p_D(a) p_I(a) p_c(a)} \\
 \end{align*}
 }
-
+\fi
 \end{document}
 
 %%% Local Variables:
