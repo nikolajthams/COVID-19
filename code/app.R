@@ -12,6 +12,7 @@ library(plotly)
 
 # Define data paths -------------------------------------------------------
 source("data_paths.R")
+source("../wirvsvirus/infections_from_deaths.R")
 
 # Function definitions ----------------------------------------------------
 
@@ -479,6 +480,8 @@ ui <- dashboardPage(
         menuSubItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
       ),
       
+      menuItem(text = "WirVsVirus", tabName = "wirvsvirus", icon = icon("file-alt")),
+      
       menuItem(text = "About", tabName = "mainpage", icon = icon("file-alt"))
     )
   ),
@@ -619,6 +622,36 @@ ui <- dashboardPage(
           
           dataTableOutput("expmod_tables")
         )
+      ), 
+      tabItem(
+        tabName = "wirvsvirus",
+        (
+          sidebarLayout(
+            sidebarPanel(
+              radioButtons(
+                "wvv.log",
+                "Y-axis scale",
+                choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log"),
+                selected="log"
+              ),
+              
+              selectInput(
+                "wvv.countries",
+                "Countries",
+                choices = countries,
+                selected = c("Denmark", "Italy", "United Kingdom", "US", "Spain"),
+                multiple = T
+              )
+            ),
+            
+            mainPanel(
+              div(
+                style = "position:relative",
+                plotlyOutput("wirvsvirus")
+              )
+            )
+          )
+        )
       )
 
     )
@@ -684,7 +717,7 @@ server <- function(input, output) {
       sep = " "
     )
   })
-
+  
   output$country_plot <- renderPlotly({
     patient.x.name = paste("Days since patient", input$rebase.value)
     
@@ -827,6 +860,12 @@ server <- function(input, output) {
       )
     
     all_models
+  })
+  
+  output$wirvsvirus <- renderPlotly({
+    p = make_estimate_plot(input)
+    ggplotly(p)
+    
   })
   
   # output$ssiPlot <- renderPlotly({
