@@ -64,14 +64,25 @@
 \section{Estimating past infections}
 
 Let $A \in \N$ denote age, $I \in \{0,1\}$ infection indicator, $D \in \{0,1\}$ the indicator for a Corona-related death and $\tau > 0$
-the time from infection to possible death. We assume that the infection rate per age and the death rate per age remain invariant 
-across all countries and all time points. That is, for all time points $t$ and all countries $c$, the joint density over $(A,I,D)$ factorizes as
+the time from infection to possible death. We assume that the death rate $a \mapsto \P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)$ is 
+the same for all countries $c$ and all time points $t$, and that the infection rate $a \mapsto \P_c(I_{t} = 1 \given A_t = a)$ within 
+each country changes through time with the same factor for each age. For each country, there exists a function $g_c$, such that for every $t$, the joint
+density over $(A_t,I_t,D_{t+\tau})$ is given as
 %
 \begin{align*}
 \P_c(A_t = a, D_{t+\tau} = 1, I_t = 1)	&= \P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)  \P_c(I_t = 1 \given A_t = a) \P_c(A_t = a) \\
-															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} \underbrace{\P(I_0 = 1 \given A_0 = a)}_{:=p_I(a)} \underbrace{\P_c(A_0 = a)}_{:=p_c(a)}.
+															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} g_c(t) \underbrace{\P(I_1 = 1 \given A_1 = a)}_{=:g_I(a)} \underbrace{\P_c(A_t = a)}_{=:g_c(a)} \\
+															&=  g_c(t) p_D(a) p_I(a) p_c(a)
+%															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} \underbrace{\P(I_0 = 1 \given A_0 = a)}_{:=p_I(a)} \underbrace{\P_c(A_0 = a)}_{:=p_c(a)}.
 \end{align*}
 %
+It follows that 
+$$
+\frac{\P_c(I_t = 1 \given A_t = a)}{\P_c(I_t = 1)} = \frac{g_c(t) \P(I_1 = 1 \given A_1 = a)}{g_c(t) \P(I_1 = 1)} = \frac{\P(I_1 = 1 \given A_1 = a)}{ \P(I_1 = 1)}
+$$
+is the same for all $c$ and for all $t$. 
+
+
 For each country, we are given data from several individuals and time points:
 
 \begin{itemize}
@@ -102,16 +113,17 @@ $$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a  X_{c,t}(a) / p_D(a)
 \subsection{Unknown number of deaths per age group}
 %
 If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
-$$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_0 = a \given D_{\tau} = 1))$$
+$$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_{t-\tau} = a \given D_{t} = 1))$$
 and hence obtain that
 \begin{align*}
-\hat{X}_{c,t}(a) = \E[X_{c,t}(a) \given X_{c,t}] 	&= X_{c,t} \cdot \P_c(A_0 = a \given D_{\tau} = 1) \\
-																		&= X_{c,t} \cdot \frac{\P_c(D_\tau = 1 \given A_0 = a) \P_c(A_0 = a)}{\P_c(D_\tau = 1)} \\
-																		&= X_{c,t} \cdot \frac{\P_c(D_\tau = 1, I_0 = 1 \given A_0 = a) \P_c(A_0 = a)}{\P_c(D_\tau = 1)} \\
-																		&= X_{c,t} \cdot \frac{\P_c(D_\tau = 1\given I_0 = 1 A_0 = a) \P_c(I_0 = 1 \given A_0 = a) \P_c(A_0 = a)}{\P_c(D_\tau = 1)} \\
+\hat{X}_{c,t}(a) = \E[X_{c,t}(a) \given X_{c,t}] 	&= X_{c,t} \cdot \P_c(A_{t-\tau} = a \given D_{t} = 1) \\
+																		&= X_{c,t} \cdot \frac{\P_c(D_t = 1 \given A_{t-\tau} = a) \P_c(A_{t-\tau} = a)}{\P_c(D_t = 1)} \\
+																		&= X_{c,t} \cdot \frac{\P_c(D_t = 1, I_{t-\tau} = 1 \given A_{t-\tau} = a) \P_c(A_{t-\tau} = a)}{\P_c(D_t = 1)} \\
+																		&= X_{c,t} \cdot \frac{\P_c(D_t = 1\given I_{t-\tau} = 1 A_{t-\tau} = a) \P_c(I_{t-\tau} = 1 \given A_{t-\tau} = a) \P_c(A_{t-\tau} = a)}{\P_c(D_t = 1)} \\
+																		&= X_{c,t} \cdot \P_D(a) p_c(a) \frac{\P_c(I_{t-\tau} = 1 \given A_{t-\tau} = a) }{\P_c(D_t = 1)} \\
 %																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\P_c(D_\tau = 1)} \\
 %																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\P_c(D_\tau = 1, I_0 = 1)} \\
-																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\sum_a p_D(a) p_I(a) p_c(a)} \\
+%																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\sum_a p_D(a) p_I(a) p_c(a)} \\
 \end{align*}
 
 \section{Extrapolating infections into present/future}
