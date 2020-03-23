@@ -9,6 +9,7 @@ library(DT)
 library(knitr)
 library(plotly)
 library(magrittr)
+library(tidyselect)
 
 theme_set(theme_minimal())
 
