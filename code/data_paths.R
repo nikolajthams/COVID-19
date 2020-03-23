@@ -2,3 +2,4 @@ cases_path   <- "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-
 pop_path     <- "data/pop_data.csv"
 recover_path <- "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv"
 death_path   <- "../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv"
+demo_path    <- "../wirvsvirus/demographics.csv"
