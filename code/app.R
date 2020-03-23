@@ -716,13 +716,17 @@ ui <- dashboardPage(
               div(
                 style = "position:relative",
                 plotlyOutput("wirvsvirus"),
-                h5("Solid curves indicate confirmed numbers, shaded region estimated number of infected.")
+                h6("Solid curves indicate confirmed numbers, shaded region estimated number of infected.")
+              ),
+              fluidPage(
+                withMathJax(
+                  includeMarkdown("wvv_explanation.md")
+                )
               )
             )
           )
         )
       )
-      
     )
   )
 )
