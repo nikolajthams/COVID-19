@@ -1,3 +1,4 @@
+% Document and formatting
 \documentclass[a4paper]{article}
 \usepackage{fullpage}
 \renewcommand{\baselinestretch}{1.15} 
@@ -23,6 +24,10 @@
 % Figures and references
 \usepackage{caption}
 \usepackage{paralist}
+
+%\theoremstyle{remark}
+\newtheorem{ass}{Assumption}
+\newtheorem{prop}{Proposition}
 
 
 % Symbol commands
@@ -240,16 +245,23 @@ The following variables describe an individual in country $c$ at time $t$:
 \item $I_t \in \{0,1\}$ infection indicator
 \item $D_t \in \{0,1\}$ the indicator for a Corona-related death
 \end{compactitem}
-Based on these variables the probability of dying, for a specific
-infected individual from an age group $a$ is given as
+Based on these variables, the probability of dying, for a specific
+infected individual from an age group $a$ in country $c$ is given as
 \begin{equation*}
-  \P_c(D_{t+\tau} = 1 \given I_t = 1, A = a), 
+  P_c(D_{t+\tau} = 1 \given I_t = 1, A = a), 
 \end{equation*}
-where the parameter $\tau > 0$ the time from infection to possible
-death. This is estimated to be 20.2 (95\% CI: 15.1, 29.5) days on
-average according to \citet{jung2020real}. The slightly older paper
-\cite{linton2020epidemiological} estimates this to
-13.8 days (95\% CI: 11.8, 16.0).
+where $\tau > 0$ is the time from infection to possible
+death. \Rune{This parameter is the sum of the incubation time and the time 
+from illness onset to death, which are estimated to be 4.6 days (95\% CI: 3.3, 5.7) 
+and 13.8 days (95\% CI: 11.8, 16.0), respectively, according to \cite{linton2020epidemiological}. 
+The slightly more recent paper \citet{jung2020real} reports the time from onset to death 
+to be 20.2 (95\% CI: 15.1, 29.5). In our app, we take the most conservative estimate 
+$\tau = 4.6 + 20.2 \approx 25$ days as default value.}
+
+%This parameter is estimated to be 20.2 (95\% CI: 15.1, 29.5) days on
+%average according to \citet{jung2020real}. The slightly older paper
+%\cite{linton2020epidemiological} estimates $\tau$ to
+%13.8 days (95\% CI: 11.8, 16.0).
 
 For each country, we observe (either one or both of) the following data
 \begin{compactitem}
@@ -276,202 +288,144 @@ $X_{c,t}(a)$ if it is available and from $X_{c,t}$ otherwise. We require the fol
 %Clearly, $\P_c(I_{t} = 1 \given A = a)$
 %differs between countries and changes throughout time.
 
-\paragraph{Assumption A1} Let $a$ be fixed. Then, for all $c$ and for
+\begin{ass}
+Let $a$ be fixed. Then, for all $c$ and for
 all $t$, we have
-\begin{equation}
-P_c(D_{t+\tau} = 1\,|\,I_t = 1, A = a)
-\end{equation}
-are the same. 
+\begin{equation*}
+p_D(a) := P_c(D_{t+\tau} = 1\,|\,I_t = 1, A = a)
+\end{equation*}
+is the same. 
 Currently, we use the data from South Korea to 
 estimate these numbers (see also Section~\ref{sec:uncert} below). 
-
-%\vspace{5mm}
-\paragraph{}
-Under this assumption, we can estimate $Y_{c,t}$ from the $X_{c,t}(a)$, see Section~\ref{sec:known}. 
-If we only have access to the total number of fatalities $X_{c,t}$, we require an additional assumption.
-
-
-\paragraph{Assumption A2}
-Let $\tilde{a}$ be fixed. Then, for all $c$ and for all $t$,
-\begin{equation} \label{eq:a2equiv}
-\frac{P_c(D_t = 1\,|\,A = \tilde{a})}
-{\sum_a \P_c(D_t = 1\,|\,A = a)}
-\end{equation}
-is the same.
-
-
-
-
-
-\paragraph{Equivalent formulation of A2}
-Assumption A2 is equivalent to the following assumption. 
-Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$, the ratios 
-\begin{equation} \label{eq:a2equiv2}
-\frac{P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
-\end{equation}
-are the same. 
-
-{\color{gray} This can be seen as follows. Assume first that 
-that Equation~\eqref{eq:a2equiv2} holds. Let $\tilde{a}$ be fixed. We then have 
-\begin{align*}
-\frac{P_c(D_t = 1\,|\,A = \tilde{a})}
-{\sum_a \P_c(D_t = 1\,|\,A = a)}
-&= 
-\frac{1}{\frac{\sum_a \P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
-}\\
-&= 
-\frac{1}{\sum_a \frac{P_c(D_t = 1\,|\,A = a)}{P_c(D_t = 1\,|\,A = \tilde{a})}
-}
-\end{align*}
-Now, assume 
-A2 holds. Then, Equation~\eqref{eq:a2equiv2} holds because of the following argument:  Let $\tilde{a}$ and $a^*$ be fixed. We then have
-\begin{align*}
-\frac{P_c(D_t = 1\,|\,A = a^*)}
-{P_c(D_t = 1\,|\,A = \tilde{a})}
-&= 
-\frac{P_c(D_t = 1\,|\,A = a^*)/\sum_a \P_c(D_t = 1\,|\,A = a)
-}
-{P_c(D_t = 1\,|\,A = \tilde{a})/\sum_a \P_c(D_t = 1\,|\,A = a)
-}.
-%&=\frac{P_{\tilde{c}}(D_t = 1\,|\,A = a)}
-%{P_{\tilde{c}}(D_t = 1\,|\,A = \tilde{a})}.
-\end{align*}}
-
-
-\paragraph{Another equivalent formulation of A2}
-Assumption A2 is also equivalent to the following assumption. 
-Let $a$ and $\tilde{a}$ be fixed. Then, for all $c$
-\begin{equation} \label{eq:equiv3}
-\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
-\end{equation}
-is invariant.
-
-{\color{gray} This can be seen as follows.
-\begin{align*}
-\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
-&= k_1
-\frac{P_c(I_t = 1,A = a)P_c(A = \tilde{a})
-P(D_t = 1\,|\,I_t = 1, A = a)}
-{P_c(I_t = 1,A = \tilde{a})P_c(A = a)P(D_t = 1\,|\,I_t = 1, A = \tilde{a})} \\
-&= k_1
-\frac{P_c(A = \tilde{a})
-P_c(D_t = 1,I_t = 1, A = a)}
-{P_c(A = a)P_c(D_t = 1,I_t = 1, A = \tilde{a})}\\
-&= k_1
-\frac{P_c(A = \tilde{a})
-P_c(D_t = 1,A = a)}
-{P_c(A = a)P_c(D_t = 1, A = \tilde{a})}\\
-&= k_1
-\frac{P_c(D_t = 1\,|\,A = a)}
-{P_c(D_t = 1\,|\, A = \tilde{a})}.
-\end{align*}
-}
-
-
-
-\paragraph{Motivation for A2}
-It may be reasonable to assume that the infection rate $a \mapsto \P_c(I_{t} = 1 \given A = a)$ within 
-each country changes through time with the same factor for each age. That is, for each country, there exists a function $g_c$, such that for every $t$, the joint
-density over $(A,I_t,D_{t+\tau})$ is given as
-%
-\begin{align*}
-\P_c(A = a, D_{t+\tau} = 1, I_t = 1)	&= \P_c(D_{t+\tau} = 1 \given I_t = 1, A = a)  \P_c(I_t = 1 \given A_t = a) \P_c(A_t = a) \\
-															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A = a)}_{=:p_D(a)} g_c(t) \underbrace{\P(I_1 = 1 \given A = a)}_{=:p_I(a)} \underbrace{\P_c(A = a)}_{=:p_c(a)} \\
-															&=  g_c(t) p_D(a) p_I(a) p_c(a)
-%															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} \underbrace{\P(I_0 = 1 \given A_0 = a)}_{:=p_I(a)} \underbrace{\P_c(A_0 = a)}_{:=p_c(a)}.
-\end{align*}
-%
-it follows that 
-$$
-\frac{\P_c(I_t = 1 \given A = a)}{\P_c(I_t = 1 \given A = \tilde{a})} 
-= 
-\frac{
-g_c(t) \P(I_1 = 1 \given A = a)}{
-g_c(t) \P(I_1 = 1 \given A = \tilde{a})}
-$$
-is the same for all $c$. 
-
-
-
-
-\paragraph{Code}
-In the code, we currently compute the following. 
-For one country $c$, e.g. South Korea, we compute, for all $a$,
-$$
-\frac{n_c \P_c(D_t = 1\,|\,A = a)}
-{\sum_a n_c \P_c(D_t = 1\,|\,A = a)}
-=
-\frac{P_c(D_t = 1\,|\,A = a)}
-{\sum_a \P_c(D_t = 1\,|\,A = a)}
-$$
-and use this to estimate the total number 
-of infected people in other countries.
-
-
-
-%\paragraph{The estimator}
-%JONAS IS WRITING HERE.
+\end{ass}
 
 \subsection{The estimator for known number of deaths per age group} \label{sec:known}
 %
-For every $a$ we have that 
+Under Assumption~A1, we have that for every $a$, 
 $$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
 and we thus obtain estimates
 \begin{equation}
   \label{eq:Y1}
   \hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a
-  X_{c,t}(a) / p_D(a)
+  X_{c,t}(a) / \hat  p_D(a).
 \end{equation}
-Given that we only have access to $X_{c,t}(a)$ at some fixed time
-$t^*$ we estimate it by scaling to the total deaths as follows
+If we only have access to the age-specific deaths at some fixed time
+$t^*$, we estimate $X_{c,t}(a)$ at other time points by scaling to the total deaths as follows
 \begin{equation*}
-  \hat{X}_{c,t}(a)=X_{c,t}\cdot\frac{X_{c,t^*}(a)}{\sum_a X_{c,t^*}(a)}
+  \hat{X}_{c,t}(a)=X_{c,t}\cdot\frac{X_{c,t^*}(a)}{X_{c,t^*}}.
 \end{equation*}
 We can also compute confidence bounds for the estimator \eqref{eq:Y1}
 using the Binomial distribution. This leads to the lower bound
 \begin{equation*}
   \hat{Y}_{c,t-\tau}^{\text{lower}} = \sum_a \inf\{n\in\N \,\vert\, \P(X\geq
-  X_{c,t}(a))>\tfrac{\alpha}{2}\} / p_D(a)
+  X_{c,t}(a))>\tfrac{\alpha}{2}\} / \hat  p_D(a)
 \end{equation*}
 and to the upper bound
 \begin{equation*}
   \hat{Y}_{c,t-\tau}^{\text{upper}} = \sum_a \sup\{n\in\N \,\vert\, \P(X\leq
-  X_{c,t}(a))>\tfrac{\alpha}{2}\} / p_D(a).
+  X_{c,t}(a))>\tfrac{\alpha}{2}\} / \hat  p_D(a).
 \end{equation*}
+\todo{@Niklas: fix above notation}
 
-\subsection{The estimator for unknown number of deaths per age group} \label{sec:unknown}
+\Rune{
 
+\subsection{The estimator for unknown number of deaths per age group} \label{sec:known}
 %
 If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
-$$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_{t-\tau} = a \given D_{t} = 1))$$
+\begin{equation*}
+X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A = a \given D_{t} = 1)),
+\end{equation*}
 and hence obtain that
-\begin{align*}
-\hat{X}_{c,t}(a) = \E[X_{c,t}(a) \given X_{c,t}] 	
-&= X_{c,t} \cdot \P_c(A_{t-\tau} = a \given D_{t} = 1) \\
-     &= 
-X_{c,t} \cdot 
-\frac{  
-    \P_c(D_t = 1, A = a)}
-  {\P_c(D_t = 1)}\\
-    &= 
-X_{c,t} \cdot 
-\frac{  
-    \P_c(D_t = 1\given A = a)
-     \cdot \P_c(A = a)}
-  {\sum_{a^*}  
-    \P_c(D_t = 1\given A = a^*) \cdot \P_c(A = a^*)
-    }\\
-&= 
-X_{c,t} \cdot 
+\begin{equation*}
+\hat{X}_{c,t}(a) = \hat \E[X_{c,t}(a) \given X_{c,t}] = X_{c,t} \cdot \hat \P_c(A = a \given D_{t} = 1).
+\end{equation*}
+%
+To estimate the probabilities $\P_c(A = a \given D_{t} = 1)$, we require another invariance assumption. The assumption is that 
+the infection rates $a \mapsto P_c(I_{t} = 1 \given A = a)$ for different countries and different time points only 
+differ by a multiplicative constant. 
+%
+\begin{ass}
+Let $a, \tilde{a}$ be fixed. Then for all countries $c$ and all time points $t$, 
+\begin{equation*} 
+\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
+\end{equation*}
+is invariant.
+\end{ass}
+%
+Under the above assumption, the probabilities $\P_c(A = a \given D_{t} = 1)$ can be estimated from the age distribution
+in country $c$, and the death rates of another country where information on the age-specific fatalities is available. 
+
+\begin{prop}
+For all countries $c_1$, $c_2$, time points $t$ and age groups $a$, it holds that
+\begin{equation*}
+P_{c_1}(A = a \given D_t = 1) =
 \frac{
   \frac{
-    \P_c(D_t = 1\given A = a)}
-    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a)}
+    \P_{c_2}(D_t = 1\given A = a)}
+    {\sum_{\tilde{a}} \P_{c_2}(D_t = 1 \given A = \tilde{a})} \cdot \P_{c_1}(A = a)}
   {\sum_{a^*}  
   \frac{
-    \P_c(D_t = 1\given A = a^*)}
-    {\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})} \cdot \P_c(A = a^*)}
+    \P_{c_2}(D_t = 1\given A = a^*)}
+    {\sum_{\tilde{a}} \P_{c_2}(D_t = 1 \given A = \tilde{a})} \cdot \P_{c_1}(A = a^*)}.
+\end{equation*}
+\end{prop}
+%
+\proof
+Let $a, \tilde{a}$ be fixed. Using Assumptions~1~and~2, it follows that 
+\begin{align*}
+\frac{P_c(D_t = 1\,|\,A = a)}
+{P_c(D_t = 1\,|\, A = \tilde{a})} 
+&= 
+\frac{
+P_c(D_t = 1,A = a)
+P_c(A = \tilde{a})}
+{P_c(D_t = 1, A = \tilde{a})P_c(A = a)}  \\
+&= 
+\frac{
+P_c(D_t = 1,I_t = 1, A = a)P_c(A = \tilde{a})}
+{P_c(D_t = 1,I_t = 1, A = \tilde{a})P_c(A = a)} \\
+&= 
+\frac{
+P_c(D_t = 1\,|\,I_t = 1, A = a)P_c(I_t = 1,A = a)P_c(A = \tilde{a})}
+{P_c(D_t = 1\,|\,I_t = 1, A = \tilde{a})P_c(I_t = 1,A = \tilde{a})P_c(A = a)} \\
+&= 
+\frac{p_D(a)}{p_D(\tilde{a})}  \frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
 \end{align*}
+is the same for all $c$ and $t$. Consequently, it holds that for all fixed $a$,  
+\begin{equation} \label{eq:d_invariant}
+\frac{P_c(D_t = 1 \given A = a)}
+{\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})}
+= 
+\frac{1}{\sum_{\tilde{a}} \frac{P_c(D_t = 1\,|\,A = \tilde{a})}{P_c(D_t = 1\,|\,A = a)}}
+\end{equation}
+%
+is the same for all $c$ and $t$. We then have that for any $c_1$, $c_2$, $t$ and $a$, 
+\begin{align*}
+P_{c_1}(A = a \given D_t = 1) &= 
+\frac{  
+    \P_{c_1}(D_t = 1, A = a)}
+  {\P_{c_1}(D_t = 1)}\\
+    &= 
+\frac{  
+    \P_{c_1}(D_t = 1\given A = a)
+     \cdot \P_{c_1}(A = a)}
+  {\sum_{a^*}  
+    \P_{c_1}(D_t = 1\given A = a^*) \cdot \P_{c_1}(A = a^*)
+    }\\
+&= 
+\frac{
+  \frac{
+    \P_{c_2}(D_t = 1\given A = a)}
+    {\sum_{\tilde{a}} \P_{c_2}(D_t = 1 \given A = \tilde{a})} \cdot \P_{c_1}(A = a)}
+  {\sum_{a^*}  
+  \frac{
+    \P_{c_2}(D_t = 1\given A = a^*)}
+    {\sum_{\tilde{a}} \P_{c_2}(D_t = 1 \given A = \tilde{a})} \cdot \P_{c_1}(A = a^*)},
+\end{align*}
+as desired. 
+\endproof
+
+}
 
 %\Niklas{todo: Get bounds here.}
 
@@ -491,10 +445,11 @@ that the estimated death rates from South Korea are correct.
 (ii) Assumption~A2: We can check 
 how well the data supports 
 this assumption by using 
-the number of COVID related deaths in each age group for different countries. 
+the number of COVID related deaths in each age group for different countries, 
+\Rune{and compute the numbers \eqref{eq:d_invariant} for each of these countries.}
 In particular, A2 will not be satisfied exactly, but 
 considering several countries, we can 
-infer the range of values to expect in Equation~\eqref{eq:a2equiv}
+infer the range of values to expect in \Rune{Equation~\eqref{eq:d_invariant}}
 and represent this as uncertainty in the predicted values. 
 The current version of the app considers data that are currently available from a number of the disease epicenters.
 
@@ -609,3 +564,8 @@ and hence obtain that
 }
 \fi
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
