@@ -1,0 +1,571 @@
+% Document and formatting
+\documentclass[a4paper]{article}
+\usepackage{fullpage}
+\renewcommand{\baselinestretch}{1.15} 
+\usepackage{booktabs}
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+
+% Math symbols
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bbm}
+\usepackage{hyperref}
+\usepackage{url}
+
+\usepackage{fancyvrb}
+
+% Colors and diagrams
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz}
+
+% Figures and references
+\usepackage{caption}
+\usepackage{paralist}
+
+%\theoremstyle{remark}
+\newtheorem{ass}{Assumption}
+\newtheorem{prop}{Proposition}
+
+
+% Symbol commands
+\renewcommand\epsilon{\varepsilon}
+\renewcommand\subset{\subseteq}
+%\renewcommand\phi{\varphi}
+\newcommand\Z{\mathbb{Z}}
+\newcommand\N{\mathbb{N}}
+\newcommand\Q{\mathbb{Q}}
+\newcommand\todo[1]{{\color{red}todo: #1}}
+\newcommand\R{\mathbb{R}}
+\newcommand\C{\mathbb{C}}
+\newcommand\F{\mathcal{F}}
+\renewcommand\P{\mathbb{P}}
+\newcommand\E{\mathbb{E}}
+\renewcommand{\phi}{\varphi}
+\usepackage{tcolorbox}
+\newtcbox{\mybox}{nobeforeafter,colframe=black!50,colback=white,boxrule=1.8pt,arc=5pt,
+  boxsep=0pt,left=6pt,right=6pt,top=6pt,bottom=6pt,tcbox raise base}
+
+
+
+
+% Operator commands
+\newcommand{\given}{\, \vert \,}
+\newcommand{\st}{\, : \,}
+
+
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+
+\newcommand\Rune[1]{{\color{blue}Rune: #1}}
+\newcommand\Jonas[1]{{\color{red}Jonas: #1}}
+\newcommand\Niklas[1]{{\color{Fuchsia}Niklas: #1}}
+\newcommand\Martin[1]{{\color{PineGreen}Nikolaj: #1}}
+
+\title{COVID-19: Estimating infections from deaths rates \\ \# WirVsVirus\\
+Group: CausalityVsCorona}
+%\author{Rune Christiansen\thanks{krunechristiansen@math.ku.dk} \ and Jonas Peters\thanks{jonas.peters@math.ku.dk}}
+\author{Rune Christiansen\thanks{krunechristiansen@math.ku.dk}, Phillip Mogensen\thanks{pbm@math.ku.dk}, Jonas Peters\thanks{jonas.peters@math.ku.dk}, Niklas Pfister\thanks{np@math.ku.dk}, Nikolaj Thams\thanks{thams@math.ku.dk}}
+\date{\today}
+\begin{document}
+\maketitle
+
+
+\begin{center}
+\mybox{
+\begin{minipage}{0.95\textwidth}
+  \centering Access to accurate numbers of infections during an
+  epidemic is important to create useful public policy interventions
+  and evaluate their effect.  Due to various reasons, however, the
+  confirmed cases in a country are believed to underestimate the true
+  number \citep{li2020substantial}. The number of confirmed fatalities
+  is often believed to be more reliable than the number of confirmed
+  infections and contains information about the total number of
+  infected people, too.  In this project, we estimate the total number
+  of infected people aged 30 or above, from fatality data and age
+  distributions.
+\end{minipage}
+}
+\end{center}
+
+
+
+\section{Why are there more COVID cases 
+than the reported confirmed cases?}
+There are various ways to test whether a patient is infected by the
+COVID virus. E.g., it is possible to detect the virus from respiratory
+samples.  Even if we assume perfect tests (no false positives and no
+false negatives), the number of confirmed cases is less than the true
+number of infections because not all infected cases get tested.
+Furthermore, the countries have different testing policies concerning
+whom gets tested and these may even change over time.  According to
+\url{https://en.wikipedia.org/wiki/COVID-19_testing} (20.03.2020,
+3:27pm), the number of tests per 1,000,000 people differs between 9
+(Indonesia) and 26,865 (Iceland).  The difference between number of
+deaths per 1,000 confirmed cases (e.g., Germany: 3.8, UK: 46.1;
+20.3.2020, 16:09pm) indicates further differences in testing policies.
+Also the definition of `confirmed case' changes between countries and
+time (cf.\ China's change of policy in February).
+% \todo{show figures and examples}
+It is widely accepted that the officially confirmed cases
+underestimate the number of total cases of infections, see e.g.,
+\cite{li2020substantial}.
+
+
+\section{The idea}
+We propose to estimate the total number of infections using the 
+number of COVID fatalities. The latter number is more reliable in 
+that it is unlikely that many cases are missed. To do so, 
+we require knowledge of the following numbers (measured at a certain point in time):
+(i) the number of deaths in a certain age group $a$,
+(ii) the death rate given that a person belongs to age group $a$.
+We can then estimate the total number of infected people 
+(this differs from the active cases),
+by dividing the number of deaths in age group $a$ by the death rate for that age group. (Clearly, this approach fails if the death rate in a certain age group equals zero. We discuss this point in Section~\ref{sec:zerodeathrate}.)
+Our method is readily implemented in \Verb+R+ and is available as ShinyApp
+at \url{http://shiny.science.ku.dk/pbm/COVID19%20-%20Copy/}.
+
+The death rates in (ii) may be considered as parameters.
+Their values may be provided by
+background knowledge. 
+In the app,
+these parameters can be set by hand;
+as standard values, we use the death rates 
+measured in South Korea, 
+where, supposedly, many people have been tested for COVID,
+see
+\url{https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis}, 22.03.2020, 9:24pm.
+%\todo{write about the idea to use fatalities per age group and
+%death rates from South Korea (nothing yet about what happens without age group data, that comes below)}
+%\todo{cite some other sources that are based on a similar idea.}
+Ideally, the death rates (i) can be directly calculated from the data. 
+For many countries, however, the deaths per age group are unavailable. 
+Under some assumptions, it is still possible to estimate the total number of infections
+from the total number of deaths, see Section~\ref{sec:noage}.
+We do not claim that our idea is novel, see Section~\ref{sec:disclaimer}.
+
+
+
+\section{Age groups with zero death rate} \label{sec:zerodeathrate}
+In some age groups the death rate is estimated to be zero.
+(In South Korea, this is the case for people under 30,
+see \url{https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis}, 22.3.2020, 7:18pm.)
+If the death rate is zero, it is impossible 
+to estimate the number of infected people by the number of deaths.
+{\bf In this project, we therefore restrict ourselves to estimate the number
+of infected people aged 30 or above.}
+
+
+\section{Missing age group information} \label{sec:noage}
+Currently, we cannot use the above idea to 
+estimate the number of total cases in 
+several countries. The reason is that 
+while we found reported number of total fatalities 
+for almost all countries 
+(see, e.g., the website {\footnotesize
+\url{https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6}},
+last accessed on 22.03.2020, 7:30pm,
+which is run by the Center for Systems Science and Engineering ({CSSE}) at Johns Hopkins University ({JHU})), 
+for many of these countries we have not found the number of fatalities per age group. 
+We believe that it would be highly informative to add these numbers.\footnote{The numbers 
+are informative for two reasons: (i) It
+becomes easier to estimate the 
+total number of infected cases in the 
+corresponding country.
+(ii) They help us to better understand Assumption A2. Having these data from 
+more countries, for example, 
+allows us to 
+provide more accurate uncertainty bounds for 
+the remaining countries, see `Uncertainties of Assumption A1 and A2'.}
+We therefore need to estimate the number of fatalities per age group using data available from the other countries.
+
+
+\section{... and a possible solution}
+Inferring the number of deaths per age group from the total number of deaths requires an additional assumption. 
+Clearly, 
+the probability of
+being infected, given that one 
+belongs to a certain age group, $50-59$, say, 
+differs between different countries (e.g., in some countries, 
+where the pandemic has started earlier, there may be many more cases, which results in generally higher probabilities).
+Here, we assume that the \emph{relation} between these numbers for different age groups do not differ.
+E.g., if 
+in country $c$, the
+probability of being infected, given one is in age group $50-59$
+is twice as large as the probability of being infected, given 
+one belongs to the age group $60-69$, 
+we assume that the same ratio, that is, 2, 
+also appears when dividing the analogous probabilities in some other country $\tilde{c} \neq c$ --- even though the probabilities themselves may be differ between the two countries. 
+This assumption suffices to estimate the number of total infections
+from the total number of deaths.
+Below, in Section~\ref{sec:model}, `Modeling framework', we describe the idea in more detail. 
+There, Assumption~A2 allows us to 
+estimate the total number of fatalities, even if 
+no age information for the number of deaths are available.
+In fact, above we have described an equivalent version of Assumption~A2 that is described in Equation~\eqref{eq:equiv3}.
+%We hope that it states clearly which assumptions the estimator relies on.
+
+
+There is yet another way to look at this assumption.
+Again, the probabilities of 
+being infected, given that one belongs to a certain age group, $50-59$, say, differs between countries. If one assumes
+that this difference can be expressed by a multiplicative constant that is the same for all age groups, then 
+this implies Assumption~2, see Section~\ref{sec:model} below.
+
+
+
+
+\section{Disclaimer} \label{sec:disclaimer}
+
+We 
+developed this idea, implemented it, and 
+wrote the 
+document in a short amount of time. Please tell us if you find any typos 
+in the document or possible errors in 
+the calculations. 
+Also, we are certain that there is a lot of 
+related work to our approach that is not properly cited. 
+Thus, we do not claim that our idea is original, we just wanted
+to implement it this weekend.
+If you know related relevant work, please tell us.
+You can find our email addresses above.
+Some of the main assumptions underlying our prediction are described 
+as Assumptions~A1 and~A2 in Section~\ref{sec:model}, and
+Section~\ref{sec:uncert} describes possible reasons for further uncertainty.
+
+
+\section{Modeling framework} \label{sec:model}
+The following variables describe an individual in country $c$ at time $t$:
+\begin{compactitem}
+\item $A \in \N$ denotes age (we assume age to be constant over time $t$)
+\item $I_t \in \{0,1\}$ infection indicator
+\item $D_t \in \{0,1\}$ the indicator for a Corona-related death
+\end{compactitem}
+Based on these variables, the probability of dying, for a specific
+infected individual from an age group $a$ in country $c$ is given as
+\begin{equation*}
+  P_c(D_{t+\tau} = 1 \given I_t = 1, A = a), 
+\end{equation*}
+where $\tau > 0$ is the time from infection to possible
+death. \Rune{This parameter is the sum of the incubation time and the time 
+from illness onset to death, which are estimated to be 4.6 days (95\% CI: 3.3, 5.7) 
+and 13.8 days (95\% CI: 11.8, 16.0), respectively, according to \cite{linton2020epidemiological}. 
+The slightly more recent paper \citet{jung2020real} reports the time from onset to death 
+to be 20.2 (95\% CI: 15.1, 29.5). In our app, we take the most conservative estimate 
+$\tau = 4.6 + 20.2 \approx 25$ days as default value.}
+
+%This parameter is estimated to be 20.2 (95\% CI: 15.1, 29.5) days on
+%average according to \citet{jung2020real}. The slightly older paper
+%\cite{linton2020epidemiological} estimates $\tau$ to
+%13.8 days (95\% CI: 11.8, 16.0).
+
+For each country, we observe (either one or both of) the following data
+\begin{compactitem}
+%\item $N_c$: number of individuals in country $c$
+%\item $A_{c,i}$: age of individual $i$ in country $c$
+%\item $I_{c,i,t}$: binary indicator of infection for individual $i$ in country $c$ at time $t$
+%\item $D_{c,i,t}$: binary indicator of Corona-related death for individual $i$ in country $c$ at time $t$
+\item $X_{c,t}(a)$: number of Corona-related deaths in country $c$ at
+  time $t$ for age group $a$
+\item $X_{c,t} = \sum_a X_{c,t}(a)$: total number of Corona-related
+  deaths in country $c$ at time $t$
+%\item $\tau$: time from infection to possible death
+%\item $p_c(a) = \P(A_{c,i} = a)$: marginal age distribution of country $c$
+%\item $p_{I}(a) = \P(I_{c,i,t} = 1 \given A_{c,i} = a)$: infection rate at age $a$
+%\item $p_{D}(a) = \P(D_{c,i,t+\tau} = 1 \given I_{c,i,t} = 1, A_{c,i} = a)$ death rate at age $a$
+\end{compactitem}
+Our goal is to estimate the total number of infected
+individuals in country $c$ at time $t$ given by
+$$Y_{c,t} = \sum_a Y_{c,t}(a),$$ where $Y_{c,t}(a)$ is the number of
+infected individuals in country $c$ at time $t$ for age group $a$.
+For this we propose an approach to estimate $Y_{c,t-\tau}$ from
+$X_{c,t}(a)$ if it is available and from $X_{c,t}$ otherwise. We require the following assumption.
+
+%Clearly, $\P_c(I_{t} = 1 \given A = a)$
+%differs between countries and changes throughout time.
+
+\begin{ass}
+Let $a$ be fixed. Then, for all $c$ and for
+all $t$, we have
+\begin{equation*}
+p_D(a) := P_c(D_{t+\tau} = 1\,|\,I_t = 1, A = a)
+\end{equation*}
+is the same. 
+Currently, we use the data from South Korea to 
+estimate these numbers (see also Section~\ref{sec:uncert} below). 
+\end{ass}
+
+\subsection{The estimator for known number of deaths per age group} \label{sec:known}
+%
+Under Assumption~A1, we have that for every $a$, 
+$$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
+and we thus obtain estimates
+\begin{equation}
+  \label{eq:Y1}
+  \hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a
+  X_{c,t}(a) / \hat  p_D(a).
+\end{equation}
+If we only have access to the age-specific deaths at some fixed time
+$t^*$, we estimate $X_{c,t}(a)$ at other time points by scaling to the total deaths as follows
+\begin{equation*}
+  \hat{X}_{c,t}(a)=X_{c,t}\cdot\frac{X_{c,t^*}(a)}{X_{c,t^*}}.
+\end{equation*}
+We can also compute confidence bounds for the estimator \eqref{eq:Y1}
+using the Binomial distribution. This leads to the lower bound
+\begin{equation*}
+  \hat{Y}_{c,t-\tau}^{\text{lower}} = \sum_a \inf\{n\in\N \,\vert\, \P(X\geq
+  X_{c,t}(a))>\tfrac{\alpha}{2}\} / \hat  p_D(a)
+\end{equation*}
+and to the upper bound
+\begin{equation*}
+  \hat{Y}_{c,t-\tau}^{\text{upper}} = \sum_a \sup\{n\in\N \,\vert\, \P(X\leq
+  X_{c,t}(a))>\tfrac{\alpha}{2}\} / \hat  p_D(a).
+\end{equation*}
+\todo{@Niklas: fix above notation}
+
+\Rune{
+
+\subsection{The estimator for unknown number of deaths per age group} \label{sec:known}
+%
+If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
+\begin{equation*}
+X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A = a \given D_{t} = 1)),
+\end{equation*}
+and hence obtain that
+\begin{equation*}
+\hat{X}_{c,t}(a) = \hat \E[X_{c,t}(a) \given X_{c,t}] = X_{c,t} \cdot \hat \P_c(A = a \given D_{t} = 1).
+\end{equation*}
+%
+To estimate the probabilities $\P_c(A = a \given D_{t} = 1)$, we require another invariance assumption. The assumption is that 
+the infection rates $a \mapsto P_c(I_{t} = 1 \given A = a)$ for different countries and different time points only 
+differ by a multiplicative constant. 
+%
+\begin{ass}
+Let $a, \tilde{a}$ be fixed. Then for all countries $c$ and all time points $t$, 
+\begin{equation*} 
+\frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
+\end{equation*}
+is invariant.
+\end{ass}
+%
+Under the above assumption, the probabilities $\P_c(A = a \given D_{t} = 1)$ can be estimated from the age distribution
+in country $c$, and the death rates of another country where information on the age-specific fatalities is available. 
+
+\begin{prop}
+For all countries $c_1$, $c_2$, time points $t$ and age groups $a$, it holds that
+\begin{equation*}
+P_{c_1}(A = a \given D_t = 1) =
+\frac{
+  \frac{
+    \P_{c_2}(D_t = 1\given A = a)}
+    {\sum_{\tilde{a}} \P_{c_2}(D_t = 1 \given A = \tilde{a})} \cdot \P_{c_1}(A = a)}
+  {\sum_{a^*}  
+  \frac{
+    \P_{c_2}(D_t = 1\given A = a^*)}
+    {\sum_{\tilde{a}} \P_{c_2}(D_t = 1 \given A = \tilde{a})} \cdot \P_{c_1}(A = a^*)}.
+\end{equation*}
+\end{prop}
+%
+\proof
+Let $a, \tilde{a}$ be fixed. Using Assumptions~1~and~2, it follows that 
+\begin{align*}
+\frac{P_c(D_t = 1\,|\,A = a)}
+{P_c(D_t = 1\,|\, A = \tilde{a})} 
+&= 
+\frac{
+P_c(D_t = 1,A = a)
+P_c(A = \tilde{a})}
+{P_c(D_t = 1, A = \tilde{a})P_c(A = a)}  \\
+&= 
+\frac{
+P_c(D_t = 1,I_t = 1, A = a)P_c(A = \tilde{a})}
+{P_c(D_t = 1,I_t = 1, A = \tilde{a})P_c(A = a)} \\
+&= 
+\frac{
+P_c(D_t = 1\,|\,I_t = 1, A = a)P_c(I_t = 1,A = a)P_c(A = \tilde{a})}
+{P_c(D_t = 1\,|\,I_t = 1, A = \tilde{a})P_c(I_t = 1,A = \tilde{a})P_c(A = a)} \\
+&= 
+\frac{p_D(a)}{p_D(\tilde{a})}  \frac{P_c(I_t = 1\,|\,A = a)}{P_c(I_t = 1\,|\,A = \tilde{a})} 
+\end{align*}
+is the same for all $c$ and $t$. Consequently, it holds that for all fixed $a$,  
+\begin{equation} \label{eq:d_invariant}
+\frac{P_c(D_t = 1 \given A = a)}
+{\sum_{\tilde{a}} \P_c(D_t = 1 \given A = \tilde{a})}
+= 
+\frac{1}{\sum_{\tilde{a}} \frac{P_c(D_t = 1\,|\,A = \tilde{a})}{P_c(D_t = 1\,|\,A = a)}}
+\end{equation}
+%
+is the same for all $c$ and $t$. We then have that for any $c_1$, $c_2$, $t$ and $a$, 
+\begin{align*}
+P_{c_1}(A = a \given D_t = 1) &= 
+\frac{  
+    \P_{c_1}(D_t = 1, A = a)}
+  {\P_{c_1}(D_t = 1)}\\
+    &= 
+\frac{  
+    \P_{c_1}(D_t = 1\given A = a)
+     \cdot \P_{c_1}(A = a)}
+  {\sum_{a^*}  
+    \P_{c_1}(D_t = 1\given A = a^*) \cdot \P_{c_1}(A = a^*)
+    }\\
+&= 
+\frac{
+  \frac{
+    \P_{c_2}(D_t = 1\given A = a)}
+    {\sum_{\tilde{a}} \P_{c_2}(D_t = 1 \given A = \tilde{a})} \cdot \P_{c_1}(A = a)}
+  {\sum_{a^*}  
+  \frac{
+    \P_{c_2}(D_t = 1\given A = a^*)}
+    {\sum_{\tilde{a}} \P_{c_2}(D_t = 1 \given A = \tilde{a})} \cdot \P_{c_1}(A = a^*)},
+\end{align*}
+as desired. 
+\endproof
+
+}
+
+%\Niklas{todo: Get bounds here.}
+
+
+\section{Sources of uncertainty} \label{sec:uncert}
+We believe that there are 
+three main sources of uncertainty. 
+(i) Assumption~A1: 
+The death rates are not known exactly. Uncertainties in the 
+estimated rates
+contribute to uncertainties in the
+predicted values.
+The current version of the app does not consider
+this type of uncertainty, but assumes 
+that the estimated death rates from South Korea are correct.
+
+(ii) Assumption~A2: We can check 
+how well the data supports 
+this assumption by using 
+the number of COVID related deaths in each age group for different countries, 
+\Rune{and compute the numbers \eqref{eq:d_invariant} for each of these countries.}
+In particular, A2 will not be satisfied exactly, but 
+considering several countries, we can 
+infer the range of values to expect in \Rune{Equation~\eqref{eq:d_invariant}}
+and represent this as uncertainty in the predicted values. 
+The current version of the app considers data that are currently available from a number of the disease epicenters.
+
+(iii) Uncertainty from statistical inference: 
+Suppose that in an age group, the death rate is $0.1$ and we have 
+$0$ fatalities in that age group.
+A point estimate might then say that there are $0$ infected persons
+in that age group. However, having $300$ infected persons, say,
+is a reasonable explanation of the data, too (in that case, we would expect $0.1\cdot 300 = 0.3$ fatalities).
+Currently, our estimate does not include this source of uncertainty.
+
+
+\section{Mathematics and real life}
+Assumption~A1 looks like an assumption about mathematics. 
+But it is not. 
+The conditional probability does not 
+only describe how
+the virus affects humans, 
+but also how the health system treats the patients. 
+There is a lot of staff working hard to 
+keep this probability as small as possible. 
+Thank, all of you working in the health systems in all different countries, for 
+your efforts to keep this number small. 
+
+
+
+
+\section{Extrapolating infections into present/future}
+We would have liked to work on this, but we were running out of time for this weekend, so we may come back to that question only later.
+
+\section{Conclusions}
+
+\begin{center}
+\mybox{
+\begin{minipage}{0.96\textwidth}
+\centering
+Our analysis suggests that the true number of infected people is a lot higher than the reported numbers -- please respect social distancing to avoid overburdening the health system. And stay safe!
+\end{minipage}
+}
+\end{center}
+
+\bibliography{ref}
+
+
+\if0
+\Jonas{old stuff
+
+\section{Estimating past infections}
+
+Let $A \in \N$ denote age, $I \in \{0,1\}$ infection indicator, $D \in \{0,1\}$ the indicator for a Corona-related death and $\tau > 0$
+the time from infection to possible death. We assume that the death rate $a \mapsto \P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)$ is 
+the same for all countries $c$ and all time points $t$, and that the infection rate $a \mapsto \P_c(I_{t} = 1 \given A_t = a)$ within 
+each country changes through time with the same factor for each age. For each country, there exists a function $g_c$, such that for every $t$, the joint
+density over $(A_t,I_t,D_{t+\tau})$ is given as
+%
+\begin{align*}
+\P_c(A_t = a, D_{t+\tau} = 1, I_t = 1)	&= \P_c(D_{t+\tau} = 1 \given I_t = 1, A_t = a)  \P_c(I_t = 1 \given A_t = a) \P_c(A_t = a) \\
+															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} g_c(t) \underbrace{\P(I_1 = 1 \given A_1 = a)}_{=:p_I(a)} \underbrace{\P_c(A_t = a)}_{=:p_c(a)} \\
+															&=  g_c(t) p_D(a) p_I(a) p_c(a)
+%															&= \underbrace{\P(D_{\tau} = 1 \given I_0 = 1, A_0 = a)}_{=:p_D(a)} \underbrace{\P(I_0 = 1 \given A_0 = a)}_{:=p_I(a)} \underbrace{\P_c(A_0 = a)}_{:=p_c(a)}.
+\end{align*}
+%
+It follows that 
+$$
+\frac{\P_c(I_t = 1 \given A_t = a)}{\P_c(I_t = 1)} = \frac{g_c(t) \P(I_1 = 1 \given A_1 = a)}{g_c(t) \P(I_1 = 1)} = \frac{\P(I_1 = 1 \given A_1 = a)}{ \P(I_1 = 1)}
+$$
+is the same for all $c$ and for all $t$. 
+
+
+For each country, we are given data from several individuals and time points:
+
+\begin{itemize}
+%\item $N_c$: number of individuals in country $c$
+%\item $A_{c,i}$: age of individual $i$ in country $c$
+%\item $I_{c,i,t}$: binary indicator of infection for individual $i$ in country $c$ at time $t$
+%\item $D_{c,i,t}$: binary indicator of Corona-related death for individual $i$ in country $c$ at time $t$
+\item $Y_{c,t}(a)$: number of infected individuals in country $c$ at age $a$ at time $t$
+\item $X_{c,t}(a)$: number of Corona-related deaths in country $c$ at age $a$ at time $t$
+\item $Y_{c,t} = \sum_a Y_{c,t}(a)$: total number of infected individuals in country $c$ at time $t$
+\item $X_{c,t} = \sum_a X_{c,t}(a)$: total number of Corona-related deaths in country $c$ at time $t$
+%\item $\tau$: time from infection to possible death
+%\item $p_c(a) = \P(A_{c,i} = a)$: marginal age distribution of country $c$
+%\item $p_{I}(a) = \P(I_{c,i,t} = 1 \given A_{c,i} = a)$: infection rate at age $a$
+%\item $p_{D}(a) = \P(D_{c,i,t+\tau} = 1 \given I_{c,i,t} = 1, A_{c,i} = a)$ death rate at age $a$
+\end{itemize}
+%Both $p_I$ and $p_D$ are assumed to be the same across all countries $c$ and all time points $t$. 
+%
+Our goal is to estimate $Y_{c,t-\tau}$ from $X_{c,t}(a)$ (if available) or from $X_{c,t}$. 
+
+\subsection{Known number of deaths per age group}
+%
+For every $a$ we have that 
+$$X_{c,t}(a) \given Y_{c,t-\tau}(a) \sim \text{Binom}(Y_{c,t-\tau}(a), p_D(a)),$$
+and we thus obtain estimates 
+$$\hat{Y}_{c,t-\tau} = \sum_a \hat{Y}_{c,t-\tau}(a) =\sum_a  X_{c,t}(a) / p_D(a)$$
+
+\subsection{Unknown number of deaths per age group}
+%
+If the values $X_{c,t}(a)$ are unobserved, we can estimate these as follows. By definition of $X_{c,t}$ we get that
+$$X_{c,t}(a) \given X_{c,t} \sim \text{Binom}(X_{c,t}, \P_c(A_{t-\tau} = a \given D_{t} = 1))$$
+and hence obtain that
+\begin{align*}
+\hat{X}_{c,t}(a) = \E[X_{c,t}(a) \given X_{c,t}] 	&= X_{c,t} \cdot \P_c(A_{t-\tau} = a \given D_{t} = 1) \\
+																		&= X_{c,t} \cdot \frac{\P_c(D_t = 1 \given A_{t-\tau} = a) \P_c(A_{t-\tau} = a)}{\P_c(D_t = 1)} \\
+																		&= X_{c,t} \cdot \frac{\P_c(D_t = 1, I_{t-\tau} = 1 \given A_{t-\tau} = a) \P_c(A_{t-\tau} = a)}{\P_c(D_t = 1)} \\
+																		&= X_{c,t} \cdot \frac{\P_c(D_t = 1\given I_{t-\tau} = 1 A_{t-\tau} = a) \P_c(I_{t-\tau} = 1 \given A_{t-\tau} = a) \P_c(A_{t-\tau} = a)}{\P_c(D_t = 1)} \\
+																		&= X_{c,t} \cdot \P_D(a) p_c(a) \frac{\P_c(I_{t-\tau} = 1 \given A_{t-\tau} = a) }{\P_c(D_t = 1)} \\
+%																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\P_c(D_\tau = 1)} \\
+%																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\P_c(D_\tau = 1, I_0 = 1)} \\
+%																		&= X_{c,t} \cdot \frac{p_D(a) p_I(a) p_c(a)}{\sum_a p_D(a) p_I(a) p_c(a)} \\
+\end{align*}
+}
+\fi
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
