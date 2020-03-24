@@ -6,6 +6,8 @@ While there are substantial shadow figures for infected, the death figures are m
 
 Further our approach incorporate varying demographics across countries and varying mortality across age groups. Technical details of our approach can be found in this [white paper](https://github.com/nikolajthams/COVID-19/blob/master/wirvsvirus/draft/concept_online_version.pdf) (which is still work in progress). 
 
-**Hackathon** This methodology was developed as part of the [\#WirVsVirus hackathon](https://wirvsvirushackathon.org) (April 20th-22nd, 2020). See also the [devpost page](https://devpost.com/software/038_daten_infektionszahlenschatzen) related to our solution and this [2 minute pitch](https://www.youtube.com/watch?v=ug6u5wXXD4M&feature=emb_title) describing our solution (both in German).
+**Hackathon** This methodology was developed as part of the [\#WirVsVirus hackathon](https://wirvsvirushackathon.org) (March 20th-22nd, 2020). See also the [devpost page](https://devpost.com/software/038_daten_infektionszahlenschatzen) related to our solution and this [2 minute pitch](https://www.youtube.com/watch?v=ug6u5wXXD4M&feature=emb_title) describing our solution (both in German).
 
-**Source:** [Johns Hopkins University](https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6) (infection data) and [UN data](http://data.un.org/Default.aspx) (demographic data). 
+**Data source:** [Johns Hopkins University](https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6) (infection data) and [UN data](http://data.un.org/Default.aspx) (demographic data). 
+
+**Contributors:** [Rune Christiansen](mailto:krunechristiansen@math.ku.dk), [Phillip Mogensen](mailto:pbm@math.ku.dk), [Jonas Peters](mailto:jonas.peters@math.ku.dk), [Niklas Pfister](mailto:np@math.ku.dk), [Nikolaj Thams](mailto:thams@math.ku.dk).
