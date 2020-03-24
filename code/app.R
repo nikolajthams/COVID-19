@@ -8,18 +8,20 @@ library(shinydashboard)
 library(DT)
 library(knitr)
 library(plotly)
+library(magrittr)
+library(tidyselect)
 
+theme_set(theme_minimal())
 
 # Define data paths -------------------------------------------------------
 source("data_paths.R")
-source("../wirvsvirus/infections_from_deaths.R")
 
 # Function definitions ----------------------------------------------------
 
 nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
-          algorithm = c("default", "plinear", "port", "brute-force",
-                        "grid-search", "random-search", "plinear-brute", "plinear-random"),
-          trace = FALSE, weights, ..., all = FALSE)
+                 algorithm = c("default", "plinear", "port", "brute-force",
+                               "grid-search", "random-search", "plinear-brute", "plinear-random"),
+                 trace = FALSE, weights, ..., all = FALSE)
 {
   if (!inherits(formula, "formula"))
     formula <- as.formula(formula, env = parent.frame())
@@ -248,31 +250,51 @@ data <- left_join(
   )
 
 
-# # Load Danish data from SSI -----------------------------------------------
+# Load Danish data from SSI -----------------------------------------------
 # ssi <- "data/ssi.csv" %>%
 #   read_delim(
 #     .,
-#     delim = ","
+#     delim = ",",
+#     locale = locale(grouping_mark = ".")
 #   ) %>%
 #   dplyr::select(-X1) %>%
 #   mutate(
 #     Date = ifelse(
-#       Date == "27. januar - 3. marts",
-#       "3. marts",
+#       grepl("27. januar", Date, ignore.case = T),
+#       # Date == "27. januar - 3. marts",
+#       paste(
+#         as.numeric(substr(lead(Date), 1, 1)) - 1,
+#         ". marts",
+#         sep = ""
+#       ),
 #       Date
 #     ),
 #     Date = gsub(". marts", "/03/2020", Date) %>% as.Date(., format = "%d/%m/%Y"),
 #     InfectionRate = `Lab confirmed cases` / Tested
-#   ) %>%
-#   left_join(
-#     .,
-#     filter(
-#       data,
-#       Country.Region == "Denmark"
-#     ),
-#     by = "Date"
-#   ) %>%
-#   select(-Country.Region)
+#   )
+# 
+# agefiles <- list.files("data/ssi_agegroups/")
+# agedata  <- lapply(
+#   agefiles,
+#   function(x) {
+#     data <- read_delim(
+#       paste("data/ssi_agegroups/", x, sep = ""), 
+#       delim = ",",
+#       locale = locale(decimal_mark = ".")
+#     ) %>% 
+#       select(-X1) %>%
+#       mutate(
+#         Date = as.Date(
+#           substr(x, 6, 13), format = "%d%m%Y"
+#         )# ,
+#         # `Antal testede personer` = `Antal testede personer` / 10
+#       )
+#     return(data)
+#   }
+# ) %>% 
+#   do.call("rbind", .) %>%
+#   ungroup
+
 
 # Exponential growth models --------------------------------------------------------------
 .fit_nls <- function(country, dt, get_convergence = F) {
@@ -286,9 +308,9 @@ data <- left_join(
         data = dt,
         subset = Country.Region == i
       ) %>% coef
-       names(fm0[[i]]) <- c("l", "r")
-
-
+      names(fm0[[i]]) <- c("l", "r")
+      
+      
       try({
         mm[[i]] <- nls(
           I(Cases + 1) ~ (1 + r)**(t - l),
@@ -301,7 +323,7 @@ data <- left_join(
         )
         conv[[i]] <- "Yes"
       }, silent = T)
-
+      
       if (is.null(mm[[i]])) {
         mm[[i]] <- nls2(
           I(Cases + 1) ~ (1 + r)**(t - l),
@@ -318,7 +340,7 @@ data <- left_join(
         )
         conv[[i]] <- "No"
       }
-
+      
     }
   } else {
     fm0 <- lm(
@@ -327,9 +349,9 @@ data <- left_join(
       subset = Country.Region %in% country
     ) %>% coef
     names(fm0) <- c("l", "r")
-
+    
     mm <- NULL
-
+    
     try({
       mm <- nls(
         I(Cases + 1) ~ (1 + r)**(t - l),
@@ -341,7 +363,7 @@ data <- left_join(
         control = nls.control(maxiter = 1e5, minFactor = 1 / 2**10)
       )
     }, silent = T)
-
+    
     if (is.null(mm)) {
       mm <- nls2(
         I(Cases + 1) ~ (1 + r)**(t - l),
@@ -358,7 +380,7 @@ data <- left_join(
       )
     }
   }
-
+  
   # fm0 <- lm(
   #   I(log(Cases + 1)) ~ t,
   #   data = dt,
@@ -373,7 +395,7 @@ data <- left_join(
   #   start = fm0,
   #   control = nls.control(maxiter = 1e4)
   # )
-
+  
   if (get_convergence) {
     return(
       list(mm, conv)
@@ -396,34 +418,34 @@ data <- left_join(
     mutate(
       "Method" = "Actual cases"
     )
-
+  
   if (is.null(tmax)) tmax <- max(plotdata$t)
-
+  
   tmpdata <- expand.grid(
     "Country.Region" = country,
     "Method" = "Predicted cases\n(Assuming no interventions)",
     "t" = seq(0, tmax, by = 1)
   )
-
+  
   if (length(country) > 1) {
     predictions <- c()
-
+    
     for (i in country) {
       predictions <- c(predictions, predict(model[[i]], filter(tmpdata, Country.Region == i)) - 1)
     }
-
+    
     tmpdata$Cases <- predictions
   } else {
     tmpdata$Cases <- predict(model, tmpdata) - 1
   }
-
+  
   plotdata <- rbind(
     plotdata,
     select(tmpdata, Cases, t, Method, Country.Region)
   )
-
+  
   plotdata$Group <- as.factor(plotdata$Method):as.factor(plotdata$Country.Region)
-
+  
   return({ggplotly(
     ggplot(
       data = plotdata,
@@ -456,37 +478,37 @@ data <- left_join(
 # UI ----------------------------------------------------------------------
 ui <- dashboardPage(
   dashboardHeader(title = "COVID19"),
-
+  
   dashboardSidebar(width = 250,
-    sidebarMenu(
-      menuItem(
-        text = "WirVsVirus", tabName = "wirvsvirus", icon = icon("file-alt")
-      ),
-      menuItem(
-        text = "Plots", tabName = "plots", icon = icon("bar-chart-o")
-      ),
-      # menuItem(
-      #   text = "Danish data", tabName = "ssidat", icon = icon("bar-chart-o")
-      # ),
-      menuItem(
-        text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
-        menuSubItem(
-          text = "Detailed model descriptions",
-          tabName = "expmod_sub1",
-          icon = icon("file-alt")
-        ),
-        menuSubItem(
-          text = "Fit models",
-          tabName = "expmod",
-          icon = icon("dashboard")
-        ),
-        menuSubItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
-      ),
-
-      menuItem(text = "About", tabName = "mainpage", icon = icon("file-alt"))
-    )
+                   sidebarMenu(
+                     menuItem(
+                       text = "WirVsVirus", tabName = "wirvsvirus", icon = icon("file-alt")
+                     ),
+                     menuItem(
+                       text = "Plots", tabName = "plots", icon = icon("bar-chart-o")
+                     ),
+                     menuItem(
+                       text = "Danish data on COVID19 tests", tabName = "ssidat", icon = icon("bar-chart-o")
+                     ),
+                     menuItem(
+                       text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
+                       menuSubItem(
+                         text = "Detailed model descriptions",
+                         tabName = "expmod_sub1",
+                         icon = icon("file-alt")
+                       ),
+                       menuSubItem(
+                         text = "Fit models",
+                         tabName = "expmod",
+                         icon = icon("dashboard")
+                       ),
+                       menuSubItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
+                     ),
+                     
+                     menuItem(text = "About", tabName = "mainpage", icon = icon("file-alt"))
+                   )
   ),
-
+  
   dashboardBody(
     # tags$head(includeScript("GoogleAnalytics.js")),
     tags$head(HTML("<script async src='https://www.googletagmanager.com/gtag/js?id=UA-160709431-1'
@@ -496,18 +518,18 @@ ui <- dashboardPage(
       # Welcome page
       tabItem(
         tabName = "mainpage",
-
+        
         fluidPage(
           withMathJax(
             includeMarkdown("mainpage.Rmd")
           )
         )
       ),
-
+      
       # Pane with country plots
       tabItem(
         tabName = "plots",
-
+        
         fluidPage(
           sidebarLayout(
             sidebarPanel(
@@ -517,7 +539,7 @@ ui <- dashboardPage(
                 choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log"),
                 selected="log"
               ),
-
+              
               selectInput(
                 "countries",
                 "Countries",
@@ -528,7 +550,7 @@ ui <- dashboardPage(
               checkboxInput("rebase", "View graph from patient number x", TRUE),
               conditionalPanel("input.rebase",
                                numericInput('rebase.value', 'Patient number', value=100, min=1, step=20)),
-
+              
               radioButtons(
                 "output",
                 "Output",
@@ -543,18 +565,18 @@ ui <- dashboardPage(
                   "Proportion of recoveries among infected" = "RecoveryRate"
                 )
               ),
-
-
-
+              
+              
+              
               downloadButton("downloadData", "Download Selected Data")
             ),
-
+            
             mainPanel(
-
+              
               div(
                 style = "position:relative",
-                plotlyOutput("country_plot"),
-                           # hover = hoverOpts("plot_hover", delay = 100, delayType = "debounce")),
+                plotlyOutput("country_plot"), 
+                # hover = hoverOpts("plot_hover", delay = 100, delayType = "debounce")),
                 uiOutput("hover_info")
               ),
               fluidPage(
@@ -564,24 +586,37 @@ ui <- dashboardPage(
               )
             )
           ),
-
+          
           textOutput("JH_data_lastupdate")
         )
       ),
-
+      
       # # Pane with Danish data:
       # tabItem(
       #   tabName = "ssidat",
-      #
+      #   
       #   fluidPage(
-      #     plotlyOutput("ssiPlot")
+      #     box(
+      #       includeMarkdown("ssi_doc.Rmd"),
+      #       width = 12
+      #     ),
+      #     
+      #     radioButtons(
+      #       "ageYN", "View:",
+      #       choices = c(
+      #         "Daily number of tests and percentage positive" = "tot",
+      #         "Cumulative Number of tests and percentage positive by age group" = "age"
+      #       )
+      #     ),
+      #     
+      #     plotlyOutput("ssiplot")
       #   )
       # ),
-
+      
       # Pane with exponential growth models
       tabItem(
         tabName = "expmod",
-
+        
         fluidPage(
           selectInput(
             "expmod_countries",
@@ -590,47 +625,49 @@ ui <- dashboardPage(
             selected = "Denmark",
             multiple = F
           ),
-
+          
           box(
             plotlyOutput("expmod_plot"),
             width = 12
           ),
-
+          
           br(), br(), br(),
           withMathJax(
             includeMarkdown("expmod_descriptions.Rmd")
           )
         )
       ),
-
+      
       # Pane with model text
       tabItem(
         tabName = "expmod_sub1",
-
+        
         fluidPage(
           withMathJax(
             includeMarkdown("expmod_detailed.Rmd")
           )
         )
       ),
-
+      
       # Pane with comparison between models
       tabItem(
         tabName = "tables",
-
+        
         fluidPage(
           verbatimTextOutput("expmod_tables_lastupdate"),
-
+          
           dataTableOutput("expmod_tables")
         )
       ),
+      
+      # Pane with wvv data
       tabItem(
         tabName = "wirvsvirus",
         (
           sidebarLayout(
-
+            
             sidebarPanel(
-
+              
               radioButtons(
                 "wvv.log",
                 "Y-axis scale",
@@ -643,7 +680,7 @@ ui <- dashboardPage(
                 choices = c("Deaths" = "deaths", "Confirmed cases" = "confirmed_cases"),
                 selected="confirmed_cases"
               ),
-
+              
               selectInput(
                 "wvv.countries",
                 "Countries",
@@ -651,7 +688,7 @@ ui <- dashboardPage(
                 selected = c("Germany", "Italy", "Spain"),
                 multiple = T
               ),
-
+              
               numericInput(
                 "wvv.death_delay",
                 "Days from infection to death",
@@ -675,18 +712,22 @@ ui <- dashboardPage(
               #   min=0, max=1, value=0
               # )
             ),
-
+            
             mainPanel(
               div(
                 style = "position:relative",
                 plotlyOutput("wirvsvirus"),
-                h5("Solid curves indicate confirmed numbers, shaded region estimated number of infected.")
+                h6("Solid curves indicate confirmed numbers, shaded region estimated number of infected.")
+              ),
+              fluidPage(
+                withMathJax(
+                  includeMarkdown("wvv_explanation.md")
+                )
               )
             )
           )
         )
       )
-
     )
   )
 )
@@ -705,12 +746,14 @@ yaxislab <- c(
 
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
-
+  
+  source("make_wvv_data.R", local = T)
+  
   number_ticks <- function(n) {
     function(limits)
       pretty(limits, n)
   }
-
+  
   datasetInput <- reactive({
     data_tmp <- data %>%
       filter(
@@ -741,166 +784,27 @@ server <- function(input, output) {
         "PercentageOfPopulation" = (Cases / Population) * 100
       ) %>% ungroup
   })
-
-  make.wvv.data <- reactive({
-    ########################################
-    # WVV data ----------------
-    ## Read data
-    demographics <- read.csv("../wirvsvirus/demographics.csv", sep=";", stringsAsFactors=FALSE, dec=",")
-    deathdata <- read.csv("../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv", header=TRUE, stringsAsFactors=FALSE, dec=",")
-    confirmeddata <- read.csv("../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv", header=TRUE, stringsAsFactors=FALSE, dec=",")
-    demographics <- demographics[order(demographics$Country),]
-    deathdata <- deathdata[order(deathdata$Country.Region),]
-
-    ## Prepare deathdata
-    drops <- c("Lat", "Long", "Province.State")
-    deathdata <- deathdata[,!(names(deathdata) %in% drops)]
-    deathdata <- aggregate(. ~ Country.Region, data = deathdata, FUN = sum)
-    dates = as.Date(substring(colnames(deathdata)[2:ncol(deathdata)], 2), format = "%m.%d.%y")
-
-    confirmeddata <- confirmeddata[,!(names(confirmeddata) %in% drops)]
-    confirmeddata <- aggregate(. ~ Country.Region, data = confirmeddata, FUN = sum)
-
-    demographics <- subset(demographics, select=c(-Total.population))
-    colnames(demographics)[2:ncol(demographics)] = paste0(10*(0:8), rep("-", 8), 9+10*(0:8))
-
-    ## Align data
-    countries <- intersect(demographics$Country, deathdata$Country.Region)
-    deathdata = subset(deathdata, Country.Region %in% countries)
-    confirmeddata = subset(confirmeddata, Country.Region %in% countries)
-    demographics = subset(demographics, Country %in% countries)
-
-    death_mat = as.matrix(subset(deathdata, select=c(-Country.Region)))
-    demographics = as.matrix(subset(demographics, select=c(-Country)))
-
-    ## These two parameters need to be adjusted
-    death.rate =  as.numeric(unlist(strsplit(input$wvv.death_rate,",")))
-    # relative.death.risk = as.numeric(unlist(strsplit(input$wvv.rel_risk,",")))
-    rel.rate.high = c(0,0,0.003,0.003,0.008,0.038,0.134,0.271,0.909)
-    rel.rate.low = c(0,0,0,0,0,0.003,0.015,0.074,0.543)
-
-    # numbers from south korea
-    # https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis
-    ## Actual relevant computation
-    make_data = function(death_mat, relative.death.risk){
-      activedata <- matrix(NA, nrow(death_mat), ncol(death_mat))
-      for(i in 1:nrow(activedata)){
-        for(j in 1:ncol(activedata)){
-          demo_adjusted_risk <- relative.death.risk * demographics[i,]
-          est.num.death <- demo_adjusted_risk*death_mat[i, j]/sum(demo_adjusted_risk)
-          estimate = est.num.death/death.rate
-          activedata[i, j] <- sum(estimate*is.finite(estimate), na.rm=TRUE)
-        }
-      }
-      activedata = data.frame(activedata)
-      colnames(activedata) = dates
-      activedata$Country = countries
-      return(activedata)
-    }
-    activedata.low = make_data(death_mat, rel.rate.low)
-    activedata.high = make_data(death_mat, rel.rate.high)
-    
-    ## Actual relevant computation (given p_D(a)) -> Section 1.1
-    ## Function to compute binomial confidence bounds on n
-    find_confidence_bounds <- function(x, p, alpha=0.05){
-      n.est <- x/p
-      if(p>0){
-        # lower bound
-        lower.n <- floor(n.est)
-        prob <- 1
-        while(prob > alpha/2 & lower.n >= 0){
-          prob <- pbinom(x-1, lower.n, p, lower.tail=FALSE)
-          lower.n <- lower.n-1
-        }
-        lower.n <- lower.n + 1
-        # upper bound
-        upper.n <- ceiling(n.est)
-        prob <- 1
-        while(prob > alpha/2){
-          prob <- pbinom(x, upper.n, p)
-          upper.n <- upper.n+1
-        }
-        upper.n <- upper.n - 1
-        res <- c(lower.n, upper.n)
-      }
-      else{
-        res <- c(NA, NA)
-      }
-      return(res)
-    }
-    
-    # 
-    # # value for Italy
-    # num.italy <- c(0,0,0,9,25,83,312,1090,1528)
-    # active_cases_lower <- rep(NA, ncol(death_mat))
-    # active_cases_upper <- rep(NA, ncol(death_mat))
-    # for(j in 1:ncol(death_mat_unique)){
-    #   bounds <- sapply(death.rate, function(p)
-    #     find_confidence_bounds(death_mat[], p))
-    #   active_cases_lower[j] <- sum(bounds[1,]/death.rate, na.rm=TRUE)
-    #   active_cases_upper[j] <- sum(bounds[2,]/death.rate, na.rm=TRUE)
-    # }
-    
-
-    activedata.low <- melt(
-      activedata.low,
-      id.vars = "Country",
-      variable.name = "Date",
-      value.name = "Cases.low"
-    )
-    activedata.low$Date = as.Date(activedata.low$Date)
-
-    activedata.high <- melt(
-      activedata.high,
-      id.vars = "Country",
-      variable.name = "Date",
-      value.name = "Cases.high"
-    )
-    activedata.high$Date = as.Date(activedata.high$Date)
-    
-    confirmeddata <- melt(
-      confirmeddata,
-      id.vars = "Country.Region",
-      variable.name = "Date",
-      value.name = "ConfirmedCases"
-    )
-    confirmeddata$Date = as.Date(substring(confirmeddata$Date, 2), format = "%m.%d.%y")
-
-
-    deathdata <- melt(
-      deathdata,
-      id.vars = "Country.Region",
-      variable.name = "Date",
-      value.name = "Deaths"
-    )
-    deathdata$Date = as.Date(substring(deathdata$Date, 2), format = "%m.%d.%y")
-    
-    wvv.data = merge(activedata.high, activedata.low, by = c("Country", "Date"))
-    wvv.data = merge(wvv.data, deathdata, by.x=c("Country", "Date"), by.y=c("Country.Region", "Date"))
-    wvv.data = merge(wvv.data, confirmeddata, by.x=c("Country", "Date"), by.y=c("Country.Region", "Date"))
-    wvv.data
-  })
-
+  
   output$JH_data_lastupdate <- renderText({
     paste(
-      "John Hopkins data was last updated at:",
+      "Johns Hopkins data was last updated at:",
       file.info(cases_path)$mtime,
       "(Central European Time)",
       sep = " "
     )
   })
-
+  
   output$country_plot <- renderPlotly({
     patient.x.name = paste("Days since patient", input$rebase.value)
-
+    
     if(input$rebase == TRUE){
       p <- ggplot(datasetInput()%>%rename(!!patient.x.name:="t"),
                   aes_string(
                     x = paste("`", patient.x.name, "`", sep = ""),
                     y = input$output,
-                    colour = "Country.Region",
+                    colour = "Country.Region", 
                     label = "Date"
-                  )) +
+                  )) + 
         xlab(paste("Days since patient ", input$rebase.value)) + scale_x_continuous(breaks=c(0, seq(7,1000,7)))# + geom_point(aes_string(text = hover.date))
     } else {
       p <- ggplot(datasetInput(),
@@ -908,66 +812,66 @@ server <- function(input, output) {
                     x = "Date",
                     y = input$output,
                     colour = "Country.Region"
-                  )) +
+                  )) + 
         scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
     }
     if (input$log == "log") {
       p <- p + scale_y_log10()
     }
     p <- p + theme_minimal() +
-      ggtitle(names(yaxislab)[yaxislab == input$output]) +
-      theme(plot.title = element_text(hjust = 0.5)) +
+      ggtitle(names(yaxislab)[yaxislab == input$output]) + 
+      theme(plot.title = element_text(hjust = 0.5)) + 
       ylab(names(yaxislab)[yaxislab == input$output])
-
+    
     p = p + geom_line() + geom_point(alpha=0.5, size=1.2) + labs(colour="Country")
     p = ggplotly(p)
     p
   })
-
+  
   output$hover_info <- renderUI({
     hover <- input$plot_hover
     point <- nearPoints(datasetInput(), hover, threshold = 10, maxpoints = 1, addDist = TRUE)
     if (nrow(point) == 0) return(NULL)
-
+    
     # calculate point position INSIDE the image as percent of total dimensions
     # from left (horizontal) and from top (vertical)
     left_pct <- (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
     top_pct <- (hover$domain$top - hover$y) / (hover$domain$top - hover$domain$bottom)
-
+    
     # calculate distance from left and bottom side of the picture in pixels
     left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
     top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
-
+    
     # create style property fot tooltip
     # color is set so tooltip is a bit transparent
     # z-index is set so we are sure are tooltip will be on top
     style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
                     "left:", left_px + 2, "px; top:", top_px + 2, "px;")
-
+    
     # actual tooltip created as wellPanel
     wellPanel(
       style = style,
       p(HTML(paste0("<b> Country: </b>", point$Country.Region, "<br/>",
                     "<b> Date: </b>", point$Date, "<br/>",
                     "<b> Value: </b>", point[,input$output], "<br/>"
-                    )))
+      )))
     )
   })
-
-
-
+  
+  
+  
   output$dynamic <- renderPrint({
     req(input$plot_hover)
     verbatimTextOutput("vals")
   })
-
+  
   output$vals <- renderPrint({
     hover <- input$plot_hover
     HoverData <- nearPoints(datasetInput(),input$plot_hover) %>%  select(Country.Region,Date,input$output)
     req(nrow(HoverData) != 0)
     knitr::kable(HoverData, "pandoc")
   })
-
+  
   output$downloadData <- downloadHandler(
     filename = function() {
       paste("COVID19_", paste(sort(input$countries), collapse = "_"), ".csv", sep =
@@ -977,7 +881,7 @@ server <- function(input, output) {
       write.csv(datasetInput(), file, row.names = TRUE)
     }
   )
-
+  
   output$expmod_plot <- renderPlotly({
     validate(
       need(
@@ -985,7 +889,7 @@ server <- function(input, output) {
         'Please select a country to analyse.'
       )
     )
-
+    
     plotdata <- data %>%
       filter(
         Country.Region %in% c(input$expmod_countries)
@@ -1010,11 +914,11 @@ server <- function(input, output) {
       mutate(
         "t" = (Date - as.Date(min(Date))) %>% as.numeric
       )
-
+    
     modelfit <- .fit_nls(input$expmod_countries, plotdata, F)
     .get_plots(modelfit, input$expmod_countries, plotdata)
   })
-
+  
   output$expmod_tables_lastupdate <- renderText({
     paste(
       "Models were last updated at:",
@@ -1023,72 +927,236 @@ server <- function(input, output) {
       sep = " "
     )
   })
-
+  
   output$expmod_tables <- renderDataTable({
     all_models <- "data/all_models.csv" %>%
       read_delim(
         .,
         delim = ";"
       )
-
+    
     all_models
   })
-
+  
   output$wirvsvirus <- renderPlotly({
-    wvv.data = make.wvv.data()
-    make_estimate_plot = function(input){
-      if(input$wvv.compare_ouput == "confirmed_cases"){
-        firstDate = min(subset(wvv.data, (ConfirmedCases != 0 & Country %in% input$wvv.countries))$Date)
+    wvv.data <- make.wvv.data() 
+    
+    
+    make_estimate_plot <- function(input) {
+      if (input$wvv.compare_ouput == "confirmed_cases") {
+        firstDate <- 
+          wvv.data %>%
+          filter(
+            ConfirmedCases != 0,
+            Country %in% input$wvv.countries
+          ) %>%
+          pull(Date) %>%
+          min
       } else {
-        firstDate = min(subset(wvv.data, (Deaths != 0 & Country %in% input$wvv.countries))$Date)
+        firstDate <- 
+          wvv.data %>%
+          filter(
+            Deaths != 0,
+            Country %in% input$wvv.countries
+          ) %>%
+          pull(Date) %>%
+          min
       }
-
-      p = ggplot(subset(wvv.data, (Country %in% input$wvv.countries & Date >= firstDate)),
-                 aes(colour=Country, group=Country)) +
-        scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d") + 
+      wvv.data %<>% filter(
+        Country %in% input$wvv.countries,
+        Date >= firstDate
+      ) %>%
+        mutate(
+          "Date " = as.Date(Date - input$wvv.death_delay)
+        )
+      
+      p <- ggplot(
+        # data = filter(
+        #   wvv.data,
+        #   Country %in% input$wvv.countries,
+        #   Date >= firstDate
+        # ),
+        data = wvv.data,
+        aes(
+          colour = Country
+        )
+      ) +
+        scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d") +
         ylab("Number of cases")
-
-      if(input$wvv.compare_ouput == "confirmed_cases"){
-        p = p + geom_line(aes(x = Date, y = ConfirmedCases), linetype="dashed")
+      
+      if (input$wvv.compare_ouput == "confirmed_cases") {
+        p <- p + 
+          geom_line(
+            aes(
+              x = Date, y = ConfirmedCases
+            )
+          )
       } else {
-        p = p + geom_line(aes(x = Date, y = Deaths), linetype="dashed")
+        p <- p + 
+          geom_line(
+            aes(
+              x = Date, y = Deaths
+            )
+          )
       }
-      p = p + geom_ribbon(aes(x = Date - input$wvv.death_delay, ymin = Cases.low, ymax = Cases.high, fill = Country), alpha=0.3)
-
+      wvv.data %<>% mutate(Date2 = as.Date(Date - input$wvv.death_delay))
+      p <- p + geom_ribbon(
+        aes(
+          x = `Date `,
+          ymin = Cases.low,
+          ymax = Cases.high,
+          fill = Country,
+          text1 = Cases.high,
+          text2 = Cases.low
+        ),
+        alpha = 0.3
+      )
+      
       if (input$wvv.log == "log") {
-        p <- p + scale_y_log10()
+        p <- p + scale_y_log10(
+          labels = function(x) format(x, scientific = F)
+        )
       }
+      
+      gg_color_hue <- function(n) {
+        hues = seq(15, 375, length = n + 1)
+        hcl(h = hues, l = 65, c = 100)[1:n]
+      }
+      
       return(p)
     }
-    p = make_estimate_plot(input)
-    ggplotly(p)
-
+    
+    p <- make_estimate_plot(input)
+    p <- ggplotly(p, tooltip = c(
+      "colour", "x", "y", "text1", "text2"
+    ))
+    
+    for (i in 1:length(p$x$data)) {
+      if (grepl(",1", p$x$data[[i]]$legendgroup)) {
+        p$x$data[[i]]$legendgroup <- gsub(
+          "[()]|,|1",
+          "",
+          p$x$data[[i]]$legendgroup
+        )
+        
+        p$x$data[[i]]$name <- paste(
+          gsub(
+            "[()]|,|1",
+            "",
+            p$x$data[[i]]$name
+          ),
+          ", confirmed",
+          sep = ""
+        )
+      } else {
+        p$x$data[[i]]$name <- paste(
+          p$x$data[[i]]$name,
+          ", estimated",
+          sep = ""
+        )
+      }
+    }
+    
+    p
+    
+    
   })
-
-  # output$ssiPlot <- renderPlotly({
-  #   ssiPlotData <- ssi %>%
-  #     select(
-  #       Date,
-  #       "Lab confirmed cases",
-  #       Tested
-  #     ) %>% melt(., id.vars = "Date")
-  #
-  #   p1 <- ggplot(
-  #     data = ssiPlotData,
-  #     aes(
-  #       x = Date,
-  #       y = value,
-  #       colour = variable
-  #     )
-  #   ) +
-  #     geom_line() +
-  #     theme_minimal() +
-  #     theme(text = element_text(size = 12), legend.position = "bottom") +
-  #     xlab("Date") + ylab("Value") + labs(colour = "")
-  #
-  #   ggplotly(p1)
+  
+  
+  # output$ssiplot <- renderPlotly({
+  #   if (input$ageYN == "tot") {
+  #     p <- ggplot(
+  #       data = ssi %>%
+  #         mutate(
+  #           InfectionRate = round(InfectionRate * 100, 4)
+  #         ) %>%
+  #         rename(
+  #           "Number of tested people, daily" = Tested,
+  #           "Percentage of tests positive, daily" = InfectionRate
+  #         ) %>%
+  #         dplyr::select(
+  #           Date,
+  #           "Number of tested people, daily",
+  #           "Percentage of tests positive, daily"
+  #         ) %>%
+  #         melt(
+  #           id.vars = "Date"
+  #         ),
+  #       aes(
+  #         x = Date,
+  #         y = value,
+  #         colour = T
+  #       )
+  #     ) +
+  #       scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d") +
+  #       geom_line() +
+  #       geom_point() + 
+  #       facet_wrap(
+  #         ~ variable,
+  #         scales = "free_y"
+  #       ) + 
+  #       ylab("") +
+  #       theme_minimal()
+  #     
+  #     p <- ggplotly(p, tooltip = c("Date", "value"))
+  #     for (i in 1:length(p$x$data)){
+  #       # p2$x$data[[i]]$text <- c(p$x$data[[i]]$text, "") 
+  #       p$x$data[[i]]$showlegend <- FALSE
+  #     }
+  #     p
+  #     
+  #     
+  #   } else {
+  #     plotdata <- agedata %>%
+  #       mutate(
+  #         "Percentage of tests positive, total" = round(Laboratoriebekræftede / `Antal testede personer` * 100, 4)
+  #       ) %>%
+  #       rename(
+  #         "Number of tested people, total" = "Antal testede personer"
+  #       ) %>%
+  #       dplyr::select(
+  #         Date,
+  #         Aldersgrupper,
+  #         "Number of tested people, total",
+  #         "Percentage of tests positive, total"
+  #       ) %>%
+  #       melt(
+  #         id.vars = c("Date", "Aldersgrupper")
+  #       )
+  #     
+  #     
+  #     p <- ggplot(
+  #       data = plotdata,
+  #       aes(
+  #         x = Date,
+  #         y = value,
+  #         colour = Aldersgrupper
+  #       )
+  #     ) + 
+  #       geom_line() + 
+  #       geom_point() + 
+  #       scale_x_date(labels = date_format("%b %d")) + 
+  #       facet_wrap(
+  #         ~ variable,
+  #         scales = "free"
+  #       ) +
+  #       theme_minimal() + 
+  #       theme(
+  #         text = element_text(size = 12),
+  #         legend.position = "bottom"
+  #       ) +
+  #       ylab("")
+  #     
+  #     ggplotly(p) %>% 
+  #       layout(
+  #         legend = list(
+  #           orientation = "h",
+  #           y = -0.2
+  #         )
+  #       )
+  #   }
   # })
-
-
+  
+  
 }
 shinyApp(ui = ui, server = server)
