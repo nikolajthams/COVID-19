@@ -999,7 +999,7 @@ server <- function(input, output) {
             )
           )
       }
-      wvv.data %<>% mutate(Date2 = as.Date(Date - input$wvv.death_delay))
+      # wvv.data %<>% mutate(Date2 = as.Date(Date - input$wvv.death_delay))
       p <- p + geom_ribbon(
         aes(
           x = `Date `,
@@ -1014,9 +1014,15 @@ server <- function(input, output) {
       
       if (input$wvv.log == "log") {
         p <- p + scale_y_log10(
-          labels = function(x) format(x, scientific = F)
+          # labels = function(x) format(x, scientific = F),
+          # oob = squish_infinite
         )
-      }
+      } 
+      # else {
+      #   p <- p + scale_y_continuous(
+      #     labels = function(x) format(x, scientific = F)
+      #   )
+      # }
       
       gg_color_hue <- function(n) {
         hues = seq(15, 375, length = n + 1)
