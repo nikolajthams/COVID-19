@@ -700,7 +700,7 @@ ui <- dashboardPage(
                 "Case fatality rate for each age group (0-9, 10-19, ...) [comma-separated]",
                 value=c("0, 0, 0, 0.0011, 0.0008, 0.0042, 0.0152, 0.0628, 0.1024")
               ),
-              h5("Default death rate: South Korea")
+              h5("Default case fatality rate: South Korea")
               # textInput(
               #   "wvv.rel_risk",
               #   "Relative risk (comma-separated)",
@@ -717,7 +717,7 @@ ui <- dashboardPage(
               div(
                 style = "position:relative",
                 plotlyOutput("wirvsvirus"),
-                h6("Solid curves indicate confirmed numbers. Shaded region estimates number of infected, measured from illness onset.")
+                h6("Solid curves indicate confirmed numbers. Shaded regions are estimated number of infected, measured from illness onset.")
               ),
               fluidPage(
                 withMathJax(
