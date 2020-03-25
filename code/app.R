@@ -247,9 +247,12 @@ data <- left_join(
     "StillInfected" = Cases - (Recovered + Deaths),
     "MortalityRate" = (Deaths / Cases) * 100,
     "RecoveryRate"  = (Recovered / Cases) * 100
-  )
-
-
+  ) %<>% 
+  group_by(Country.Region) %>%
+  arrange(Date) %>%
+  mutate(NewDeaths = Deaths - lag(Deaths),
+         NewDeaths = ifelse(is.na(NewDeaths), 0, NewDeaths)) %>%
+  ungroup()
 # Load Danish data from SSI -----------------------------------------------
 ssi <- "data/ssi.csv" %>%
   read_delim(
@@ -559,13 +562,14 @@ ui <- dashboardPage(
                   "New confirmed cases" = "NewCases",
                   "Still infected" = "StillInfected",
                   "Recovered" = "Recovered",
-                  "Deaths" = "Deaths",
+                  "Total deaths" = "Deaths",
+                  "New deaths" = "NewDeaths",
                   "Percentage of population infected" = "PercentageOfPopulation",
                   "Proportion of deaths among infected" = "MortalityRate",
                   "Proportion of recoveries among infected" = "RecoveryRate"
                 )
               ),
-              
+              checkboxInput("barchart", "View as bar chart (works well with 'New deaths' and 'New cases' when few countries are selected)", FALSE),
               
               
               downloadButton("downloadData", "Download Selected Data")
@@ -741,7 +745,8 @@ yaxislab <- c(
   "Cumulative deaths" = "Deaths",
   "Population infected (%)" = "PercentageOfPopulation" ,
   "Mortality rate (%)" = "MortalityRate",
-  "Recovery rate (%)" = "RecoveryRate")
+  "Recovery rate (%)" = "RecoveryRate",
+  "New deaths" = "NewDeaths")
 
 
 # Server ------------------------------------------------------------------
@@ -821,9 +826,13 @@ server <- function(input, output) {
     p <- p + theme_minimal() +
       ggtitle(names(yaxislab)[yaxislab == input$output]) + 
       theme(plot.title = element_text(hjust = 0.5)) + 
-      ylab(names(yaxislab)[yaxislab == input$output])
-    
-    p = p + geom_line() + geom_point(alpha=0.5, size=1.2) + labs(colour="Country")
+      ylab(names(yaxislab)[yaxislab == input$output]) +
+      labs(colour="Country")
+    if (input$barchart){#(input$output %in% c("NewCases", "NewDeaths")){
+      p = p + geom_bar(aes(fill=Country.Region), position="dodge", stat="identity", alpha=1, lwd = 0.1)
+    } else {
+      p = p + geom_line() + geom_point(alpha=0.5, size=1.2) 
+    }
     p = ggplotly(p)
     p
   })
