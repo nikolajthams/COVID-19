@@ -5,22 +5,30 @@ import tabula
 
 today = date.today().strftime("%d%m%Y")
 
-
 def get_timeseries(date):
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date
+    # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + "24032020"
 
     try:
-        tables = tabula.read_pdf(file, pages=2, multiple_tables=True, stream=True)
+        tables = tabula.read_pdf(file, pages='all', multiple_tables=True, stream=True)
     except HTTPError:
         return print("No data found for date " + date)
 
-    clean_df1 = tables[0]
+    vals = ['Prøvedato' in tables[i].values.flatten() for i in range(len(tables))]
+    correct_table = [i for i, n in enumerate(vals) if n][0]
+
+    if date > "23032020":
+        startval = 2
+    else:
+        startval = 3
+
+    clean_df1 = tables[correct_table]
     a, b = clean_df1.shape
-    clean_df1 = clean_df1.iloc[3:(a - 1), :].rename(columns={
+    clean_df1 = clean_df1.iloc[startval:(a - 1), :].rename(columns={
         "Unnamed: 0": "Date",
-        "Laboratorie-": "Lab confirmed cases",
-        "Unnamed: 1": "Tested",
-        "Unnamed: 2": "Rate"})
+        "Laboratorie-bekræftede": "Lab confirmed cases",
+        "Antal testede": "Tested",
+        "Andel positive": "Rate"})
 
     outfile = 'data/ssi.csv'
     clean_df1.to_csv(outfile)
@@ -52,7 +60,8 @@ def get_AgeGroups(date):
     return tables[agegroups].drop([0, tables[agegroups].shape[0]-1])
 
 ###### Get time series:
-get_timeseries(today)
+get_timeseries("24032020")
+tst = get_AgeGroups("24032020")
 
 ###### Get age data:
 avail_dates = ['12032020', '13032020', '16032020','17032020', '18032020', '19032020', '20032020', '21032020', '22032020']
