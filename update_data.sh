@@ -11,8 +11,8 @@ sudo cp -f csse_covid_19_data/csse_covid_19_time_series/* $primary/ && echo upda
 
 sudo cp -f csse_covid_19_data/csse_covid_19_time_series/* $secondary/ &&  echo updated data
 
-cd $primary
+cd $primary && echo changed wd
 R CMD BATCH $primary/compute_all_models.R && echo computed new models
-cd $secondary
+cd $secondary && echo changed wd
 R CMD BATCH $secondary/compute_all_models.R && echo computed new models
 

@@ -14,7 +14,7 @@ library(tidyselect)
 theme_set(theme_minimal())
 
 # Define data paths -------------------------------------------------------
-source("data_paths.R")
+source("code/data_paths.R")
 
 # Function definitions ----------------------------------------------------
 
@@ -254,7 +254,7 @@ data <- left_join(
          NewDeaths = ifelse(is.na(NewDeaths), 0, NewDeaths)) %>%
   ungroup()
 # Load Danish data from SSI -----------------------------------------------
-ssi <- "data/ssi.csv" %>%
+ssi <- ssi_path %>%
   read_delim(
     .,
     delim = ",",
@@ -276,12 +276,12 @@ ssi <- "data/ssi.csv" %>%
     InfectionRate = `Lab confirmed cases` / Tested
   )
 
-agefiles <- list.files("data/ssi_agegroups/")
+agefiles <- list.files("code/data/ssi_agegroups/")
 agedata  <- lapply(
   agefiles,
   function(x) {
     data <- read_delim(
-      paste("data/ssi_agegroups/", x, sep = ""), 
+      paste("code/data/ssi_agegroups/", x, sep = ""), 
       delim = ",",
       locale = locale(decimal_mark = ".")
     ) %>% 
@@ -513,10 +513,9 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
-    # tags$head(includeScript("GoogleAnalytics.js")),
     tags$head(HTML("<script async src='https://www.googletagmanager.com/gtag/js?id=UA-160709431-1'
 ></script>")),
-    tags$head(includeScript("analytics.js")),
+    tags$head(includeScript("code/analytics.js")),
     tabItems(
       # Welcome page
       tabItem(
@@ -524,7 +523,7 @@ ui <- dashboardPage(
         
         fluidPage(
           withMathJax(
-            includeMarkdown("mainpage.Rmd")
+            includeMarkdown("code/docs/mainpage.Rmd")
           )
         )
       ),
@@ -585,7 +584,7 @@ ui <- dashboardPage(
               ),
               fluidPage(
                 withMathJax(
-                  includeMarkdown("text_below_plot.md")
+                  includeMarkdown("code/docs/text_below_plot.md")
                 )
               )
             )
@@ -601,7 +600,7 @@ ui <- dashboardPage(
         
         fluidPage(
           box(
-            includeMarkdown("ssi_doc.Rmd"),
+            includeMarkdown("code/docs/ssi_doc.Rmd"),
             width = 12
           ),
           
@@ -637,7 +636,7 @@ ui <- dashboardPage(
           
           br(), br(), br(),
           withMathJax(
-            includeMarkdown("expmod_descriptions.Rmd")
+            includeMarkdown("code/docs/expmod_descriptions.Rmd")
           )
         )
       ),
@@ -648,7 +647,7 @@ ui <- dashboardPage(
         
         fluidPage(
           withMathJax(
-            includeMarkdown("expmod_detailed.Rmd")
+            includeMarkdown("code/docs/expmod_detailed.Rmd")
           )
         )
       ),
@@ -725,7 +724,7 @@ ui <- dashboardPage(
               ),
               fluidPage(
                 withMathJax(
-                  includeMarkdown("wvv_explanation.md")
+                  includeMarkdown("code/docs/wvv_explanation.md")
                 )
               )
             )
@@ -752,7 +751,7 @@ yaxislab <- c(
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
   
-  source("make_wvv_data.R", local = T)
+  source("code/make_wvv_data.R", local = T)
   
   number_ticks <- function(n) {
     function(limits)
@@ -931,14 +930,14 @@ server <- function(input, output) {
   output$expmod_tables_lastupdate <- renderText({
     paste(
       "Models were last updated at:",
-      file.info("data/all_models.csv")$mtime,
+      file.info("code/data/all_models.csv")$mtime,
       "(Central European Time)",
       sep = " "
     )
   })
   
   output$expmod_tables <- renderDataTable({
-    all_models <- "data/all_models.csv" %>%
+    all_models <- "code/data/all_models.csv" %>%
       read_delim(
         .,
         delim = ";"
