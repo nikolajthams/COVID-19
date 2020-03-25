@@ -181,7 +181,7 @@ corresponding country.
 more countries, for example, 
 allows us to 
 provide more accurate uncertainty bounds for 
-the remaining countries, see `Uncertainties of Assumptions\ref{ass:1}~and~\ref{ass:2}'.}
+the remaining countries, see `Uncertainties of Assumptions~\ref{ass:1}~and~\ref{ass:2}'.}
 We therefore need to estimate the number of fatalities per age group using data available from the other countries.
 
 
@@ -321,15 +321,17 @@ $t^*$, we estimate $X_{c,t}(a)$ at other time points by scaling to the total dea
 We can also compute confidence bounds for the estimator \eqref{eq:Y1}
 using the Binomial distribution. This leads to the lower bound
 \begin{equation*}
-  \hat{Y}_{c,t-\tau}^{\text{lower}} = \sum_a \inf\{n\in\N \,\vert\, \P(X\geq
+  \hat{Y}_{c,t-\tau}^{\text{lower}} = \sum_a \inf\{n\in\N \,\vert\,
+  \P(\operatorname{Bin}(n, \hat{p}_D(a))\geq
   X_{c,t}(a))>\tfrac{\alpha}{2}\} / \hat  p_D(a)
 \end{equation*}
 and to the upper bound
 \begin{equation*}
-  \hat{Y}_{c,t-\tau}^{\text{upper}} = \sum_a \sup\{n\in\N \,\vert\, \P(X\leq
-  X_{c,t}(a))>\tfrac{\alpha}{2}\} / \hat  p_D(a).
+  \hat{Y}_{c,t-\tau}^{\text{upper}} = \sum_a \sup\{n\in\N \,\vert\, \P(\operatorname{Bin}(n, \hat{p}_D(a))\leq
+  X_{c,t}(a))>\tfrac{\alpha}{2}\} / \hat  p_D(a),
 \end{equation*}
-\todo{@Niklas: fix above notation}
+where $\operatorname{Bin}(n, \hat{p}_D(a))$ is a binomial random
+variable with parameters $n$ and $\hat{p}_D(a)$.
 
 %\Rune{
 
@@ -420,17 +422,16 @@ above expression.
 %\Niklas{todo: Get bounds here.}
 
 
-\section{Sources of uncertainty} \label{sec:uncert}
-We believe that there are 
-three main sources of uncertainty. 
-(i) Assumption~\ref{ass:1}:
-The case fatality rates are not known exactly. Uncertainties in the 
-estimated rates
-contribute to uncertainties in the
-predicted values.
-The current version of the app does not consider
-this type of uncertainty, but assumes 
-that the estimated case fatality rates from South Korea are correct.
+\section{Sources of uncertainty} \label{sec:uncert} We believe that
+there are three main sources of uncertainty.
+
+(i) Assumption~\ref{ass:1}: The case fatality rates are not known
+exactly. Uncertainties in the estimated rates contribute to
+uncertainties in the predicted values. Currently, we do not model this
+type of uncertainty explicitly and rather use the estimated case
+fatality rates from South Korea as if they were correct. However, in
+the app this parameter can be changed manually, to get a feeling for
+how it affects the estimated number of infected persons.
 
 (ii) Assumption~\ref{ass:2}: We can check 
 how well the data supports 
@@ -559,3 +560,8 @@ as desired. $\hfill \square$
 \bibliography{ref}
 
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
