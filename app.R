@@ -465,7 +465,7 @@ agedata  <- lapply(
           "Estimated infection rate: ",
           round(coef(model)[2], 3),
           "\n",
-          "Estimated lag-phase duration (days): ",
+          "Estimated lag-phase duration (in days): ",
           round(abs(coef(model)[1]), 3),
           sep = ""
         )
