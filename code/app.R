@@ -487,9 +487,9 @@ ui <- dashboardPage(
                      menuItem(
                        text = "Plots", tabName = "plots", icon = icon("bar-chart-o")
                      ),
-                     menuItem(
-                       text = "Danish data on COVID19 tests", tabName = "ssidat", icon = icon("bar-chart-o")
-                     ),
+                     # menuItem(
+                     #   text = "Danish data on COVID19 tests", tabName = "ssidat", icon = icon("bar-chart-o")
+                     # ),
                      menuItem(
                        text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
                        menuSubItem(
@@ -691,13 +691,13 @@ ui <- dashboardPage(
               
               numericInput(
                 "wvv.death_delay",
-                "Days from infection to death",
+                "Days from illness onset to death",
                 value = 20,
                 min = 1
               ),
               textInput(
                 "wvv.death_rate",
-                "Death rate for each age group (0-9, 10-19, ...) [comma-separated]",
+                "Case fatality rate for each age group (0-9, 10-19, ...) [comma-separated]",
                 value=c("0, 0, 0, 0.0011, 0.0008, 0.0042, 0.0152, 0.0628, 0.1024")
               ),
               h5("Default death rate: South Korea")
@@ -717,7 +717,7 @@ ui <- dashboardPage(
               div(
                 style = "position:relative",
                 plotlyOutput("wirvsvirus"),
-                h6("Solid curves indicate confirmed numbers, shaded region estimated number of infected.")
+                h6("Solid curves indicate confirmed numbers. Shaded region estimates number of infected, measured from illness onset.")
               ),
               fluidPage(
                 withMathJax(
@@ -1013,9 +1013,7 @@ server <- function(input, output) {
       )
       
       if (input$wvv.log == "log") {
-        p <- p + scale_y_log10(
-          labels = function(x) format(x, scientific = F)
-        )
+        p <- p + scale_y_log10()
       }
       
       gg_color_hue <- function(n) {
