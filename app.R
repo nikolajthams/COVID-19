@@ -266,7 +266,7 @@ ssi <- ssi_path %>%
       grepl("27. januar", Date, ignore.case = T),
       # Date == "27. januar - 3. marts",
       paste(
-        as.numeric(substr(lead(Date), 1, 1)) - 1,
+        as.numeric(substr(lead(Date), 1, 2)) - 1,
         ". marts",
         sep = ""
       ),

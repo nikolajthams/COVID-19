@@ -3,3 +3,7 @@ title: ''
 output: html_document
 ---
 The Danish State Serum Institute (SSI) are at the time of writing (March 20, 2020) publishing daily reports on the development of COVID-19 in Denmark. [The full reports can be found here](https://www.ssi.dk/aktuelt/sygdomsudbrud/coronavirus/covid-19-i-danmark-epidemiologisk-overvaagningsrapport). Included in these reports are, amongst other things, daily data on the number of tested people in Denmark as well as the number of confirmed positive tests. Furthermore, SSI provides cumulative data on the age distribution among the tested people. On this page you can visualise these data.
+
+Usage note 1: SSI only reports the daily number of test for the last 14 days and aggregate everything before that. That is, the first date you see in the below plot (when viewing daily data) actually consist of every tests made from the $27^\text{th}$ of January up to and including that point. 
+
+Usage note 2: When viewing cumulative data, be away that the Danish testing protocol [was changed](https://www.ssi.dk/aktuelt/nyhedsbreve/epi-nyt/2020/uge-12---2020) on the $12^\text{th}$ of March. After this date, only patients with severe symptoms are tested, generally leading to a lower positive test rate. Thus, when viewing cumulative data, the overall trend in the percentage of positive tests appears to be decreasing, even though the overall daily percentage of positive tests is actually increasing.
