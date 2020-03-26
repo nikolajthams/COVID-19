@@ -1,6 +1,6 @@
-cases_path   <- "csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+cases_path   <- "csse_covid_19_data//csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
 pop_path     <- "code/data/pop_data.csv"
-recover_path <- "csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv"
+recover_path <- "csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"
 death_path   <- "csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
 demo_path    <- "wirvsvirus/demographics.csv"
 ssi_path     <- "code/data/ssi.csv"
