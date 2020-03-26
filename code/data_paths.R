@@ -5,3 +5,4 @@ death_path   <- "csse_covid_19_data/csse_covid_19_time_series/time_series_covid1
 demo_path    <- "wirvsvirus/demographics.csv"
 ssi_path     <- "code/data/ssi.csv"
 ssi_path_age <- "code/data/ssi_agegroups/"
+deaths_path_age <- "wirvsvirus/death_by_age.csv"

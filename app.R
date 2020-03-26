@@ -177,6 +177,14 @@ data <- left_join(
   )
 )
 
+# Death by age group
+death.by.age <- read.csv(
+  deaths_path_age,
+  header=TRUE,
+  stringsAsFactors = FALSE,
+  sep = ";"
+)
+countries.w.age.data = death.by.age$Country
 
 
 # Add recovery data ------------------------------------------------------
@@ -717,11 +725,13 @@ ui <- dashboardPage(
             ),
             
             mainPanel(
-              div(
-                style = "position:relative",
-                plotlyOutput("wirvsvirus"),
-                h6("Solid curves indicate confirmed numbers. Shaded regions are estimated number of infected, measured from illness onset.")
-              ),
+              # div(
+              #   style = "position:relative",
+              #   plotlyOutput("wirvsvirus"),
+              # ),
+              h6("Solid curves indicate confirmed numbers. Shaded regions are estimated number of infected, measured from illness onset."),
+              textOutput("countries.age.data"),
+              textOutput("countries.no.age.data"),
               fluidPage(
                 withMathJax(
                   includeMarkdown("code/docs/wvv_explanation.md")
@@ -788,6 +798,14 @@ server <- function(input, output) {
         "PercentageOfPopulation" = (Cases / Population) * 100
       ) %>% ungroup
   })
+  
+  output$countries.age.data <- renderText({
+    paste("Countries with age data:", paste(intersect(input$countries, countries.w.age.data), collapse = ", "), collapse="")
+  })
+  output$countries.no.age.data <- renderText({
+    paste("Countries with no age data:", paste(setdiff(input$countries, countries.w.age.data), collapse = ", "), collapse="")
+  })
+  
   
   output$JH_data_lastupdate <- renderText({
     paste(
@@ -947,7 +965,7 @@ server <- function(input, output) {
   })
   
   output$wirvsvirus <- renderPlotly({
-    wvv.data <- make.wvv.data() 
+    wvv.data <- make.wvv.data()
     
     
     make_estimate_plot <- function(input) {

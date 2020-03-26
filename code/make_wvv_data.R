@@ -27,6 +27,15 @@ make.wvv.data <- reactive({
       dec = ","
     )
   
+  death.by.age <- read.csv(
+    deaths_path_age,
+    header=TRUE,
+    stringsAsFactors = FALSE,
+    sep = ";"
+  )
+  countries.w.age.data = death.by.age$Country
+  
+  
   ## Prepare deathdata
   drops <- c("Lat", "Long", "Province.State")
   
@@ -150,18 +159,21 @@ make.wvv.data <- reactive({
     return(res)
   }
   
-  #
-  # # value for Italy
-  # num.italy <- c(0,0,0,9,25,83,312,1090,1528)
-  # active_cases_lower <- rep(NA, ncol(death_mat))
-  # active_cases_upper <- rep(NA, ncol(death_mat))
-  # for(j in 1:ncol(death_mat_unique)){
-  #   bounds <- sapply(death.rate, function(p)
-  #     find_confidence_bounds(death_mat[], p))
-  #   active_cases_lower[j] <- sum(bounds[1,]/death.rate, na.rm=TRUE)
-  #   active_cases_upper[j] <- sum(bounds[2,]/death.rate, na.rm=TRUE)
-  # }
   
+  
+  # Replace values with bounds for countries with known curves
+  for (country in countries.w.age.data) {
+    i = which(deathdata$Country.Region == country)
+    num.death <- as.numeric(subset(death.by.age, Country == country, select = -c(Country)))
+    active_cases <- rep(NA, ncol(death_mat))
+    for(j in 1:ncol(death_mat)){
+      num.death.scaled <- num.death/sum(num.death)*death_mat[i, j]
+      bounds <- sapply(death.rate, function(p)
+        find_confidence_bounds(death_mat[i, j], p))
+      activedata.low[i,j] <- sum(bounds[1,]/death.rate, na.rm=TRUE)
+      activedata.high[i,j] <- sum(bounds[2,]/death.rate, na.rm=TRUE)
+    }
+  }
   
   activedata.low %<>% 
     melt(
