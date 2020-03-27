@@ -724,10 +724,10 @@ ui <- dashboardPage(
             ),
             
             mainPanel(
-              # div(
-              #   style = "position:relative",
-              #   plotlyOutput("wirvsvirus"),
-              # ),
+              div(
+                style = "position:relative",
+                plotlyOutput("wirvsvirus"),
+              ),
               h6("Solid curves indicate confirmed numbers. Shaded regions are estimated number of infected, measured from illness onset."),
               textOutput("countries.age.data"),
               textOutput("countries.no.age.data"),
@@ -760,7 +760,7 @@ yaxislab <- c(
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
   
-  source("code/make_wvv_data.R", local = T)
+  source("code/make_wvv_data_v2.R", local = T)
   
   number_ticks <- function(n) {
     function(limits)
