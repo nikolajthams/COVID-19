@@ -343,7 +343,7 @@ make.wvv.data <- reactive({
   # # tictoc::toc()
   #########################
   
-  tictoc::tic()
+  # tictoc::tic()
   for (country in countries.w.age.data) {
     i = which(deathdata$Country.Region == country)
     num.death <- as.numeric(subset(death.by.age, Country == country, select = -c(Country)))
@@ -358,7 +358,7 @@ make.wvv.data <- reactive({
       activedata.high[i,j] <- sum(bounds[2,]/death.rate, na.rm=TRUE)
     }
   }
-  tictoc::toc()
+  # tictoc::toc()
   
   activedata.low %<>% 
     melt(
