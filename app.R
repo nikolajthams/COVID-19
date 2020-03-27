@@ -966,6 +966,29 @@ server <- function(input, output) {
   
   output$wirvsvirus <- renderPlotly({
     wvv.data <- make.wvv.data()
+    wvv.data %<>% left_join(
+      .,
+      dplyr::select(
+        data,
+        Country.Region,
+        Population
+      ),
+      by = c(
+        "Country" = "Country.Region"
+      )
+    ) %>%
+      mutate(
+        Cases.high = ifelse(
+          Cases.high >= Population & !is.na(Population),
+          Population,
+          Cases.high
+        ),
+        Cases.low = ifelse(
+          Cases.low >= Population & !is.na(Population),
+          Population,
+          Cases.low
+        )
+      )
     
     
     make_estimate_plot <- function(input) {

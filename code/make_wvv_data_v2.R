@@ -17,7 +17,11 @@
 #     0, 0, 0, 0.0011, 0.0008, 0.0042, 0.0152, 0.0628, 0.1024
 #   ) %>% as.character
 # )
-
+# input <- tibble(
+#   "wvv.death_rate" = c(
+#     0,      0,      0, 1.240452e-06, 2.75656e-06, 8.579794e-06, 4.300234e-05, 0.000180279, 0.0003610306
+#   ) %>% as.character
+# )
 
 make.wvv.data <- reactive({
   ## Read data
@@ -237,6 +241,7 @@ make.wvv.data <- reactive({
     exit_condition <- T
     
     while (steps < max_step & exit_condition) {
+      .checkval_old <- checkval
       steps <- steps + 1
       prob <- pbinom(
         x,
@@ -255,6 +260,7 @@ make.wvv.data <- reactive({
       }
       
       if (abs(prob - alpha / 2) < 1e-9) exit_condition <- F
+      if (.checkval_old == checkval) exit_condition <- F
     }
     
     return(checkval)
@@ -263,26 +269,10 @@ make.wvv.data <- reactive({
   find_confidence_bounds <- function(x, p, alpha = 0.05) {
     n.est <- x / p
     if (p > 0) {
-      # lower bound
-      # lower.n <- ceiling(n.est)
-      # prob <- 1
-      # while (prob > alpha / 2 & lower.n >= 0) {
-      #   prob <- pbinom(x - 1, lower.n, p, lower.tail = FALSE)
-      #   lower.n <- lower.n - 1
-      # }
-      # lower.n <- lower.n + 1
       lower.n <- .bin_search_below(
         x, p, 0, ceiling(n.est), alpha
       )
       
-      # upper bound
-      # upper.n <- floor(n.est)
-      # prob <- 1
-      # while (prob > alpha / 2) {
-      #   prob <- pbinom(x, upper.n, p)
-      #   upper.n <- upper.n + 1
-      # }
-      # upper.n <- upper.n - 1
       upper.n <- .bin_search_above(
         x, p, floor(n.est), floor(n.est) + 2 * (n.est - lower.n), alpha
       )
@@ -346,16 +336,28 @@ make.wvv.data <- reactive({
   # tictoc::tic()
   for (country in countries.w.age.data) {
     i = which(deathdata$Country.Region == country)
-    num.death <- as.numeric(subset(death.by.age, Country == country, select = -c(Country)))
+    # num.death <-
+      # as.numeric(subset(death.by.age, Country == country, select = -c(Country)))
+    num.death <- death.by.age %>%
+      filter(
+        Country == country
+      ) %>%
+      select(-Country) %>%
+      as.numeric
+    
     active_cases <- rep(NA, ncol(death_mat))
-    for(j in 1:ncol(death_mat)){
-      num.death.scaled <- num.death/sum(num.death)*death_mat[i, j]
-      ## bounds <- sapply(death.rate, function(p)
-      ##   find_confidence_bounds(death_mat[i, j], p))
-      bounds <- sapply(1:length(death.rate), function(k)
-        find_confidence_bounds(num.death.scaled[k], death.rate[k]))
-      activedata.low[i,j] <- sum(bounds[1,]/death.rate, na.rm=TRUE)
-      activedata.high[i,j] <- sum(bounds[2,]/death.rate, na.rm=TRUE)
+    
+    for (j in 1:ncol(death_mat)) {
+      num.death.scaled <- num.death / sum(num.death) * death_mat[i, j]
+      bounds <- sapply(
+        1:length(death.rate), 
+        function(k) {
+          find_confidence_bounds(num.death.scaled[k], death.rate[k])
+        }
+      )
+      
+      activedata.low[i, j]  <- sum(bounds[1, ] / death.rate, na.rm = TRUE)
+      activedata.high[i, j] <- sum(bounds[2, ] / death.rate, na.rm = TRUE)
     }
   }
   # tictoc::toc()
