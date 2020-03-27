@@ -354,10 +354,9 @@ make.wvv.data <- reactive({
         function(k) {
           find_confidence_bounds(num.death.scaled[k], death.rate[k])
         }
-      )
-      
-      activedata.low[i, j]  <- sum(bounds[1, ] / death.rate, na.rm = TRUE)
-      activedata.high[i, j] <- sum(bounds[2, ] / death.rate, na.rm = TRUE)
+      )      
+      activedata.low[i, j]  <- sum(bounds[1, ], na.rm = TRUE)
+      activedata.high[i, j] <- sum(bounds[2, ], na.rm = TRUE)
     }
   }
   # tictoc::toc()
