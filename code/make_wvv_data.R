@@ -130,13 +130,13 @@ make.wvv.data <- reactive({
   activedata.low  <- make_data(death_mat, rel.rate.low)
   activedata.high <- make_data(death_mat, rel.rate.high)
   
-  ## Actual relevant computation (given p_D(a)) -> Section 1.1
+  ## Actual relevant computation (given p_D(a)) -> Section 7.1
   ## Function to compute binomial confidence bounds on n
   find_confidence_bounds <- function(x, p, alpha = 0.05) {
     n.est <- x / p
     if (p > 0) {
       # lower bound
-      lower.n <- floor(n.est)
+      lower.n <- ceiling(n.est)
       prob <- 1
       while (prob > alpha / 2 & lower.n >= 0) {
         prob <- pbinom(x - 1, lower.n, p, lower.tail = FALSE)
@@ -144,7 +144,7 @@ make.wvv.data <- reactive({
       }
       lower.n <- lower.n + 1
       # upper bound
-      upper.n <- ceiling(n.est)
+      upper.n <- floor(n.est)
       prob <- 1
       while (prob > alpha / 2) {
         prob <- pbinom(x, upper.n, p)
@@ -168,8 +168,10 @@ make.wvv.data <- reactive({
     active_cases <- rep(NA, ncol(death_mat))
     for(j in 1:ncol(death_mat)){
       num.death.scaled <- num.death/sum(num.death)*death_mat[i, j]
-      bounds <- sapply(death.rate, function(p)
-        find_confidence_bounds(death_mat[i, j], p))
+      ## bounds <- sapply(death.rate, function(p)
+      ##   find_confidence_bounds(death_mat[i, j], p))
+      bounds <- sapply(1:length(death.rate), function(k)
+        find_confidence_bounds(num.death.scaled[k], death.rate[k]))
       activedata.low[i,j] <- sum(bounds[1,]/death.rate, na.rm=TRUE)
       activedata.high[i,j] <- sum(bounds[2,]/death.rate, na.rm=TRUE)
     }
