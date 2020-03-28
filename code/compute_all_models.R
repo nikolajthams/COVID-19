@@ -11,7 +11,7 @@ library(plotly)
 
 
 # Define data paths -------------------------------------------------------
-source("data_paths.R")
+source("code/data_paths.R")
 
 # Function definitions ----------------------------------------------------
 
@@ -143,12 +143,12 @@ data %<>% group_by(Country.Region) %>%
 
 
 # Load Danish data from SSI -----------------------------------------------
-ssi <- "data/ssi.csv" %>%
-  read_delim(
-    .,
-    delim = ","
-  ) %>%
-  dplyr::select(-X1)
+# ssi <- "data/ssi.csv" %>%
+#   read_delim(
+#     .,
+#     delim = ","
+#   ) %>%
+#   dplyr::select(-X1)
 
 # Add population data -------------------------------------------------------------
 cdata <- pop_path %>%
@@ -495,6 +495,6 @@ out <- arrange(out, Country)
 
 write_delim(
   out,
-  "data/all_models.csv",
+  "code/data/all_models.csv",
   delim = ";"
 )
