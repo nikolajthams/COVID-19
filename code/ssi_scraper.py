@@ -4,10 +4,13 @@ from urllib.error import HTTPError
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-f67s"
+ending = "-f67s"  # Changes daily
 
 
 def get_timeseries(date):
+    """
+    Return daily testing data for the past 14 days prior to input date.
+    """
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
 
     try:
@@ -20,13 +23,15 @@ def get_timeseries(date):
         return print("No data found for date " + date)
         return None
 
-    vals = ['Prøvedato' in tables[i].values.flatten()
-            for i in range(len(tables))]
-    correct_table = [i for i, n in enumerate(vals) if n][0]
+    # Depreceated ###
+    # vals = ['Prøvedato' in tables[i].values.flatten()
+    #         for i in range(len(tables))]
+    # correct_table = [i for i, n in enumerate(vals) if n][0]
+    ###################
 
     startval = 2
 
-    clean_df1 = tables[correct_table]
+    clean_df1 = tables[0]
     a, b = clean_df1.shape
     clean_df1 = clean_df1.iloc[startval:a, :].rename(columns={
         "Unnamed: 0": "Date",
@@ -40,6 +45,9 @@ def get_timeseries(date):
 
 
 def get_AllTables(date):
+    """
+    Return list of all tables in report.
+    """
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
 
     try:
@@ -56,6 +64,9 @@ def get_AllTables(date):
 
 
 def get_AgeGroups(date):
+    """
+    Return cumulative testing data by age groups.
+    """
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
 
     top = 432.82
@@ -78,30 +89,31 @@ def get_AgeGroups(date):
 
     clean_df.iloc[:, 3] = clean_df.iloc[:, 3].str.replace(",", ".")
 
-    for i in range(a - 1):
+    for i in range(a - 1):  # Fix decimal inconsistencies.
         if clean_df.iloc[i, 2] < 10:
             clean_df.iloc[i, 2] = clean_df.iloc[i, 2] * 1000
 
-    if "Andel positive" in clean_df.columns.values:
+    if "Andel positive" in clean_df.columns.values:  # Fix naming inconsistencies.
         clean_df = clean_df.rename(
             columns={"Andel positive": "Procent positiv"})
 
     return clean_df
 
 
-# Get time series:
-get_timeseries(today)
+if __name__ == "__main__":
+    # Get time series:
+    get_timeseries(today)
 
-# Get age data
-_tmp = get_AgeGroups(today)
-_tmp.to_csv("code/data/ssi_agegroups/data_" + today + ".csv")
-"Andel positive" in _tmp.columns.values
+    # Get age data
+    _tmp = get_AgeGroups(today)
+    _tmp.to_csv("code/data/ssi_agegroups/data_" + today + ".csv")
+    "Andel positive" in _tmp.columns.values
 
-# Get all age data: #### Depreceated
-# avail_dates = ['12032020', '13032020', '16032020', '17032020',
-#                '18032020', '19032020', '20032020', '21032020', '22032020']
-# for date in avail_dates:
-#     datatable = get_AgeGroups(date)
-#     outfile = 'data/ssi_agegroups/data_' + date + '.csv'
-#     datatable.to_csv(outfile)
-#     print('Wrote to file ' + outfile)
+    # Get all age data: #### Depreceated
+    # avail_dates = ['12032020', '13032020', '16032020', '17032020',
+    #                '18032020', '19032020', '20032020', '21032020', '22032020']
+    # for date in avail_dates:
+    #     datatable = get_AgeGroups(date)
+    #     outfile = 'data/ssi_agegroups/data_' + date + '.csv'
+    #     datatable.to_csv(outfile)
+    #     print('Wrote to file ' + outfile)
