@@ -10,6 +10,9 @@ library(knitr)
 library(plotly)
 library(magrittr)
 library(tidyselect)
+
+library(shinyhelper)
+
 theme_set(theme_minimal())
 
 
@@ -546,8 +549,19 @@ ui <- dashboardPage(
               radioButtons(
                 "log",
                 "Y-axis scale",
-                choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log"),
-                selected="log"
+                choices = c(
+                  "Original scale" = "unscaled", 
+                  "Logarithmic scale" = "log"
+                ),
+                selected = "unscaled"
+              ) %>% helper(
+                icon = "question",
+                type = "inline",
+                content = c(
+                  "Change the y-axis to be on a logarithmic scale",
+                  "Logarithmic scales are useful when visualizing numbers that are vastly different, 
+                  because very large nominal differences are represented as ratios."
+                )
               ),
               
               selectInput(
@@ -556,8 +570,24 @@ ui <- dashboardPage(
                 choices = data$Country.Region,
                 selected = c("Denmark", "Italy", "United Kingdom", "US", "Spain"),
                 multiple = T
+              ) %>% helper(
+                icon = "question",
+                type = "inline",
+                content = c(
+                  "Here you can choose the countries you wish to see in the graph.",
+                  "Multiple countries can be chosen at once. Simply search for the country you wish to add and click it.",
+                  "To remove countries from the graph, remove them from the search field as you would normally delete text."
+                )
               ),
-              checkboxInput("rebase", "View graph from patient number x", TRUE),
+              checkboxInput("rebase", "View graph from patient number x", F) %>%
+              helper(
+                type = "inline",
+                icon = "question",
+                content = c(
+                  "This feature changes the x-axis from dates to 'Days since patient number ${x}$ was confirmed'.",
+                  "Viewing the data in this way makes it easy to compare the timeline of different countries, even if the outbreaks started months apart from each other."
+                )
+              ),
               conditionalPanel("input.rebase",
                                numericInput('rebase.value', 'Patient number', value=100, min=1, step=20)),
               
@@ -575,6 +605,11 @@ ui <- dashboardPage(
                   "Proportion of deaths among infected" = "MortalityRate",
                   "Proportion of recoveries among infected" = "RecoveryRate"
                 )
+              ) %>%
+              helper(
+                type = "inline",
+                icon = "question",
+                content = "Choose what output you want to see."
               ),
               checkboxInput("barchart", "View as bar chart (works well with 'New deaths' and 'New cases' when few countries are selected)", FALSE),
               
@@ -760,6 +795,8 @@ yaxislab <- c(
 # Server ------------------------------------------------------------------
 server <- function(input, output) {
   
+  observe_helpers(withMathJax = TRUE)
+
   source("code/make_wvv_data_v2.R", local = T)
   
   number_ticks <- function(n) {
@@ -1198,7 +1235,7 @@ server <- function(input, output) {
           legend.position = "bottom"
         ) +
         ylab("")
-      
+
       ggplotly(p) %>% 
         layout(
           legend = list(
