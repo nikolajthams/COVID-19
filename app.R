@@ -502,7 +502,7 @@ ui <- dashboardPage(
                        text = "Danish data on COVID19 tests", tabName = "ssidat", icon = icon("bar-chart-o")
                      ),
                      menuItem(
-                       text = "Estimated number of dark cases", tabName = "wirvsvirus", icon = icon("file-alt")
+                       text = "Estimated number of total cases", tabName = "wirvsvirus", icon = icon("file-alt")
                      ),
                      menuItem(
                        text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
