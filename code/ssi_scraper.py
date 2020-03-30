@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-f67s"  # Changes daily
+ending = "-hb2a"  # Changes daily
 
 
 def get_timeseries(date):
@@ -13,11 +13,18 @@ def get_timeseries(date):
     """
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
 
+    top = 129.06
+    left = 71.33
+    width = 394.19
+    height = 304.7
+
+
+
     try:
         tables = tabula.read_pdf(
             file, pages=8,
             multiple_tables=True,
-            area=(127.34, 70.94, 324.95 + 127.34, 396.55 + 70.94),
+            area=(top, left, top + height, left + width),
             stream=True)
     except HTTPError:
         return print("No data found for date " + date)
@@ -39,7 +46,8 @@ def get_timeseries(date):
         "Antal testede": "Tested",
         "Andel positive": "Rate"})
 
-    outfile = 'code/data/ssi.csv'
+    # outfile = 'code/data/ssi.csv'
+    outfile = 'data/ssi.csv'
     clean_df1.to_csv(outfile)
     return print("Successfully exported file to path " + outfile)
 
@@ -92,6 +100,8 @@ def get_AgeGroups(date):
     for i in range(a - 1):  # Fix decimal inconsistencies.
         if clean_df.iloc[i, 2] < 10:
             clean_df.iloc[i, 2] = clean_df.iloc[i, 2] * 1000
+        # if clean_df.iloc[i, 3] < 10:
+        #     clean_df.iloc[i, 3] = clean_df.iloc[i, 2] * 1000
 
     if "Andel positive" in clean_df.columns.values:  # Fix naming inconsistencies.
         clean_df = clean_df.rename(
@@ -106,7 +116,7 @@ if __name__ == "__main__":
 
     # Get age data
     _tmp = get_AgeGroups(today)
-    _tmp.to_csv("code/data/ssi_agegroups/data_" + today + ".csv")
+    _tmp.to_csv("data/ssi_agegroups/data_" + today + ".csv")
     "Andel positive" in _tmp.columns.values
 
     # Get all age data: #### Depreceated

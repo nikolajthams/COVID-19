@@ -273,6 +273,10 @@ ssi <- ssi_path %>%
   ) %>%
   dplyr::select(-X1) %>%
   mutate(
+    "Lab confirmed cases" = gsub("\\*", "", `Lab confirmed cases`) %>% as.numeric,
+    Tested = gsub("\\*", "", Tested) %>% as.numeric
+  ) %>%
+  mutate(
     Date = ifelse(
       grepl("27. januar", Date, ignore.case = T),
       # Date == "27. januar - 3. marts",
@@ -558,7 +562,7 @@ ui <- dashboardPage(
                 icon = "question",
                 type = "inline",
                 content = c(
-                  "Change the y-axis to be on a logarithmic scale",
+                  "<header>Change the y-axis to be on a logarithmic scale<br>",
                   "Logarithmic scales are useful when visualizing numbers that are vastly different, 
                   because very large nominal differences are represented as ratios."
                 )
@@ -744,7 +748,7 @@ ui <- dashboardPage(
               textInput(
                 "wvv.death_rate",
                 "Case fatality rate for each age group (0-9, 10-19, ...) [comma-separated]",
-                value=c("0, 0, 0, 0.0011, 0.0008, 0.0042, 0.0152, 0.0628, 0.1024")
+                value=c("0.0, 0.0, 0.0, 0.001, 0.001, 0.006, 0.017, 0.070, 0.183")
               ),
               h5("Default case fatality rate: South Korea")
               # textInput(
@@ -1093,7 +1097,7 @@ server <- function(input, output) {
           text2 = Cases.low
         ),
         alpha = 0.3
-      )
+      ) 
       
       if (input$wvv.log == "log") {
         p <- p + scale_y_log10(

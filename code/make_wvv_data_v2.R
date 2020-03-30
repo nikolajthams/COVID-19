@@ -19,11 +19,10 @@
 # )
 # input <- tibble(
 #   "wvv.death_rate" = c(
-#     0,      0,      0, 1.240452e-06, 2.75656e-06, 8.579794e-06, 4.300234e-05, 0.000180279, 0.0003610306
+#     0.0, 0.0, 0.0, 0.001, 0.001, 0.006, 0.017, 0.070, 0.183
 #   ) %>% as.character
 # )
 
-make.wvv.data <- reactive({
   ## Read data
   demographics <-
     read.csv(
@@ -118,6 +117,7 @@ make.wvv.data <- reactive({
     as.matrix
   
   ## These two parameters need to be adjusted
+make.wvv.data <- reactive({
   death.rate <- 
     input$wvv.death_rate %>%
     strsplit(
@@ -134,6 +134,23 @@ make.wvv.data <- reactive({
   # numbers from south korea
   # https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis
   ## Actual relevant computation
+
+  # make_data <- function(death_mat, relative.death.risk) {
+  #   activedata <- matrix(NA, nrow(death_mat), ncol(death_mat))
+  #   activedata <- array(NA, dim  = c(nrow(death_mat), ncol(death_mat), length(relative.death.risk)))
+
+  #   demo_adjusted_risk <- demographics %>% t %>% {. * relative.death.risk} %>% t %>% {. / rowSums(.)}
+
+  #   activedata <- 
+
+  #   demo_adjusted_risk <- lapply(
+  #     1:length(relative.death.risk),
+  #     function(x) {
+  #       relative.death.risk[x] *
+  #     }
+  #   )
+  # }
+
   make_data <- function(death_mat, relative.death.risk) {
     activedata <- matrix(NA, nrow(death_mat), ncol(death_mat))
     for (i in 1:nrow(activedata)) {
