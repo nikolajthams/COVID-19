@@ -730,13 +730,12 @@ ui <- dashboardPage(
                 plotlyOutput("wirvsvirus"),
               ),
               h6("Solid curves indicate confirmed numbers. Shaded regions are estimated number of infected, measured from illness onset."),
-              textOutput("countries.age.data"),
-              textOutput("countries.no.age.data"),
-              fluidPage(
+              verbatimTextOutput("countries.age.data"),
+              # fluidPage(
                 withMathJax(
                   includeMarkdown("code/docs/wvv_explanation.md")
                 )
-              )
+              # )
             )
           )
         )
@@ -800,12 +799,10 @@ server <- function(input, output) {
   })
   
   output$countries.age.data <- renderText({
-    paste("Countries with age data:", paste(intersect(input$countries, countries.w.age.data), collapse = ", "), collapse="")
+    paste(paste("Countries with age specific data:   \t", paste(intersect(input$wvv.countries, countries.w.age.data), collapse = ", ")),
+          paste("Countries with no age specific data:\t", paste(setdiff(input$wvv.countries, countries.w.age.data), collapse = ", ")),
+          sep = "\n")
   })
-  output$countries.no.age.data <- renderText({
-    paste("Countries with no age data:", paste(setdiff(input$countries, countries.w.age.data), collapse = ", "), collapse="")
-  })
-  
   
   output$JH_data_lastupdate <- renderText({
     paste(
