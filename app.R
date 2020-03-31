@@ -572,7 +572,7 @@ ui <- dashboardPage(
                 "countries",
                 "Countries",
                 choices = data$Country.Region,
-                selected = c("Denmark", "Italy", "United Kingdom", "US", "Spain"),
+                selected = c("Denmark", "Sweden", "Norway"),
                 multiple = T
               ) %>% helper(
                 icon = "question",
