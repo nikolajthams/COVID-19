@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-hb2a"  # Changes daily
+ending = "-2us61"  # Changes daily
 
 
 def get_timeseries(date):

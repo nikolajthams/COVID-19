@@ -271,6 +271,9 @@ ssi <- ssi_path %>%
     delim = ",",
     locale = locale(grouping_mark = ".")
   ) %>%
+  rename(
+    `Lab confirmed cases` = "Laboratoriebekræftede"
+  ) %>%
   dplyr::select(-X1) %>%
   mutate(
     "Lab confirmed cases" = gsub("\\*", "", `Lab confirmed cases`) %>% as.numeric,
