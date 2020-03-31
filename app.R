@@ -722,7 +722,7 @@ ui <- dashboardPage(
                 "wvv.log",
                 "Y-axis scale",
                 choices = c("Original scale" = "unscaled", "Logarithmic scale" = "log"),
-                selected = "log"
+                selected = "unscaled"
               ),
               radioButtons(
                 "wvv.compare_ouput",
@@ -876,7 +876,9 @@ server <- function(input, output) {
         scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
     }
     if (input$log == "log") {
-      p <- p + scale_y_log10()
+      p <- p + scale_y_log10(labels = comma)
+    } else {
+      p <- p + scale_y_continuous(labels = comma)
     }
     p <- p + theme_minimal() +
       ggtitle(names(yaxislab)[yaxislab == input$output]) + 
@@ -888,7 +890,7 @@ server <- function(input, output) {
     } else {
       p = p + geom_line() + geom_point(alpha=0.5, size=1.2) 
     }
-    p = ggplotly(p)
+    p <- ggplotly(p)
     p
   })
   
@@ -1100,11 +1102,13 @@ server <- function(input, output) {
       ) 
       
       if (input$wvv.log == "log") {
-        p <- p + scale_y_log10(
+        p <- p + scale_y_log10(labels = comma
           # labels = function(x) format(x, scientific = F),
           # oob = squish_infinite
         )
-      } 
+      } else {
+      p <- p + scale_y_continuous(labels = comma)
+      }
       # else {
       #   p <- p + scale_y_continuous(
       #     labels = function(x) format(x, scientific = F)
