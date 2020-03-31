@@ -835,7 +835,8 @@ server <- function(input, output) {
       select(-LeadCases) %>%
       mutate(
         "t" = (Date - as.Date(min(Date))) %>% as.numeric,
-        "PercentageOfPopulation" = (Cases / Population) * 100
+        "PercentageOfPopulation" = (Cases / Population) * 100,
+        Country = Country.Region
       ) %>% ungroup
   })
   
@@ -858,11 +859,12 @@ server <- function(input, output) {
     patient.x.name = paste("Days since patient", input$rebase.value)
     
     if(input$rebase == TRUE){
-      p <- ggplot(datasetInput()%>%rename(!!patient.x.name:="t"),
+      p <- ggplot(datasetInput()%>% rename(!!patient.x.name:="t"),
                   aes_string(
                     x = paste("`", patient.x.name, "`", sep = ""),
                     y = input$output,
                     colour = "Country.Region", 
+                    Country = "Country",
                     label = "Date"
                   )) + 
         xlab(paste("Days since patient ", input$rebase.value)) + scale_x_continuous(breaks=c(0, seq(7,1000,7)))# + geom_point(aes_string(text = hover.date))
@@ -871,7 +873,8 @@ server <- function(input, output) {
                   aes_string(
                     x = "Date",
                     y = input$output,
-                    colour = "Country.Region"
+                    colour = "Country.Region",
+                    Country = "Country"
                   )) + 
         scale_x_date(breaks = date_breaks("week"), date_labels = "%b %d")
     }
@@ -890,7 +893,14 @@ server <- function(input, output) {
     } else {
       p = p + geom_line() + geom_point(alpha=0.5, size=1.2) 
     }
-    p <- ggplotly(p)
+    p <- ggplotly(
+      p,
+      tooltip = c(
+        "x",
+        "y",
+        "Country"
+      )
+    )
     p
   })
   
