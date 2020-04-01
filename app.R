@@ -532,7 +532,7 @@ ui <- dashboardPage(
                          text = "Fit models",
                          tabName = "expmod",
                          icon = icon("dashboard")
-                       ),
+                       ), 
                        menuSubItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
                      ),
                      
