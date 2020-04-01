@@ -1,15 +1,15 @@
-# library(shiny)
-# library(reshape2)
-# library(ggplot2)
-# library(shiny)
-# library(tidyverse)
-# library(scales)
-# library(shinydashboard)
-# library(DT)
-# library(knitr)
-# library(plotly)
-# library(magrittr)
-# library(tidyselect) 
+library(shiny)
+library(reshape2)
+library(ggplot2)
+library(shiny)
+library(tidyverse)
+library(scales)
+library(shinydashboard)
+library(DT)
+library(knitr)
+library(plotly)
+library(magrittr)
+library(tidyselect) 
 # 
 # source("code/data_paths.R")
 # input <- tibble(
@@ -452,3 +452,33 @@
       c("Cases.high", "Cases.low"),
       as.integer
     )
+
+wvv.data %<>% left_join(
+      .,
+      dplyr::select(
+        data,
+        Country.Region,
+        Population
+      ),
+      by = c(
+        "Country" = "Country.Region"
+      )
+    ) %>%
+      mutate(
+        Cases.high = ifelse(
+          Cases.high >= Population & !is.na(Population),
+          Population,
+          Cases.high
+        ),
+        Cases.low = ifelse(
+          Cases.low >= Population & !is.na(Population),
+          Population,
+          Cases.low
+        )
+      )
+
+write_delim(
+    wvv.data,
+    "code/data/wvvdata.csv",
+    delim = ","
+)

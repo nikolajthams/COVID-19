@@ -317,30 +317,34 @@ agedata  <- lapply(
 
 
 # make shadow numbers:
-source("code/make_wvv_data_static.R")
-wvv.data %<>% left_join(
-      .,
-      dplyr::select(
-        data,
-        Country.Region,
-        Population
-      ),
-      by = c(
-        "Country" = "Country.Region"
-      )
-    ) %>%
-      mutate(
-        Cases.high = ifelse(
-          Cases.high >= Population & !is.na(Population),
-          Population,
-          Cases.high
-        ),
-        Cases.low = ifelse(
-          Cases.low >= Population & !is.na(Population),
-          Population,
-          Cases.low
-        )
-      )
+wvv.data <- read_delim(
+  "code/data/wvvdata.csv",
+  delim = ","
+)
+# source("code/make_wvv_data_static.R")
+# wvv.data %<>% left_join(
+#       .,
+#       dplyr::select(
+#         data,
+#         Country.Region,
+#         Population
+#       ),
+#       by = c(
+#         "Country" = "Country.Region"
+#       )
+#     ) %>%
+#       mutate(
+#         Cases.high = ifelse(
+#           Cases.high >= Population & !is.na(Population),
+#           Population,
+#           Cases.high
+#         ),
+#         Cases.low = ifelse(
+#           Cases.low >= Population & !is.na(Population),
+#           Population,
+#           Cases.low
+#         )
+#       )
 
 # Exponential growth models --------------------------------------------------------------
 .fit_nls <- function(country, dt, get_convergence = F) {
@@ -766,7 +770,7 @@ ui <- dashboardPage(
               #   value=c("0.0, 0.0, 0.0, 0.001, 0.001, 0.006, 0.017, 0.070, 0.183")
               # )
               ,
-              h5("Default case fatality rate: South Korea")
+              h5("Case fatality rate numbers from South Korea are used in the estimation.")
               # textInput(
               #   "wvv.rel_risk",
               #   "Relative risk (comma-separated)",
