@@ -567,7 +567,7 @@ ui <- dashboardPage(
                 content = c(
                   "<header>Change the y-axis to be on a logarithmic scale<br>",
                   "Logarithmic scales are useful when visualizing numbers that are vastly different, 
-                  because very large nominal differences are represented as ratios."
+                  because very large nominal differences are represented as ratios. "
                 )
               ),
               
