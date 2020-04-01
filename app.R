@@ -754,7 +754,7 @@ ui <- dashboardPage(
                 "wvv.countries",
                 "Countries",
                 choices = data$Country.Region,
-                selected = c("Germany", "Italy", "Spain"),
+                selected = c("Germany", "Sweden", "Denmark"),
                 multiple = T
               ),
               
