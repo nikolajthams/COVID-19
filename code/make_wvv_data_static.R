@@ -11,7 +11,7 @@ library(plotly)
 library(magrittr)
 library(tidyselect) 
 # 
-# source("code/data_paths.R")
+source("code/data_paths.R")
 # input <- tibble(
 #   "wvv.death_rate" = c(
 #     0, 0, 0, 0.0011, 0.0008, 0.0042, 0.0152, 0.0628, 0.1024
@@ -453,29 +453,6 @@ library(tidyselect)
       as.integer
     )
 
-wvv.data %<>% left_join(
-      .,
-      dplyr::select(
-        data,
-        Country.Region,
-        Population
-      ),
-      by = c(
-        "Country" = "Country.Region"
-      )
-    ) %>%
-      mutate(
-        Cases.high = ifelse(
-          Cases.high >= Population & !is.na(Population),
-          Population,
-          Cases.high
-        ),
-        Cases.low = ifelse(
-          Cases.low >= Population & !is.na(Population),
-          Population,
-          Cases.low
-        )
-      )
 
 write_delim(
     wvv.data,
