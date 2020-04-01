@@ -316,6 +316,32 @@ agedata  <- lapply(
   ungroup
 
 
+# make shadow numbers:
+source("code/make_wvv_data_static.R")
+wvv.data %<>% left_join(
+      .,
+      dplyr::select(
+        data,
+        Country.Region,
+        Population
+      ),
+      by = c(
+        "Country" = "Country.Region"
+      )
+    ) %>%
+      mutate(
+        Cases.high = ifelse(
+          Cases.high >= Population & !is.na(Population),
+          Population,
+          Cases.high
+        ),
+        Cases.low = ifelse(
+          Cases.low >= Population & !is.na(Population),
+          Population,
+          Cases.low
+        )
+      )
+
 # Exponential growth models --------------------------------------------------------------
 .fit_nls <- function(country, dt, get_convergence = F) {
   if (length(country) > 1) {
@@ -400,22 +426,7 @@ agedata  <- lapply(
       )
     }
   }
-  
-  # fm0 <- lm(
-  #   I(log(Cases + 1)) ~ t,
-  #   data = dt,
-  #   subset = Country.Region %in% country
-  # ) %>% coef
-  # names(fm0) <- c("l", "r")
-  #
-  # mm <- nls(
-  #   I(Cases + 1) ~ (1 + r)**(t - l),
-  #   data = dt,
-  #   subset = Country.Region %in% country,
-  #   start = fm0,
-  #   control = nls.control(maxiter = 1e4)
-  # )
-  
+   
   if (get_convergence) {
     return(
       list(mm, conv)
@@ -564,9 +575,10 @@ ui <- dashboardPage(
                 icon = "question",
                 type = "inline",
                 content = c(
-                  "<header>Change the y-axis to be on a logarithmic scale<br>",
+                  "<b>Change the y-axis to be on a logarithmic scale</b><br>",
                   "Logarithmic scales are useful when visualizing numbers that are vastly different, 
-                  because very large nominal differences are represented as ratios. "
+                  because very large nominal differences are represented as ratios.",
+                  "This means, for example, that the vertical distance between 1 and 10 looks the same as the vertical distance between 1000 and 10.000 -- because they both differ by a factor of 10."
                 )
               ),
               
@@ -746,12 +758,14 @@ ui <- dashboardPage(
                 "Days from illness onset to death",
                 value = 20,
                 min = 1
-              ),
-              textInput(
-                "wvv.death_rate",
-                "Case fatality rate for each age group (0-9, 10-19, ...) [comma-separated]",
-                value=c("0.0, 0.0, 0.0, 0.001, 0.001, 0.006, 0.017, 0.070, 0.183")
-              ),
+              )
+              # ,
+              # textInput(
+              #   "wvv.death_rate",
+              #   "Case fatality rate for each age group (0-9, 10-19, ...) [comma-separated]",
+              #   value=c("0.0, 0.0, 0.0, 0.001, 0.001, 0.006, 0.017, 0.070, 0.183")
+              # )
+              ,
               h5("Default case fatality rate: South Korea")
               # textInput(
               #   "wvv.rel_risk",
@@ -803,7 +817,7 @@ server <- function(input, output) {
   
   observe_helpers(withMathJax = TRUE)
 
-  source("code/make_wvv_data_v2.R", local = T)
+  # source("code/make_wvv_data_v2.R", local = T)
   
   number_ticks <- function(n) {
     function(limits)
@@ -1017,30 +1031,30 @@ server <- function(input, output) {
   })
   
   output$wirvsvirus <- renderPlotly({
-    wvv.data <- make.wvv.data()
-    wvv.data %<>% left_join(
-      .,
-      dplyr::select(
-        data,
-        Country.Region,
-        Population
-      ),
-      by = c(
-        "Country" = "Country.Region"
-      )
-    ) %>%
-      mutate(
-        Cases.high = ifelse(
-          Cases.high >= Population & !is.na(Population),
-          Population,
-          Cases.high
-        ),
-        Cases.low = ifelse(
-          Cases.low >= Population & !is.na(Population),
-          Population,
-          Cases.low
-        )
-      )
+    # wvv.data <- make.wvv.data()
+    # wvv.data %<>% left_join(
+    #   .,
+    #   dplyr::select(
+    #     data,
+    #     Country.Region,
+    #     Population
+    #   ),
+    #   by = c(
+    #     "Country" = "Country.Region"
+    #   )
+    # ) %>%
+    #   mutate(
+    #     Cases.high = ifelse(
+    #       Cases.high >= Population & !is.na(Population),
+    #       Population,
+    #       Cases.high
+    #     ),
+    #     Cases.low = ifelse(
+    #       Cases.low >= Population & !is.na(Population),
+    #       Population,
+    #       Cases.low
+    #     )
+    #   )
     
     
     make_estimate_plot <- function(input) {
