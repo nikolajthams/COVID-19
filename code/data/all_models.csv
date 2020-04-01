@@ -1,116 +1,120 @@
 Country;Estimated lag-phase;Estimated rate of infection;Did the model converge?
-Afghanistan;3.6359;0.1691;Yes
-Albania;22.1743;0.1341;Yes
-Algeria;4.8863;0.176;Yes
-Andorra;4.4377;0.1996;Yes
-Argentina;9.9685;0.1985;Yes
-Armenia;12.284;0.1602;Yes
-Australia;14.0115;0.1821;Yes
-Austria;25.9178;0.1658;Yes
-Azerbaijan;2.7723;0.1837;Yes
-Bahrain;48.2176;0.0788;Yes
-Belarus;20.7585;0.0963;Yes
-Belgium;3.4122;0.1972;Yes
-Bolivia;5.5038;0.1978;Yes
-Bosnia and Herzegovina;10.5725;0.1766;Yes
-Brazil;14.2739;0.1958;Yes
-Brunei;36.9346;0.0896;Yes
-Bulgaria;23.1041;0.141;Yes
-Burkina Faso;11.1355;0.1936;Yes
-Cambodia;22.1884;0.1264;Yes
-Cameroon;2.4979;0.203;Yes
-Canada;19.4156;0.2184;Yes
-Chile;13.6326;0.2094;Yes
-China;1;0.202;No
-Colombia;14.2464;0.1892;Yes
-Congo (Kinshasa);9.1577;0.166;Yes
-Costa Rica;14.99;0.1616;Yes
-Cote d'Ivoire;2.333;0.2691;Yes
-Croatia;4.9997;0.1863;Yes
-Cuba;3.8656;0.2541;Yes
-Cyprus;19.6176;0.1419;Yes
-Czechia;21.9186;0.1704;Yes
-Denmark;49.1853;0.1024;Yes
-Diamond Princess;1;0.202;No
-Dominican Republic;0.3282;0.2612;Yes
-Ecuador;13.7941;0.1967;Yes
-Egypt;11.7348;0.1216;Yes
-Estonia;22.3001;0.129;Yes
-Finland;4.2553;0.1355;Yes
-France;8.577;0.154;Yes
-Georgia;17.446;0.096;Yes
-Germany;10.0408;0.1643;Yes
-Ghana;7.8338;0.243;Yes
-Greece;30.7987;0.118;Yes
-Honduras;2.3891;0.2462;Yes
-Hungary;9.6848;0.1843;Yes
-Iceland;25.8049;0.1316;Yes
-India;14.5995;0.1674;Yes
-Indonesia;18.7057;0.1673;Yes
-Iran;1;0.202;No
-Iraq;21.1306;0.1191;Yes
-Ireland;16.6686;0.1859;Yes
-Israel;0.8925;0.2414;Yes
-Italy;49.5866;0.1127;Yes
-Japan;46.3982;0.0682;Yes
-Jordan;9.4394;0.1692;Yes
-Kazakhstan;6.3126;0.2721;Yes
-Korea, South;135.282;0.0476;Yes
-Kosovo;1;0.202;No
-Kuwait;52.5163;0.0658;Yes
-Kyrgyzstan;8.6178;0.2401;Yes
-Latvia;11.9345;0.1597;Yes
-Lebanon;16.7274;0.1196;Yes
-Liechtenstein;10.7617;0.1234;Yes
-Lithuania;0.547;0.2176;Yes
-Luxembourg;15.582;0.1838;Yes
-Malaysia;0.2669;0.1301;Yes
-Malta;19.3095;0.1304;Yes
-Mauritius;10.6979;0.2363;Yes
-Mexico;4.8758;0.2073;Yes
-Moldova;11.6102;0.1822;Yes
-Montenegro;10.7138;0.2154;Yes
-Morocco;2.3386;0.2269;Yes
-Netherlands;1;0.202;No
-New Zealand;5.9039;0.2862;Yes
-Nigeria;7.74;0.2253;Yes
-North Macedonia;3.1168;0.1701;Yes
-Norway;1;0.202;No
-Oman;3.3578;0.1429;Yes
-Pakistan;17.3121;0.1605;Yes
-Panama;15.7095;0.2116;Yes
-Paraguay;5.1982;0.1657;Yes
-Peru;20.4378;0.1643;Yes
-Philippines;20.9543;0.2021;Yes
-Poland;18.6141;0.1851;Yes
-Portugal;15.8316;0.2206;Yes
-Qatar;59.7225;0.0763;Yes
-Romania;6.9001;0.207;Yes
-Russia;24.1342;0.2346;Yes
-Rwanda;10.0574;0.1806;Yes
-San Marino;35.8506;0.0858;Yes
-Saudi Arabia;17.7649;0.1724;Yes
-Senegal;8.1671;0.1497;Yes
-Serbia;10.7674;0.2097;Yes
-Singapore;16.2246;0.0842;Yes
-Slovakia;24.9386;0.1266;Yes
-Slovenia;1;0.202;No
-South Africa;10.9782;0.2244;Yes
-Spain;13.363;0.1727;Yes
-Sri Lanka;17.8232;0.1161;Yes
-Sweden;16.8882;0.1151;Yes
-Switzerland;1;0.202;No
-Taiwan*;2.8115;0.0935;Yes
-Thailand;18.5053;0.1629;Yes
-Trinidad and Tobago;16.039;0.1513;Yes
-Tunisia;3.1583;0.2202;Yes
-Turkey;10.1755;0.3694;Yes
-Ukraine;5.8471;0.3397;Yes
-United Arab Emirates;14.5216;0.1446;Yes
-United Kingdom;5.7656;0.205;Yes
-Uruguay;1;0.202;No
-US;11.6628;0.2401;Yes
-Uzbekistan;11.5365;0.2034;Yes
-Venezuela;1;0.202;No
-Vietnam;3.3978;0.0862;Yes
-West Bank and Gaza;30.138;0.088;Yes
+Afghanistan;3.5204;0.1686;Yes
+Albania;26.0758;0.1204;Yes
+Algeria;6.2767;0.1683;Yes
+Andorra;9.2164;0.1676;Yes
+Argentina;12.4149;0.1832;Yes
+Armenia;15.0705;0.1476;Yes
+Australia;7.5495;0.1574;Yes
+Austria;33.2767;0.1445;Yes
+Azerbaijan;2.2115;0.1881;Yes
+Bahrain;1;0.1313;No
+Bangladesh;16.529;0.1073;Yes
+Belarus;18.2154;0.1028;Yes
+Belgium;1.6193;0.1766;Yes
+Bolivia;6.6741;0.1863;Yes
+Bosnia and Herzegovina;11.7267;0.1697;Yes
+Brazil;18.7779;0.1752;Yes
+Brunei;43.5034;0.0785;Yes
+Bulgaria;27.7662;0.1247;Yes
+Burkina Faso;15.3601;0.1644;Yes
+Cambodia;17.1016;0.108;Yes
+Cameroon;2.9986;0.1976;Yes
+Canada;15.6335;0.198;Yes
+Chile;17.6828;0.1865;Yes
+China;1;0.1313;No
+Colombia;17.3782;0.1716;Yes
+Congo (Kinshasa);9.817;0.1608;Yes
+Costa Rica;19.982;0.1389;Yes
+Cote d'Ivoire;6.3464;0.2144;Yes
+Croatia;9.4604;0.1628;Yes
+Cuba;5.8027;0.2279;Yes
+Cyprus;21.3135;0.1347;Yes
+Czechia;27.5094;0.1503;Yes
+Denmark;52.3616;0.0979;Yes
+Diamond Princess;1;0.1313;No
+Dominican Republic;4.7956;0.2182;Yes
+Ecuador;20.8051;0.1632;Yes
+Egypt;15.6075;0.1121;Yes
+Estonia;26.7978;0.117;Yes
+Finland;0.37;0.1232;Yes
+France;12.6523;0.1447;Yes
+Georgia;19.1879;0.0919;Yes
+Germany;18.102;0.1454;Yes
+Ghana;14.1386;0.1783;Yes
+Greece;34.9325;0.1094;Yes
+Honduras;4.3486;0.2204;Yes
+Hungary;12.7285;0.1664;Yes
+Iceland;31.198;0.1179;Yes
+India;12.6148;0.1589;Yes
+Indonesia;23.0626;0.1501;Yes
+Iran;1;0.1313;No
+Iraq;20.9155;0.1197;Yes
+Ireland;21.6383;0.1644;Yes
+Israel;6.61;0.2042;Yes
+Italy;59.2508;0.1022;Yes
+Japan;47.5296;0.0674;Yes
+Jordan;15.234;0.14;Yes
+Kazakhstan;10.0504;0.2255;Yes
+Kenya;6.8683;0.1725;Yes
+Korea, South;147.017;0.0446;Yes
+Kosovo;1;0.1313;No
+Kuwait;53.864;0.0646;Yes
+Kyrgyzstan;10.7203;0.2113;Yes
+Latvia;15.6908;0.1426;Yes
+Lebanon;22.0673;0.1066;Yes
+Liechtenstein;14.3879;0.1086;Yes
+Lithuania;5.4142;0.1813;Yes
+Luxembourg;22.889;0.1532;Yes
+Madagascar;7.8322;0.2264;Yes
+Malaysia;5.8143;0.1168;Yes
+Malta;24.4795;0.1125;Yes
+Mauritius;14.0509;0.1974;Yes
+Mexico;7.2817;0.1914;Yes
+Moldova;13.2912;0.1712;Yes
+Monaco;0.7664;0.1399;Yes
+Montenegro;14.9012;0.1736;Yes
+Morocco;5.2825;0.202;Yes
+Netherlands;1;0.1313;No
+New Zealand;1.0772;0.2288;Yes
+Nigeria;5.4404;0.1993;Yes
+North Macedonia;6.3683;0.1523;Yes
+Norway;1;0.1313;No
+Oman;5.5729;0.1331;Yes
+Pakistan;22.3583;0.1428;Yes
+Panama;19.0912;0.1891;Yes
+Paraguay;8.5689;0.1419;Yes
+Peru;22.3556;0.156;Yes
+Philippines;22.4521;0.2117;Yes
+Poland;22.4769;0.1673;Yes
+Portugal;21.3654;0.191;Yes
+Qatar;62.9592;0.0731;Yes
+Romania;10.1067;0.1885;Yes
+Russia;23.7257;0.2311;Yes
+Rwanda;14.1549;0.1487;Yes
+San Marino;42.0053;0.077;Yes
+Saudi Arabia;22.838;0.1516;Yes
+Senegal;10.4737;0.1382;Yes
+Serbia;14.5595;0.1844;Yes
+Singapore;18.0379;0.0821;Yes
+Slovakia;28.5346;0.1159;Yes
+Slovenia;1;0.1313;No
+South Africa;19.3759;0.1729;Yes
+Spain;20.9347;0.1535;Yes
+Sri Lanka;14.2497;0.1049;Yes
+Sweden;19.6839;0.1103;Yes
+Switzerland;1;0.1313;No
+Taiwan*;0.9351;0.0873;Yes
+Thailand;13.7037;0.1452;Yes
+Trinidad and Tobago;20.671;0.1268;Yes
+Tunisia;7.1081;0.1871;Yes
+Turkey;15.6977;0.2976;Yes
+Ukraine;1.9429;0.2733;Yes
+United Arab Emirates;13.668;0.1415;Yes
+United Kingdom;1.1599;0.1858;Yes
+Uruguay;1;0.1313;No
+US;5.2923;0.2111;Yes
+Uzbekistan;13.5156;0.1855;Yes
+Venezuela;1;0.1313;No
+Vietnam;2.1025;0.0841;Yes
+West Bank and Gaza;30.2962;0.0877;Yes
