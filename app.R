@@ -258,6 +258,7 @@ data <- left_join(
   mutate(
     "StillInfected" = Cases - (Recovered + Deaths),
     "MortalityRate" = (Deaths / Cases) * 100,
+    "MortalityRatePop" = (Deaths / Population) * 100,
     "RecoveryRate"  = (Recovered / Cases) * 100
   ) %<>% 
   group_by(Country.Region) %>%
@@ -272,9 +273,9 @@ ssi <- ssi_path %>%
     delim = ",",
     locale = locale(grouping_mark = ".")
   ) %>%
-  rename(
-    `Lab confirmed cases` = "Laboratoriebekræftede"
-  ) %>%
+  # rename(
+  #   `Lab confirmed cases` = "Laboratoriebekræftede"
+  # ) %>%
   dplyr::select(-X1) %>%
   mutate(
     "Lab confirmed cases" = gsub("\\*", "", `Lab confirmed cases`) %>% as.numeric,
@@ -626,6 +627,7 @@ ui <- dashboardPage(
                   "Total deaths" = "Deaths",
                   "New deaths" = "NewDeaths",
                   "Percentage of population infected" = "PercentageOfPopulation",
+                  "Percentage of population deceased" = "MortalityRatePop",
                   "Proportion of deaths among infected" = "MortalityRate",
                   "Proportion of recoveries among infected" = "RecoveryRate"
                 )
@@ -813,6 +815,7 @@ yaxislab <- c(
   "Cumulative recovered patients" = "Recovered",
   "Cumulative deaths" = "Deaths",
   "Population infected (%)" = "PercentageOfPopulation" ,
+  "Population deceased (%)" = "MortalityRatePop" ,
   "Mortality rate (%)" = "MortalityRate",
   "Recovery rate (%)" = "RecoveryRate",
   "New deaths" = "NewDeaths")

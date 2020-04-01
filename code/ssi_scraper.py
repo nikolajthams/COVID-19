@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-2us61"  # Changes daily
+ending = "-apl4"  # Changes daily
 
 
 def get_timeseries(date):
@@ -77,7 +77,7 @@ def get_AgeGroups(date):
     """
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
 
-    top = 432.82
+    top = 455.98
     left = 71.6
     width = 423.18
     height = 227.72
