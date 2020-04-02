@@ -120,67 +120,28 @@ nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
 
 
 # Load confirmed data ---------------------------------------------------------------
-data <- read.csv2(
-  cases_path,
-  sep = ","
-)
-# Drop irrelevant data
-drops <- c("Lat", "Long", "Province.State")
-data <- data[,!(names(data) %in% drops)]
-data <- aggregate(. ~ Country.Region, data = data, FUN = sum)
-# Prepare for ggplot
-data <- melt(
-  data,
-  id.vars = "Country.Region",
-  variable.name = "Date",
-  value.name = "Cases"
-) %>%
-  mutate(
-    "Date" = as.Date(substring(Date, 2), format = "%m.%d.%y")
-  )
-
-data %<>% group_by(Country.Region) %>%
-  arrange(Date) %>%
-  mutate(NewCases = Cases - lag(Cases),
-         NewCases = ifelse(is.na(NewCases), 0, NewCases)) %>%
-  ungroup()
-
-# Add population data -------------------------------------------------------------
-cdata <- pop_path %>%
-  read_delim(
-    .,
-    delim = ","
-  ) %>%
-  mutate(
-    "Urban population" = as.numeric(
-      gsub('^\\%|\\%$', '', `Urban population`)
-    ),
-    Country = ifelse(
-      Country == "United States",
-      "US",
-      ifelse(
-        Country == "South Korea",
-        "Korea, South",
-        Country
-      )
-    )
-  )
-
-data <- left_join(
-  data,
-  select(
-    cdata,
-    Country,
-    Population,
-    "Density (P/km2)",
-    "Urban population"
-  ),
-  by = c(
-    "Country.Region" = "Country"
-  )
+data <- read_delim(
+  "code/data/frontpage_data.csv",
+  delim = ","
 )
 
-# Death by age group
+# Load Danish data from SSI -----------------------------------------------
+ssi <- read_delim(
+  "code/data/ssi_processed_daily.csv",
+  delim = ","
+)
+agedata <- read_delim(
+  "code/data/ssi_processed_agegroups.csv",
+  delim = ","
+)
+
+# make shadow numbers:
+wvv.data <- read_delim(
+  "code/data/wvvdata.csv",
+  delim = ","
+)
+
+# Get countries w age data
 death.by.age <- read.csv(
   deaths_path_age,
   header=TRUE,
@@ -188,167 +149,6 @@ death.by.age <- read.csv(
   sep = ";"
 )
 countries.w.age.data = death.by.age$Country
-
-
-# Add recovery data ------------------------------------------------------
-data_r <- read.csv2(
-  recover_path,
-  sep = ","
-)
-# Drop irrelevant data
-drops <- c("Lat", "Long", "Province.State")
-data_r <- data_r[,!(names(data_r) %in% drops)]
-data_r <- aggregate(. ~ Country.Region, data = data_r, FUN = sum)
-# Prepare for ggplot
-data_r <- melt(
-  data_r,
-  id.vars = "Country.Region",
-  variable.name = "Date",
-  value.name = "Cases"
-) %>%
-  mutate(
-    "Date" = as.Date(substring(Date, 2), format = "%m.%d.%y")
-  ) %>%
-  rename(
-    "Recovered" = "Cases"
-  )
-
-data <- left_join(
-  data,
-  data_r,
-  by = c(
-    "Date",
-    "Country.Region"
-  )
-)
-
-
-# Add mortality data ------------------------------------------------------
-data_r <- read.csv2(
-  death_path,
-  sep = ","
-)
-# Drop irrelevant data
-drops <- c("Lat", "Long", "Province.State")
-data_r <- data_r[,!(names(data_r) %in% drops)]
-data_r <- aggregate(. ~ Country.Region, data = data_r, FUN = sum)
-# Prepare for ggplot
-data_r <- melt(
-  data_r,
-  id.vars = "Country.Region",
-  variable.name = "Date",
-  value.name = "Cases"
-) %>%
-  mutate(
-    "Date" = as.Date(substring(Date, 2), format = "%m.%d.%y")
-  ) %>%
-  rename(
-    "Deaths" = "Cases"
-  )
-
-data <- left_join(
-  data,
-  data_r,
-  by = c(
-    "Date",
-    "Country.Region"
-  )
-) %>%
-  mutate(
-    "StillInfected" = Cases - (Recovered + Deaths),
-    "MortalityRate" = (Deaths / Cases) * 100,
-    "MortalityRatePop" = (Deaths / Population) * 100,
-    "RecoveryRate"  = (Recovered / Cases) * 100
-  ) %<>% 
-  group_by(Country.Region) %>%
-  arrange(Date) %>%
-  mutate(NewDeaths = Deaths - lag(Deaths),
-         NewDeaths = ifelse(is.na(NewDeaths), 0, NewDeaths)) %>%
-  ungroup()
-# Load Danish data from SSI -----------------------------------------------
-ssi <- ssi_path %>%
-  read_delim(
-    .,
-    delim = ",",
-    locale = locale(grouping_mark = ".")
-  ) %>%
-  rename(
-    `Lab confirmed cases` = "Laboratoriebekræftede"
-  ) %>%
-  dplyr::select(-X1) %>%
-  mutate(
-    "Lab confirmed cases" = gsub("\\*", "", `Lab confirmed cases`) %>% as.numeric,
-    Tested = gsub("\\*", "", Tested) %>% as.numeric
-  ) %>%
-  mutate(
-    Date = ifelse(
-      grepl("27. januar", Date, ignore.case = T),
-      # Date == "27. januar - 3. marts",
-      paste(
-        as.numeric(substr(lead(Date), 1, 2)) - 1,
-        ". marts",
-        sep = ""
-      ),
-      Date
-    ),
-    Date = gsub(". marts", "/03/2020", Date) %>% 
-        gsub(". april", "/04/2020", .) %>% 
-        as.Date(., format = "%d/%m/%Y"),
-    InfectionRate = `Lab confirmed cases` / Tested
-  )
-
-agefiles <- list.files("code/data/ssi_agegroups/")
-agedata  <- lapply(
-  agefiles,
-  function(x) {
-    data <- read_delim(
-      paste("code/data/ssi_agegroups/", x, sep = ""), 
-      delim = ",",
-      locale = locale(decimal_mark = ".")
-    ) %>% 
-      select(-X1) %>%
-      mutate(
-        Date = as.Date(
-          substr(x, 6, 13), format = "%d%m%Y"
-        )# ,
-        # `Antal testede personer` = `Antal testede personer` / 10
-      )
-    return(data)
-  }
-) %>% 
-  do.call("rbind", .) %>%
-  ungroup
-
-
-# make shadow numbers:
-wvv.data <- read_delim(
-  "code/data/wvvdata.csv",
-  delim = ","
-)
-# source("code/make_wvv_data_static.R")
-# wvv.data %<>% left_join(
-#       .,
-#       dplyr::select(
-#         data,
-#         Country.Region,
-#         Population
-#       ),
-#       by = c(
-#         "Country" = "Country.Region"
-#       )
-#     ) %>%
-#       mutate(
-#         Cases.high = ifelse(
-#           Cases.high >= Population & !is.na(Population),
-#           Population,
-#           Cases.high
-#         ),
-#         Cases.low = ifelse(
-#           Cases.low >= Population & !is.na(Population),
-#           Population,
-#           Cases.low
-#         )
-#       )
 
 # Exponential growth models --------------------------------------------------------------
 .fit_nls <- function(country, dt, get_convergence = F) {
