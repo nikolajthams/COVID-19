@@ -12,6 +12,7 @@ library(magrittr)
 library(tidyselect)
 library(shinyhelper)
 
+
 theme_set(theme_minimal())
 
 
@@ -271,9 +272,9 @@ ssi <- ssi_path %>%
     delim = ",",
     locale = locale(grouping_mark = ".")
   ) %>%
-  # rename(
-  #   `Lab confirmed cases` = "Laboratoriebekræftede"
-  # ) %>%
+  rename(
+    `Lab confirmed cases` = "Laboratoriebekræftede"
+  ) %>%
   dplyr::select(-X1) %>%
   mutate(
     "Lab confirmed cases" = gsub("\\*", "", `Lab confirmed cases`) %>% as.numeric,
@@ -290,7 +291,9 @@ ssi <- ssi_path %>%
       ),
       Date
     ),
-    Date = gsub(". marts", "/03/2020", Date) %>% as.Date(., format = "%d/%m/%Y"),
+    Date = gsub(". marts", "/03/2020", Date) %>% 
+        gsub(". april", "/04/2020", .) %>% 
+        as.Date(., format = "%d/%m/%Y"),
     InfectionRate = `Lab confirmed cases` / Tested
   )
 
