@@ -205,6 +205,7 @@ countries.w.age.data = death.by.age$Country
     
     mm <- NULL
     
+    
     try({
       mm <- nls(
         I(Cases + 1) ~ (1 + r)**(t - l),
