@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-apl4"  # Changes daily
+ending = "-dd29"  # Changes daily
 
 
 def get_timeseries(date):
@@ -13,16 +13,16 @@ def get_timeseries(date):
     """
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
 
-    top = 129.06
-    left = 71.33
-    width = 394.19
-    height = 304.7
+    top = 128.13
+    left = 70.04
+    width = 395.27
+    height = 325.59
 
 
 
     try:
         tables = tabula.read_pdf(
-            file, pages=8,
+            file, pages=9,
             multiple_tables=True,
             area=(top, left, top + height, left + width),
             stream=True)
@@ -47,9 +47,9 @@ def get_timeseries(date):
         "Andel positive": "Rate"})
 
     # outfile = 'code/data/ssi.csv'
-    outfile = 'data/ssi.csv'
-    clean_df1.to_csv(outfile)
-    return print("Successfully exported file to path " + outfile)
+    # outfile = 'data/ssi.csv'
+    # clean_df1.to_csv(outfile)
+    return clean_df1  # print("Successfully exported file to path " + outfile)
 
 
 def get_AllTables(date):
@@ -76,15 +76,16 @@ def get_AgeGroups(date):
     Return cumulative testing data by age groups.
     """
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
+    # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-29032020-f67s"
 
-    top = 455.98
-    left = 71.6
-    width = 423.18
-    height = 227.72
+    top = 432.7
+    left = 70.86
+    width = 424.29
+    height = 228.72
 
     try:
         tables = tabula.read_pdf(
-            file, pages=10,
+            file, pages=11,
             multiple_tables=False,
             area=(top, left, top + height, left + width),
             stream=True)[0]
@@ -112,12 +113,12 @@ def get_AgeGroups(date):
 
 if __name__ == "__main__":
     # Get time series:
-    get_timeseries(today)
+    _tmp1 = get_timeseries(today)
+    _tmp1.to_csv("data/ssi.csv")
 
     # Get age data
     _tmp = get_AgeGroups(today)
     _tmp.to_csv("data/ssi_agegroups/data_" + today + ".csv")
-    "Andel positive" in _tmp.columns.values
 
     # Get all age data: #### Depreceated
     # avail_dates = ['12032020', '13032020', '16032020', '17032020',
