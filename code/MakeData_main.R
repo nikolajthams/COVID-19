@@ -15,6 +15,16 @@ library(shinyhelper)
 
 theme_set(theme_minimal())
 
+region2country <- function(data){
+  #### Function to make Faroe Islands and Greenland appear independent
+  regions = c('Faroe Islands', 'Greenland')
+  regions = intersect(data$Province.State, regions)
+  data$Country.Region = as.character(data$Country.Region)
+  for(region in regions){
+    data$Country.Region[data$Province.State == region] = region
+  }
+  return(data)
+}
 
 # Define data paths -------------------------------------------------------
 source("code/data_paths.R")
@@ -24,6 +34,7 @@ data <- read.csv2(
   cases_path,
   sep = ","
 )
+data = region2country(data)
 # Drop irrelevant data
 drops <- c("Lat", "Long", "Province.State")
 data <- data[,!(names(data) %in% drops)]
@@ -95,6 +106,7 @@ data_r <- read.csv2(
   recover_path,
   sep = ","
 )
+data_r = region2country(data_r)
 # Drop irrelevant data
 drops <- c("Lat", "Long", "Province.State")
 data_r <- data_r[,!(names(data_r) %in% drops)]
@@ -128,6 +140,7 @@ data_r <- read.csv2(
   death_path,
   sep = ","
 )
+data_r = region2country(data_r)
 # Drop irrelevant data
 drops <- c("Lat", "Long", "Province.State")
 data_r <- data_r[,!(names(data_r) %in% drops)]
