@@ -23,6 +23,8 @@ source("code/data_paths.R")
 #   ) %>% as.character
 # )
 
+countries.w.age.data <- c("China", "Germany", "Italy", "Korea, South", "Denmark")
+
   ## Read data
   demographics <-
     read_delim(
@@ -42,7 +44,7 @@ source("code/data_paths.R")
     delim = ","
   ) 
   # %>% 
-  #   nest_join(
+  #   left_join(
   #     .,
   #     demographics,
   #     by = "Country"
@@ -68,70 +70,6 @@ source("code/data_paths.R")
   # numbers from south korea
   # https://en.wikipedia.org/wiki/Coronavirus_disease_2019#Prognosis
   ## Actual relevant computation
-
-
-  update_data <- function(country, rel.rate) {
-    dem <- filter(demographics, Country %in% country) %>% 
-      select(-Country) %>%
-      as.numeric
-    dd <- filter(wvv.data, Country %in% country) %>% pull(Deaths)
-    ((rel.rate.low * dem / sum(rel.rate.low * dem)) / death.rate) %>%
-      {sum(. * is.finite(.), na.rm = T)} %>%
-      {. * dd}
-  }
-
-  make_data <- function(death_mat, relative.death.risk) {
-    activedata <- matrix(NA, nrow(death_mat), ncol(death_mat))
-    for (i in 1:nrow(activedata)) {
-      demo_adjusted_risk <- relative.death.risk * demographics[i, ]
-      for (j in 1:ncol(activedata)) {
-        est.num.death <-
-          demo_adjusted_risk * death_mat[i, j] / sum(demo_adjusted_risk)
-        estimate = est.num.death / death.rate
-        activedata[i, j] <-
-          sum(estimate * is.finite(estimate), na.rm = TRUE)
-      }
-    }
-    activedata = data.frame(activedata)
-    colnames(activedata) = dates
-    activedata$Country = countries
-    return(activedata)
-  }
-  activedata.low  <- make_data(death_mat, rel.rate.low)
-  activedata.high <- make_data(death_mat, rel.rate.high)
-  
-  ## Actual relevant computation (given p_D(a)) -> Section 7.1
-  ## Function to compute binomial confidence bounds on n
-  find_confidence_bounds_old <- function(x, p, alpha = 0.05) {
-    n.est <- x / p
-    if (p > 0) {
-      # lower bound
-      lower.n <- ceiling(n.est)
-      prob <- 1
-      while (prob > alpha / 2 & lower.n >= 0) {
-        prob <- pbinom(x - 1, lower.n, p, lower.tail = FALSE)
-        lower.n <- lower.n - 1
-      }
-      lower.n <- lower.n + 1
-      # lower.n <- .bin_search_below(
-      #   x, p, 0, ceiling(n.est), alpha
-      # )
-      
-      # upper bound
-      upper.n <- floor(n.est)
-      prob <- 1
-      while (prob > alpha / 2 & upper.n <= (n.est + 2 * (n.est - lower.n))) {
-        prob <- pbinom(x, upper.n, p)
-        upper.n <- upper.n + 1
-      }
-      upper.n <- upper.n - 1
-      res <- c(lower.n, upper.n)
-    }
-    else{
-      res <- c(0, 0)
-    }
-    return(res)
-  }
   
   .bin_search_below <- function(x, p, low, high, alpha = 0.05) {
     if (x <= 0) return(0)
@@ -229,55 +167,42 @@ source("code/data_paths.R")
     }
     return(res)
   }
-  
-  
-  # Replace values with bounds for countries with known curves
-  
-  
-  
-  
-  # Replace values with bounds for countries with known curves
-  ##### PBM version #####
-  # # tictoc::tic()
-  # .f2 <- find_confidence_bounds  %>% Vectorize(., vectorize.args = "x")
-  # for (country in countries.w.age.data) {
-  #   i = which(deathdata$Country.Region == country)
-  #   num.death <- death.by.age %>%
-  #     filter(
-  #       Country == country
-  #     ) %>%
-  #     select(-Country) %>%
-  #     as.numeric
-  # 
-  #   num.death.scaled <- num.death %>%
-  #     {matrix(
-  #       .,
-  #       nrow = ncol(death_mat),
-  #       ncol = length(.),
-  #       byrow = T
-  #     ) / sum(.)} %>%
-  #     {. * death_mat[i, ]}
-  #   
-  #   bounds <- lapply(
-  #     1:length(death.rate),
-  #     function(x) {
-  #       .f2(
-  #         num.death.scaled[, x] %>% as.vector,
-  #         death.rate[x]
-  #       )
-  #     }
-  #   )
-  #   bounds <- lapply(
-  #       1:length(death.rate),
-  #       function(x) {
-  #         bounds[[x]] * death.rate[x]
-  #       }
-  #     ) %>% Reduce("+", .)
-  #   activedata.low[i, -ncol(activedata.low)]   <- bounds[1, ]
-  #   activedata.high[i, -ncol(activedata.high)] <- bounds[1, ]
-  # }
-  # # tictoc::toc()
-  #########################
+
+    update_data <- function(country, rel.rate) {
+    if (!(country %in% countries.w.age.data)) {
+      dem <- filter(demographics, Country %in% country) %>% 
+      select(-Country) %>%
+      as.numeric
+      dd <- filter(wvv.data, Country %in% country) %>% pull(Deaths)
+
+      out <- ((rel.rate.low * dem / sum(rel.rate.low * dem)) / death.rate) %>%
+      {sum(. * is.finite(.), na.rm = T)} %>%
+      {. * dd}
+    
+      return(out)
+    } else {
+      num.death <- death.by.age %>%
+      filter(
+        Country == country
+      ) %>%
+      select(-Country) %>%
+      as.numeric
+
+      num.death.scaled <- num.death / sum(num.death) * death_mat[i, j]
+      
+      out <- find_confidence_bounds()
+    }
+    
+  }
+
+  tst <- update_data(
+    "Denmark",
+    rel.rate.low
+  )
+  cbind(
+    "Original" = wvv.data %>% filter(Country == "Denmark") %>% pull(Cases.low),
+    "New" = tst
+  )
   
   # tictoc::tic()
   for (country in countries.w.age.data) {

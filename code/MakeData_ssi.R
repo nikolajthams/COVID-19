@@ -64,7 +64,13 @@ agedata  <- lapply(
       mutate(
         Date = as.Date(
           substr(x, 6, 13), format = "%d%m%Y"
-        )# ,
+        ),
+        `Laboratoriebekræftede` = ifelse(
+          Date >= "2020-04-01" & `Laboratoriebekræftede` < 10,
+          `Laboratoriebekræftede` * 1000,
+          Laboratoriebekræftede
+        )
+        # ,
         # `Antal testede personer` = `Antal testede personer` / 10
       )
     return(data)

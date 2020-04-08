@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-hu4v"  # Changes daily
+ending = "-wvp1"  # Changes daily
 
 
 def get_timeseries(date):
@@ -113,11 +113,11 @@ def get_AgeGroups(date):
 
 if __name__ == "__main__":
     # Get time series:
-    _tmp1 = get_timeseries(today)
+    _tmp1 = get_timeseries("07042020")
     _tmp1.to_csv("data/ssi.csv")
 
     # Get age data
-    _tmp = get_AgeGroups(today)
+    _tmp = get_AgeGroups("07042020")
     _tmp.to_csv("data/ssi_agegroups/data_" + today + ".csv")
 
     # Get all age data: #### Depreceated
