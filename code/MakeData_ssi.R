@@ -36,10 +36,11 @@ ssi <- ssi_path %>%
   ) %>%
   mutate(
     Date = ifelse(
-      grepl("27. januar", Date, ignore.case = T),
-      # Date == "27. januar - 3. marts",
+      # grepl("januar", Date, ignore.case = T),
+      Date == first(Date),
       paste(
         as.numeric(substr(lead(Date), 1, 2)) - 1,
+        # as.Character(as.Date(lead(Date)) - 1),
         ". marts",
         sep = ""
       ),
