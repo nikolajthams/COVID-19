@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-wvp1"  # Changes daily
+ending = "-31us"  # Changes daily
 
 
 def get_timeseries(date):
@@ -16,7 +16,7 @@ def get_timeseries(date):
     top = 128.13
     left = 70.04
     width = 395.27
-    height = 325.59
+    height = 304.59
 
 
 
@@ -78,7 +78,7 @@ def get_AgeGroups(date):
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
     # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-29032020-f67s"
 
-    top = 432.7
+    top = 409.3
     left = 70.86
     width = 424.29
     height = 228.72
@@ -99,7 +99,7 @@ def get_AgeGroups(date):
     clean_df.iloc[:, 3] = clean_df.iloc[:, 3].str.replace(",", ".")
 
     for i in range(a - 1):  # Fix decimal inconsistencies.
-        if clean_df.iloc[i, 2] < 10:
+        if clean_df.iloc[i, 2] < 100:
             clean_df.iloc[i, 2] = clean_df.iloc[i, 2] * 1000
         # if clean_df.iloc[i, 3] < 10:
         #     clean_df.iloc[i, 3] = clean_df.iloc[i, 2] * 1000
@@ -113,11 +113,11 @@ def get_AgeGroups(date):
 
 if __name__ == "__main__":
     # Get time series:
-    _tmp1 = get_timeseries("07042020")
+    _tmp1 = get_timeseries(today)
     _tmp1.to_csv("data/ssi.csv")
 
     # Get age data
-    _tmp = get_AgeGroups("07042020")
+    _tmp = get_AgeGroups(today)
     _tmp.to_csv("data/ssi_agegroups/data_" + today + ".csv")
 
     # Get all age data: #### Depreceated

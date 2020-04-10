@@ -311,3 +311,97 @@ write_delim(
     "code/data/wvvdata.csv",
     delim = ","
 )
+
+
+
+
+
+
+
+
+dt <- wvv.data %>%
+  filter(
+    Country == "Denmark"
+  ) %>%
+  mutate(
+    Date = Date - 20,
+    tmp = Deaths == 0 & lead(Deaths) > 0,
+    tmp = cumsum(tmp)
+  ) %>%
+  filter(
+    tmp > 0
+  ) %>%
+  mutate(
+    t = seq_along(Date) - 1
+  )
+
+mh <- nls(
+  Cases.high ~ (1 + r)**t,
+  data = dt,
+  start = list(
+    "r" = 0.1
+  )
+)
+ml <- nls(
+  Cases.low ~ (1 + r)**t,
+  data = dt,
+  start = list(
+    "r" = 0.1
+  )
+)
+
+predict(mh, tibble("t" = 45))
+predict(ml, tibble("t" = 45))
+
+
+
+## Load deSolve package
+library(deSolve)
+
+## Create an SIR function
+sir <- function(time, state, parameters) {
+
+  with(as.list(c(state, parameters)), {
+
+    dS <- -beta * S * I
+    dI <-  beta * S * I - gamma * I
+    dR <-                 gamma * I
+
+    return(list(c(dS, dI, dR)))
+  })
+}
+
+### Set parameters
+## Proportion in each compartment: Susceptible 0.999999, Infected 0.000001, Recovered 0
+init       <- c(
+  S = 1 - 1e4 / 5.8e6, 
+  I = 1e4 / 5.8e6, 
+  R = 1e3 / 5.8e6
+)
+## beta: infection parameter; gamma: recovery parameter
+parameters <- c(beta = 1.2 * 1 / 14, gamma = 1 / 7)
+## Time frame
+times      <- seq(0, 20, by = 1)
+
+## Solve using ode (General Solver for Ordinary Differential Equations)
+out <- ode(y = init, times = times, func = sir, parms = parameters)
+## change to data frame
+out <- as.data.frame(out)
+## Delete time variable
+out$time <- NULL
+## Show data
+head(out, 10)
+
+matplot(x = times, y = out, type = "l",
+        xlab = "Time", ylab = "Susceptible and Recovered", main = "SIR Model",
+        lwd = 1, lty = 1, bty = "l", col = 2:4)
+
+## Add legend
+legend(40, 0.7, c("Susceptible", "Infected", "Recovered"), pch = 1, col = 2:4, bty = "n")
+
+
+
+
+
+
+
