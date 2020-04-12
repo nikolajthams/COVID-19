@@ -3,9 +3,8 @@ from urllib.error import HTTPError
 
 import tabula
 
-# today = date.today().strftime("%d%m%Y")
-today = "10042020"
-ending = "-21bn"  # Changes daily
+today = date.today().strftime("%d%m%Y")
+ending = "-hh8b"  # Changes daily
 
 
 def get_timeseries(date):
