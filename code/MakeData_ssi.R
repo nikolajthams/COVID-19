@@ -38,12 +38,13 @@ ssi <- ssi_path %>%
     Date = ifelse(
       # grepl("januar", Date, ignore.case = T),
       Date == first(Date),
-      paste(
-        as.numeric(substr(lead(Date), 1, 2)) - 1,
-        # as.Character(as.Date(lead(Date)) - 1),
-        ". marts",
-        sep = ""
-      ),
+      # paste(
+      #   as.numeric(substr(lead(Date), 1, 1)) - 1,
+      #   # as.Character(as.Date(lead(Date)) - 1),
+      #   ". marts",
+      #   sep = ""
+      # ),
+      "31. marts",
       Date
     ),
     Date = gsub(". marts", "/03/2020", Date) %>% 
