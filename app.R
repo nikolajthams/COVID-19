@@ -414,6 +414,8 @@ ui <- dashboardPage(
                   "Viewing the data in this way makes it easy to compare the timeline of different countries, even if the outbreaks started months apart from each other."
                 )
               ),
+              conditionalPanel("!input.rebase",
+                               dateInput("left.date", "Start date", value = as.Date("2020-03-01"), max=today())),
               conditionalPanel("input.rebase",
                                numericInput('rebase.value', 'Patient number', value=100, min=1, step=20)),
               
@@ -431,7 +433,8 @@ ui <- dashboardPage(
                   "Percentage of population deceased" = "MortalityRatePop",
                   "Proportion of deaths among infected" = "MortalityRate",
                   "Proportion of recoveries among infected" = "RecoveryRate"
-                )
+                ),
+                selected = "Deaths"
               ) %>%
               helper(
                 type = "inline",
@@ -684,6 +687,7 @@ server <- function(input, output) {
   output$country_plot <- renderPlotly({
     patient.x.name = paste("Days since patient", input$rebase.value)
     
+    
     if(input$rebase == TRUE){
       p <- ggplot(datasetInput()%>% rename(!!patient.x.name:="t"),
                   aes_string(
@@ -727,6 +731,14 @@ server <- function(input, output) {
         "Country"
       )
     )
+    if(input$rebase == FALSE){
+      p <- p %>% layout(xaxis = list(range = c(
+        # as.numeric(as.Date("2020-03-01")),
+        as.numeric(input$left.date),
+        as.numeric(today())
+        
+        )))
+    }
     p
   })
   
