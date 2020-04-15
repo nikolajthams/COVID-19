@@ -1,6 +1,7 @@
 from datetime import date
 from urllib.error import HTTPError
 
+import pandas as pd
 import tabula
 
 today = date.today().strftime("%d%m%Y")
@@ -49,7 +50,7 @@ def get_timeseries(date):
     # outfile = 'code/data/ssi.csv'
     # outfile = 'data/ssi.csv'
     # clean_df1.to_csv(outfile)
-    return clean_df1  # print("Successfully exported file to path " + outfile)
+    return clean_df1.tail(1)  # print("Successfully exported file to path " + outfile)
 
 
 def get_AllTables(date):
@@ -114,7 +115,9 @@ def get_AgeGroups(date):
 if __name__ == "__main__":
     # Get time series:
     _tmp1 = get_timeseries(today)
-    _tmp1.to_csv("data/ssi.csv")
+    old = pd.read_csv("data/ssi_new.csv")
+    new = old.append(_tmp1)
+    new.to_csv("data/ssi.csv")
 
     # Get age data
     _tmp = get_AgeGroups(today)
