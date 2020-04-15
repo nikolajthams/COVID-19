@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-wgkv"  # Changes daily
+ending = "-ht7b"  # Changes daily
 
 
 def get_timeseries(date):
@@ -13,8 +13,8 @@ def get_timeseries(date):
     """
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
 
-    top = 128.13
-    left = 70.04
+    top = 128.24
+    left = 71.16
     width = 395.27
     height = 304.59
 
@@ -22,7 +22,7 @@ def get_timeseries(date):
 
     try:
         tables = tabula.read_pdf(
-            file, pages=9,
+            file, pages=10,
             multiple_tables=True,
             area=(top, left, top + height, left + width),
             stream=True)
@@ -79,13 +79,13 @@ def get_AgeGroups(date):
     # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-29032020-f67s"
 
     top = 409.3
-    left = 70.86
+    left = 71.26
     width = 424.29
     height = 228.72
 
     try:
         tables = tabula.read_pdf(
-            file, pages=11,
+            file, pages=12,
             multiple_tables=False,
             area=(top, left, top + height, left + width),
             stream=True)[0]

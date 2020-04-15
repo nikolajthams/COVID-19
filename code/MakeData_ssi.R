@@ -38,19 +38,22 @@ ssi <- ssi_path %>%
     Date = ifelse(
       # grepl("januar", Date, ignore.case = T),
       Date == first(Date),
-      # paste(
-      #   as.numeric(substr(lead(Date), 1, 1)) - 1,
-      #   # as.Character(as.Date(lead(Date)) - 1),
-      #   ". marts",
-      #   sep = ""
-      # ),
-      "31. marts",
+      paste(
+        as.numeric(substr(lead(Date), 1, 1)) - 1,
+        # as.Character(as.Date(lead(Date)) - 1),
+        ". april",
+        sep = ""
+      ),
+      # "31. marts",
       Date
     ),
     Date = gsub(". marts", "/03/2020", Date) %>% 
         gsub(". april", "/04/2020", .) %>% 
         as.Date(., format = "%d/%m/%Y"),
     InfectionRate = `Lab confirmed cases` / Tested
+  ) %>%
+  filter(
+    Date != first(Date)
   )
 
 agefiles <- list.files("code/data/ssi_agegroups/")
