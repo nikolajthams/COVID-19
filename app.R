@@ -405,30 +405,45 @@ ui <- dashboardPage(
                   "To remove countries from the graph, remove them from the search field as you would normally delete text."
                 )
               ),
-              checkboxInput("rebase", "View graph from patient number x", F) %>%
+              checkboxInput("rebase", "View graph from death number x", F) %>%
               helper(
                 type = "inline",
                 icon = "question",
                 content = c(
-                  "This feature changes the x-axis from dates to 'Days since patient number ${x}$ was confirmed'.",
+                  "This feature changes the x-axis from dates to 'Days since death number ${x}$'.",
                   "Viewing the data in this way makes it easy to compare the timeline of different countries, even if the outbreaks started months apart from each other."
                 )
               ),
               conditionalPanel("!input.rebase",
-                               dateInput("left.date", "Start date", value = as.Date("2020-03-01"), max=today())),
+                               dateInput("left.date", "Start date", value = as.Date("2020-03-01"), max=today())%>%
+                                 helper(
+                                   type = "inline",
+                                   icon = "question",
+                                   content = c(
+                                     "For many countries, it is not so interesting to see data prior to March.",
+                                     "This option sets the default starting date. You can still drag the x-axis with the mouse to go back in time."
+                                   )
+                                 )),
               conditionalPanel("input.rebase",
-                               numericInput('rebase.value', 'Patient number', value=100, min=1, step=20)),
+                               numericInput('rebase.value', 'Death number', value=10, min=1, step=20)%>%
+                                 helper(
+                                   type = "inline",
+                                   icon = "question",
+                                   content = c(
+                                     "Showing the development of the data since the day of death number {x} in that country"
+                                   )
+                                 )),
               
               radioButtons(
                 "output",
                 "Output",
                 choices = c(
+                  "Total deaths" = "Deaths",
                   "Total confirmed cases" = "Cases",
+                  "New deaths" = "NewDeaths",
                   "New confirmed cases" = "NewCases",
                   "Still infected" = "StillInfected",
                   "Recovered" = "Recovered",
-                  "Total deaths" = "Deaths",
-                  "New deaths" = "NewDeaths",
                   "Percentage of population infected" = "PercentageOfPopulation",
                   "Percentage of population deceased" = "MortalityRatePop",
                   "Proportion of deaths among infected" = "MortalityRate",
@@ -458,7 +473,17 @@ ui <- dashboardPage(
               fluidPage(
                 withMathJax(
                   includeMarkdown("code/docs/text_below_plot.md")
-                )
+                ),
+                fluidRow(
+                  br(),
+                  if(today() <= as.Date("2020-04-20")){
+                    box(
+                      withMathJax(
+                        includeMarkdown("code/docs/log.md")
+                      ), 
+                      title="Change log", status="info",
+                      width=NULL, collapsible = T, collapsed = T)
+                  })
               )
             )
           ),
@@ -651,17 +676,22 @@ server <- function(input, output) {
           is.na(lead(Cases)),
           Inf,
           lead(Cases)
+        ),
+        LeadDeaths = ifelse(
+          is.na(lead(Deaths)),
+          Inf,
+          lead(Deaths)
         )
       ) %>%
       filter(
-        LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)
+        LeadDeaths >= ifelse(input$rebase == TRUE, input$rebase.value, 0)
       ) %>%
       # ungroup %>% {
       #   LastDayBecoreConfirmedCase <-
       #     (.) %>% arrange(Date) %>% filter(LeadCases > ifelse(input$rebase == TRUE, input$rebase.value, 0)) %>% summarize(min(Date)) %>% pull()
       #   (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
       # } %>%
-      select(-LeadCases) %>%
+      select(-c(LeadCases, LeadDeaths)) %>%
       mutate(
         "t" = (Date - as.Date(min(Date))) %>% as.numeric,
         "PercentageOfPopulation" = (Cases / Population) * 100,
@@ -685,7 +715,7 @@ server <- function(input, output) {
   })
   
   output$country_plot <- renderPlotly({
-    patient.x.name = paste("Days since patient", input$rebase.value)
+    patient.x.name = paste("Days since death number", input$rebase.value)
     
     
     if(input$rebase == TRUE){
@@ -697,7 +727,7 @@ server <- function(input, output) {
                     Country = "Country",
                     label = "Date"
                   )) + 
-        xlab(paste("Days since patient ", input$rebase.value)) + scale_x_continuous(breaks=c(0, seq(7,1000,7)))# + geom_point(aes_string(text = hover.date))
+        xlab(paste("Days since death number ", input$rebase.value)) + scale_x_continuous(breaks=c(0, seq(7,1000,7)))# + geom_point(aes_string(text = hover.date))
     } else {
       p <- ggplot(datasetInput(),
                   aes_string(
