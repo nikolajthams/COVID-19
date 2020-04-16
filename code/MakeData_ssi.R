@@ -23,8 +23,8 @@ source("code/data_paths.R")
 ssi <- ssi_path %>%
   read_delim(
     .,
-    delim = ",",
-    locale = locale(grouping_mark = ".")
+    delim = ","
+    #locale = locale(grouping_mark = ".")
   ) %>%
   rename(
     `Lab confirmed cases` = "Laboratoriebekræftede"
