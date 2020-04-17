@@ -29,7 +29,7 @@ ssi <- ssi_path %>%
   rename(
     `Lab confirmed cases` = "Laboratoriebekræftede"
   ) %>%
-  dplyr::select(-X1) %>%
+  # dplyr::select(-X1) %>%
   mutate(
     "Lab confirmed cases" = gsub("\\*", "", `Lab confirmed cases`) %>% as.numeric,
     Tested = gsub("\\*", "", Tested) %>% as.numeric
