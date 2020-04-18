@@ -5,15 +5,15 @@ import pandas as pd
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-gt90"  # Changes daily
+ending = "-a8sg"  # Changes daily
 
 
 def get_timeseries(date):
     """
     Return daily testing data for the past 14 days prior to input date.
     """
-    # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
-    file = "https://www.ssi.dk/-/media/arkiv/dk/aktuelt/sygdomsudbrud/covid19-rapport/17042020/covid19-overvaagningsrapport-17042020-gt90.pdf"
+    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
+    # file = "https://www.ssi.dk/-/media/arkiv/dk/aktuelt/sygdomsudbrud/covid19-rapport/17042020/covid19-overvaagningsrapport-17042020-gt90.pdf"
     top = 128.24
     left = 71.16
     width = 395.27
@@ -50,7 +50,10 @@ def get_timeseries(date):
     # outfile = 'code/data/ssi.csv'
     # outfile = 'data/ssi.csv'
     # clean_df1.to_csv(outfile)
-    return clean_df1.tail(1)  # print("Successfully exported file to path " + outfile)
+
+    out = clean_df1.tail(1)
+    out['Tested'] = out['Tested'].astype('float') * 1000
+    return out  # print("Successfully exported file to path " + outfile)
 
 
 def get_AllTables(date):
@@ -76,8 +79,8 @@ def get_AgeGroups(date):
     """
     Return cumulative testing data by age groups.
     """
-    # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
-    file = "https://www.ssi.dk/-/media/arkiv/dk/aktuelt/sygdomsudbrud/covid19-rapport/17042020/covid19-overvaagningsrapport-17042020-gt90.pdf"
+    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
+    # file = "https://www.ssi.dk/-/media/arkiv/dk/aktuelt/sygdomsudbrud/covid19-rapport/17042020/covid19-overvaagningsrapport-17042020-gt90.pdf"
 
     top = 409.3
     left = 71.26
