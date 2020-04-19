@@ -5,7 +5,7 @@ import pandas as pd
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-a8sg"  # Changes daily
+ending = "-hba7"  # Changes daily
 
 
 def get_timeseries(date):
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     # Get time series:
     _tmp1 = get_timeseries(today)
     old = pd.read_csv("data/ssi_new.csv", sep=",")
-    old = old.drop(['Unnamed: 0', 'Unnamed: 0.1'], axis = 1)
+    # old = old.drop(['Unnamed: 0', 'Unnamed: 0.1'], axis = 1)
     new = old.append(_tmp1)
     new.to_csv("data/ssi_new.csv", index=False)
 
