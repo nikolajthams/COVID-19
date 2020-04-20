@@ -5,7 +5,7 @@ import pandas as pd
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-hba7"  # Changes daily
+ending = "-2dd09"  # Changes daily
 
 
 def get_timeseries(date):
@@ -82,14 +82,14 @@ def get_AgeGroups(date):
     file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
     # file = "https://www.ssi.dk/-/media/arkiv/dk/aktuelt/sygdomsudbrud/covid19-rapport/17042020/covid19-overvaagningsrapport-17042020-gt90.pdf"
 
-    top = 409.3
-    left = 71.26
+    top = 395.3
+    left = 70.26
     width = 424.29
     height = 228.72
 
     try:
         tables = tabula.read_pdf(
-            file, pages=12,
+            file, pages=11,
             multiple_tables=False,
             area=(top, left, top + height, left + width),
             stream=True)[0]
