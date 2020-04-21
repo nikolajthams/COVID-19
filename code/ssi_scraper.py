@@ -5,19 +5,19 @@ import pandas as pd
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-2dd09"  # Changes daily
+ending = "-hj78"  # Changes daily
 
 
 def get_timeseries(date):
     """
     Return daily testing data for the past 14 days prior to input date.
     """
-    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
-    # file = "https://www.ssi.dk/-/media/arkiv/dk/aktuelt/sygdomsudbrud/covid19-rapport/17042020/covid19-overvaagningsrapport-17042020-gt90.pdf"
-    top = 128.24
-    left = 71.16
+    # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
+    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + "21032020" + ending
+    top = 126.24
+    left = 70.5
     width = 395.27
-    height = 304.59
+    height = 309.59
 
 
 
@@ -79,8 +79,8 @@ def get_AgeGroups(date):
     """
     Return cumulative testing data by age groups.
     """
-    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
-    # file = "https://www.ssi.dk/-/media/arkiv/dk/aktuelt/sygdomsudbrud/covid19-rapport/17042020/covid19-overvaagningsrapport-17042020-gt90.pdf"
+    # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
+    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + "21032020" + ending
 
     top = 395.3
     left = 70.26
