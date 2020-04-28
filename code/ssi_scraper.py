@@ -4,9 +4,9 @@ from urllib.error import HTTPError
 import pandas as pd
 import tabula
 
-# today = date.today().strftime("%d%m%Y")
-today = "25042020"
-ending = "-sr21"  # Changes daily
+today = date.today().strftime("%d%m%Y")
+# today = "25042020"
+ending = "-y34f"  # Changes daily
 
 
 def get_timeseries(date):
