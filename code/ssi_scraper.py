@@ -5,8 +5,8 @@ import pandas as pd
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-# today = "25042020"
-ending = "-y34f"  # Changes daily
+ending = "-wl02"  # Changes daily
+
 
 
 def get_timeseries(date):
@@ -114,6 +114,47 @@ def get_AgeGroups(date):
             columns={"Andel positive": "Procent positiv"})
 
     return clean_df
+
+
+def get_municipal(date, ending):
+    """
+    Return cumulative testing data by municipal.
+    """
+    #file = "https://files.ssi.dk/antal-covid19-tilfaelde-per-kommune-" + date + ending
+    file = "https://files.ssi.dk/antal-covid19-tilfaelde-per-kommune-" + today + ending
+
+    #top = 395.3
+    #left = 70.26
+    #width = 424.29
+    #height = 228.72
+
+    try:
+        tables = tabula.read_pdf(
+            file, pages='all',
+            multiple_tables=True,
+            #area=(top, left, top + height, left + width),
+            stream=True)
+    except HTTPError:
+        print("No data found for date " + date)
+        return None
+
+    a, b = tables.shape
+    clean_df = tables.iloc[1:a, :]
+
+    clean_df.iloc[:, 3] = clean_df.iloc[:, 3].str.replace(",", ".")
+
+    for i in range(a - 1):  # Fix decimal inconsistencies.
+        if clean_df.iloc[i, 2] < 100:
+            clean_df.iloc[i, 2] = clean_df.iloc[i, 2] * 1000
+        # if clean_df.iloc[i, 3] < 10:
+        #     clean_df.iloc[i, 3] = clean_df.iloc[i, 2] * 1000
+
+    if "Andel positive" in clean_df.columns.values:  # Fix naming inconsistencies.
+        clean_df = clean_df.rename(
+            columns={"Andel positive": "Procent positiv"})
+
+    return clean_df
+
 
 
 if __name__ == "__main__":
