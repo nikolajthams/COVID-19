@@ -5,7 +5,8 @@ import pandas as pd
 import tabula
 
 today = date.today().strftime("%d%m%Y")
-ending = "-wl02"  # Changes daily
+# today = '30042020'
+ending = "-prst"  # Changes daily
 
 
 
