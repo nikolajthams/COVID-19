@@ -49,6 +49,7 @@ ssi <- ssi_path %>%
     # ),
     Date = gsub(". marts", "/03/2020", Date) %>% 
         gsub(". april", "/04/2020", .) %>% 
+        gsub(". maj", "/05/2020", .) %>% 
         as.Date(., format = "%d/%m/%Y"),
     InfectionRate = `Lab confirmed cases` / Tested
   )

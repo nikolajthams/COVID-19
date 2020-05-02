@@ -6,7 +6,7 @@ import tabula
 
 today = date.today().strftime("%d%m%Y")
 # today = '30042020'
-ending = "-prst"  # Changes daily
+ending = "-l9i8"  # Changes daily
 
 
 
