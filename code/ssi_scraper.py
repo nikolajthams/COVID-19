@@ -1,12 +1,24 @@
+from bs4 import BeautifulSoup, SoupStrainer
 from datetime import date
 from urllib.error import HTTPError
 
 import pandas as pd
+import requests
 import tabula
 
-today = date.today().strftime("%d%m%Y")
-# today = '30042020'
-ending = "-l9i8"  # Changes daily
+url = "https://www.ssi.dk/aktuelt/sygdomsudbrud/coronavirus/covid-19-i-danmark-epidemiologisk-overvaagningsrapport"
+
+page = requests.get(url)    
+data = page.text
+soup = BeautifulSoup(data)
+
+# links = [link.get('href') for link in soup.find_all('a') if 'https://files.ssi.dk/COVID19-overvaagningsrapport' in link.get('href')]
+
+
+# today = date.today().strftime("%d%m%Y")
+today = '03052020'
+ending = [link.get('href') for link in soup.find_all('a') if 'https://files.ssi.dk/COVID19-overvaagningsrapport-' + today in link.get('href')][0][-5:]
+# ending = "-l9i8"  # Changes daily
 
 
 
