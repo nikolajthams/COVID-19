@@ -177,7 +177,10 @@ data <- left_join(
   arrange(Date) %>%
   mutate(NewDeaths = Deaths - lag(Deaths),
          NewDeaths = ifelse(is.na(NewDeaths), 0, NewDeaths)) %>%
-  ungroup()
+  ungroup() %>%
+  rename(
+    "PopDensity" = `Density (P/km2)`
+  )
 
   write_delim(
       data,
