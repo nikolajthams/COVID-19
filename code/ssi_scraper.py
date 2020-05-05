@@ -16,7 +16,7 @@ soup = BeautifulSoup(data)
 
 
 # today = date.today().strftime("%d%m%Y")
-today = '03052020'
+today = '04052020'
 ending = [link.get('href') for link in soup.find_all('a') if 'https://files.ssi.dk/COVID19-overvaagningsrapport-' + today in link.get('href')][0][-5:]
 # ending = "-l9i8"  # Changes daily
 
