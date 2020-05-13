@@ -16,7 +16,7 @@ soup = BeautifulSoup(data)
 
 
 # today = date.today().strftime("%d%m%Y")
-today = '11052020'
+today = '12052020'
 ending = [link.get('href') for link in soup.find_all('a') if 'https://files.ssi.dk/COVID19-overvaagningsrapport-' + today in link.get('href')][0][-5:]
 # ending = "-l9i8"  # Changes daily
 
@@ -26,7 +26,7 @@ def get_timeseries(date):
     """
     Return daily testing data for the past 14 days prior to input date.
     """
-    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
+    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + "-2" + ending
     #file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + "21032020" + ending
     top = 126.24
     left = 70.5
@@ -93,7 +93,7 @@ def get_AgeGroups(date):
     """
     Return cumulative testing data by age groups.
     """
-    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + ending
+    file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + date + "-2" + ending
     # file = "https://files.ssi.dk/COVID19-overvaagningsrapport-" + "21032020" + ending
 
     top = 395.3
@@ -134,7 +134,7 @@ def get_municipal(date, ending):
     Return cumulative testing data by municipal.
     """
     #file = "https://files.ssi.dk/antal-covid19-tilfaelde-per-kommune-" + date + ending
-    file = "https://files.ssi.dk/antal-covid19-tilfaelde-per-kommune-" + today + ending
+    file = "https://files.ssi.dk/antal-covid19-tilfaelde-per-kommune-" + today + "-2" + ending
 
     #top = 395.3
     #left = 70.26
