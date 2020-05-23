@@ -102,6 +102,7 @@ We are also monitoring the curve change. Any errors made by us will be corrected
 * April 28, Lithuania: The number of confirmed infection cases. Until 28 April, information has been provided on positive laboratory test results rather than on positive cases (people). ([Source](https://lietuva.lt/wp-content/uploads/2020/04/UPDATE-April-28.pdf))
 * May 2, clarification of the handling of data in France ([GitHub Issue](https://github.com/CSSEGISandData/COVID-19/issues/2459))
 * May 15, clairification of the handling of data for Spain ([GitHub Issue](https://github.com/CSSEGISandData/COVID-19/issues/2522))
+* May 20, the drop of cumulative confirmed cases in the UK. "This is due to historical data revisions across all pillars." ([Source](https://www.gov.uk/guidance/coronavirus-covid-19-information-for-the-public), [DHSCgovuk Twitter](https://twitter.com/DHSCgovuk/status/1263159710892638208))
 
 ---
 ## [UID Lookup Table Logic](https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv)
@@ -132,4 +133,4 @@ We are also monitoring the curve change. Any errors made by us will be corrected
  * eurostat: https://ec.europa.eu/eurostat/web/products-datasets/product?code=tgs00096
  * The U.S. Census Bureau: https://www.census.gov/data/datasets/time-series/demo/popest/2010s-counties-total.html
  * Mexico population 2020 projection: [Proyecciones de población](http://sniiv.conavi.gob.mx/(X(1)S(kqitzysod5qf1g00jwueeklj))/demanda/poblacion_proyecciones.aspx?AspxAutoDetectCookieSupport=1)
-* Brazil 2019 projection: https://www.ibge.gov.br/en/statistics/social/population/18448-estimates-of-resident-population-for-municipalities-and-federation-units.html?=&t=resultados
+* Brazil 2019 projection: ftp://ftp.ibge.gov.br/Estimativas_de_Populacao/Estimativas_2019/
