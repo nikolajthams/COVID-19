@@ -406,6 +406,13 @@ ui <- dashboardPage(
                   "To remove countries from the graph, remove them from the search field as you would normally delete text."
                 )
               ),
+              
+              actionButton("western.countries", "Major western countries"),
+              actionButton("scandinavia", "Scandinavia"),
+              actionButton("asia", "Asia"),
+              actionButton("latin", "Latin America"),
+              actionButton("africa", "Africa"),
+              actionButton("clear.countries", "Clear"),
               checkboxInput("rebase", "View graph from death number x", F) %>%
               helper(
                 type = "inline",
@@ -442,6 +449,7 @@ ui <- dashboardPage(
                   "Total deaths" = "Deaths",
                   "Total confirmed cases" = "Cases",
                   "New deaths" = "NewDeaths",
+                  "New deaths (smoothened)" = "NewDeathsSmooth",
                   "New confirmed cases" = "NewCases",
                   "Still infected" = "StillInfected",
                   "Recovered" = "Recovered",
@@ -450,7 +458,7 @@ ui <- dashboardPage(
                   "Proportion of deaths among infected" = "MortalityRate",
                   "Proportion of recoveries among infected" = "RecoveryRate"
                 ),
-                selected = "Deaths"
+                selected = "NewDeathsSmooth"
               ) %>%
               helper(
                 type = "inline",
@@ -477,7 +485,7 @@ ui <- dashboardPage(
                 ),
                 fluidRow(
                   br(),
-                  if(today() <= as.Date("2020-04-20")){
+                  if(today() <= as.Date("2020-06-08")){
                     box(
                       withMathJax(
                         includeMarkdown("code/docs/log.md")
@@ -648,13 +656,39 @@ yaxislab <- c(
   "Population deceased (%)" = "MortalityRatePop" ,
   "Mortality rate (%)" = "MortalityRate",
   "Recovery rate (%)" = "RecoveryRate",
-  "New deaths" = "NewDeaths")
+  "New deaths" = "NewDeaths",
+  "New deaths (smoothened)" = "NewDeathsSmooth")
 
 
 # Server ------------------------------------------------------------------
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   observe_helpers(withMathJax = TRUE)
+  
+  # Add predefined lists
+  observeEvent(input$western.countries, 
+               updateSelectInput(session, "countries", selected=c(input$countries,
+                                                                  c("US", "United Kingdom", "Germany", "Italy", "Spain", "France")))
+               )
+  observeEvent(input$scandinavia, 
+               updateSelectInput(session, "countries", selected=c(input$countries,
+                                                                  c("Denmark", "Sweden", "Norway", "Iceland", "Finland")))
+  )
+  observeEvent(input$asia, 
+               updateSelectInput(session, "countries", selected=c(input$countries,
+                                                                  c("China", "India", "Indonesia", "Japan", "Korea, South")))
+  )
+  observeEvent(input$africa, 
+               updateSelectInput(session, "countries", selected=c(input$countries,
+                                                                  c("Nigeria", "Ethiopia", "Egypt", "Congo (Kinshasa)", "Tanzania")))
+  )
+  observeEvent(input$latin, 
+               updateSelectInput(session, "countries", selected=c(input$countries,
+                                                                  c("Brazil", "Mexico", "Colombia", "Argentina", "Peru")))
+  )
+  observeEvent(input$clear.countries, 
+               updateSelectInput(session, "countries", selected=character(0))
+  )
 
   # source("code/make_wvv_data_v2.R", local = T)
   
@@ -752,8 +786,12 @@ server <- function(input, output) {
     if (input$barchart){#(input$output %in% c("NewCases", "NewDeaths")){
       p = p + geom_bar(aes(fill=Country.Region), position="dodge", stat="identity", alpha=1, lwd = 0.1)
     } else {
-      p = p + geom_line() + geom_point(alpha=0.5, size=1.2) 
+      p = p + geom_line() + geom_point(alpha=0.5, size=0.4)
     }
+    if(input$output == "NewDeathsSmooth"){
+      p = p + geom_point(aes(y=NewDeaths), alpha=0.3, size=0.4)
+    }
+    
     p <- ggplotly(
       p,
       tooltip = c(
