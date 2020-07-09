@@ -408,7 +408,7 @@ ui <- dashboardPage(
               ),
               
               actionButton("western.countries", "Major western countries"),
-              actionButton("scandinavia", "Scandinavia"),
+              actionButton("scandinavia", "Nordic countries"),
               actionButton("asia", "Asia"),
               actionButton("latin", "Latin America"),
               actionButton("africa", "Africa"),
@@ -449,7 +449,7 @@ ui <- dashboardPage(
                   "Total deaths" = "Deaths",
                   "Total confirmed cases" = "Cases",
                   "New deaths" = "NewDeaths",
-                  "New deaths (smoothened)" = "NewDeathsSmooth",
+                  "New deaths (smoothed)" = "NewDeathsSmooth",
                   "New confirmed cases" = "NewCases",
                   "Still infected" = "StillInfected",
                   "Recovered" = "Recovered",
