@@ -11,7 +11,7 @@ library(plotly)
 library(magrittr)
 library(tidyselect)
 library(shinyhelper)
-
+library(forecast)
 
 theme_set(theme_minimal())
 
@@ -177,6 +177,9 @@ data <- left_join(
   arrange(Date) %>%
   mutate(NewDeaths = Deaths - lag(Deaths),
          NewDeaths = ifelse(is.na(NewDeaths), 0, NewDeaths)) %>%
+  mutate(
+    NewDeathsSmooth = ma(NewDeaths, 7)
+  ) %>%
   ungroup() %>%
   rename(
     "PopDensity" = `Density (P/km2)`

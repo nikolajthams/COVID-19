@@ -656,7 +656,7 @@ yaxislab <- c(
   "Mortality rate (%)" = "MortalityRate",
   "Recovery rate (%)" = "RecoveryRate",
   "New deaths" = "NewDeaths",
-  "New deaths (smoothened)" = "NewDeathsSmooth")
+  "New deaths (smoothed)" = "NewDeathsSmooth")
 
 
 # Server ------------------------------------------------------------------
