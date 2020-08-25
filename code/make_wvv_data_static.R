@@ -10,6 +10,7 @@ library(knitr)
 library(plotly)
 library(magrittr)
 library(tidyselect) 
+library(forecast)
 # 
 source("code/data_paths.R")
 # input <- tibble(
@@ -451,7 +452,15 @@ source("code/data_paths.R")
     mutate_at(
       c("Cases.high", "Cases.low"),
       as.integer
+    ) %>%
+    group_by(
+      Country
+    ) %>% 
+    mutate(
+      "NewDeathsSmooth" = ma(NewDeaths, 7)
     )
+
+
 
 
 

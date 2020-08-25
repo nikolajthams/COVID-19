@@ -1,5 +1,5 @@
 _**May 24th, 2020**_ 
-- Add smoothened version of _New Deaths_, to remove large weekday variations. Smooths data by a 7 day (backwards in time) moving average. Added as default plot. 
+- Added a smoothed version of _New Deaths_, to remove large weekday variations. Smooths data by a 7 day (backwards in time) moving average. Added as default plot. 
 - Add default buttons to load geographic regions. 
 
 _**April 15th, 2020**_ 

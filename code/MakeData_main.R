@@ -172,7 +172,7 @@ data <- left_join(
     "MortalityRate" = (Deaths / Cases) * 100,
     "MortalityRatePop" = (Deaths / Population) * 100,
     "RecoveryRate"  = (Recovered / Cases) * 100
-  ) %<>% 
+  ) %<>%
   group_by(Country.Region) %>%
   arrange(Date) %>%
   mutate(NewDeaths = Deaths - lag(Deaths),
@@ -182,11 +182,10 @@ data <- left_join(
   rename(
     "PopDensity" = `Density (P/km2)`
   )
-  
-  
+
+
   write_delim(
       data,
       "code/data/frontpage_data.csv",
       delim = ","
   )
-  
