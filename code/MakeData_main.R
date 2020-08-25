@@ -11,7 +11,7 @@ library(plotly)
 library(magrittr)
 library(tidyselect)
 library(shinyhelper)
-
+library(zoo)
 
 theme_set(theme_minimal())
 
@@ -177,13 +177,16 @@ data <- left_join(
   arrange(Date) %>%
   mutate(NewDeaths = Deaths - lag(Deaths),
          NewDeaths = ifelse(is.na(NewDeaths), 0, NewDeaths)) %>%
+  mutate(NewDeathsSmooth = rollmean(NewDeaths, 7, align="right", fill=NaN)) %>%
   ungroup() %>%
   rename(
     "PopDensity" = `Density (P/km2)`
   )
-
+  
+  
   write_delim(
       data,
       "code/data/frontpage_data.csv",
       delim = ","
   )
+  
