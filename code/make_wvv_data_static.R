@@ -455,10 +455,11 @@ source("code/data_paths.R")
     ) %>%
     group_by(
       Country
-    ) %>% 
-    mutate(
-      "NewDeathsSmooth" = ma(NewDeaths, 7)
-    )
+    ) 
+  # %>% 
+  #   mutate(
+  #     "NewDeathsSmooth" = ma(NewDeaths, 7)
+  #   )
 
 
 
