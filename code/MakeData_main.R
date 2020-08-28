@@ -16,7 +16,7 @@ library(zoo)
 theme_set(theme_minimal())
 
 region2country <- function(data){
-  #### Function to make Faroe Islands and Greenland be independent
+  #### Function to make Faroe Islands and Greenland appear independent
   regions = c('Faroe Islands', 'Greenland')
   regions = intersect(data$Province.State, regions)
   data$Country.Region = as.character(data$Country.Region)
