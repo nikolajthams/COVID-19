@@ -32,7 +32,8 @@ source("code/data_paths.R")
 # Load confirmed data ---------------------------------------------------------------
 data <- read.csv2(
   cases_path,
-  sep = ","
+  sep = ",",
+  nrows = 266 ######### TODO: FIX THIS #########
 )
 data = region2country(data)
 # Drop irrelevant data
@@ -104,7 +105,8 @@ countries.w.age.data = death.by.age$Country
 # Add recovery data ------------------------------------------------------
 data_r <- read.csv2(
   recover_path,
-  sep = ","
+  sep = ",",
+  nrows = 253
 )
 data_r = region2country(data_r)
 # Drop irrelevant data
@@ -138,7 +140,8 @@ data <- left_join(
 # Add mortality data ------------------------------------------------------
 data_r <- read.csv2(
   death_path,
-  sep = ","
+  sep = ",",
+  nrows = 266
 )
 data_r = region2country(data_r)
 # Drop irrelevant data
