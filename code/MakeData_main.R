@@ -55,6 +55,7 @@ data %<>% group_by(Country.Region) %>%
   arrange(Date) %>%
   mutate(NewCases = Cases - lag(Cases),
          NewCases = ifelse(is.na(NewCases), 0, NewCases)) %>%
+  mutate(NewCasesSmooth = rollmean(NewCases, 7, align="right", fill=NaN)) %>%
   ungroup()
 
 # Add population data -------------------------------------------------------------

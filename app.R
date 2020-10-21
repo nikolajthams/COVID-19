@@ -451,6 +451,7 @@ ui <- dashboardPage(
                   "New deaths" = "NewDeaths",
                   "New deaths (smoothed)" = "NewDeathsSmooth",
                   "New confirmed cases" = "NewCases",
+                  "New confirmed cases (smoothed)" = "NewCasesSmooth",
                   "Still infected" = "StillInfected",
                   "Recovered" = "Recovered",
                   "Percentage of population infected" = "PercentageOfPopulation",
@@ -458,7 +459,7 @@ ui <- dashboardPage(
                   "Proportion of deaths among infected" = "MortalityRate",
                   "Proportion of recoveries among infected" = "RecoveryRate"
                 ),
-                selected = "NewDeathsSmooth"
+                selected = "NewCasesSmooth"
               ) %>%
               helper(
                 type = "inline",
@@ -657,7 +658,8 @@ yaxislab <- c(
   "Mortality rate (%)" = "MortalityRate",
   "Recovery rate (%)" = "RecoveryRate",
   "New deaths" = "NewDeaths",
-  "New deaths (smoothed)" = "NewDeathsSmooth")
+  "New deaths (smoothed)" = "NewDeathsSmooth",
+  "New confirmed cases (smoothed)" = "NewCasesSmooth")
 
 
 # Server ------------------------------------------------------------------
@@ -790,6 +792,9 @@ server <- function(input, output, session) {
     }
     if(input$output == "NewDeathsSmooth"){
       p = p + geom_point(aes(y=NewDeaths), alpha=0.3, size=0.4)
+    }
+    if(input$output == "NewCasesSmooth"){
+      p = p + geom_point(aes(y=NewCases), alpha=0.3, size=0.4)
     }
     
     p <- ggplotly(
