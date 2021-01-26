@@ -176,7 +176,7 @@ data <- left_join(
     "MortalityRate" = (Deaths / Cases) * 100,
     "MortalityRatePop" = (Deaths / Population) * 100,
     "RecoveryRate"  = (Recovered / Cases) * 100
-  ) %<>%
+  ) %>%
   group_by(Country.Region) %>%
   arrange(Date) %>%
   mutate(NewDeaths = Deaths - lag(Deaths),
