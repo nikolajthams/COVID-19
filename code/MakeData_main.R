@@ -187,9 +187,10 @@ data <- left_join(
     "PopDensity" = `Density (P/km2)`
   )
 
-
   write_delim(
       data,
       "code/data/frontpage_data.csv",
       delim = ","
   )
+
+  
