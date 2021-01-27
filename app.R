@@ -122,7 +122,8 @@ nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
 # Load confirmed data ---------------------------------------------------------------
 data <- read_delim(
   "code/data/frontpage_data.csv",
-  delim = ","
+  delim = ",",
+  col_types=list("NewCasesSmooth" = col_double(), "NewDeathsSmooth" = col_double())
 )
 
 # Load Danish data from SSI -----------------------------------------------
@@ -330,20 +331,6 @@ ui <- dashboardPage(
                      menuItem(
                        text = "Estimated number of total cases", tabName = "wirvsvirus", icon = icon("file-alt")
                      ),
-                    #  menuItem(
-                    #    text = "Exponential growth models", tabName = "expmod_head", icon = icon("dashboard"),
-                    #    menuSubItem(
-                    #      text = "Detailed model descriptions",
-                    #      tabName = "expmod_sub1",
-                    #      icon = icon("file-alt")
-                    #    ),
-                    #    menuSubItem(
-                    #      text = "Fit models",
-                    #      tabName = "expmod",
-                    #      icon = icon("dashboard")
-                    #    ), 
-                    #    menuSubItem(text = "Compare models by country", tabName = "tables", icon = icon("table"))
-                    #  ),
                      
                      menuItem(text = "About", tabName = "mainpage", icon = icon("file-alt"))
                    )
@@ -523,53 +510,6 @@ ui <- dashboardPage(
           plotlyOutput("ssiplot")
         )
       ),
-      
-      # Pane with exponential growth models
-      # tabItem(
-      #   tabName = "expmod",
-        
-      #   fluidPage(
-      #     selectInput(
-      #       "expmod_countries",
-      #       "Fit an exponential growth model",
-      #       choices = data$Country.Region,
-      #       selected = "Denmark",
-      #       multiple = F
-      #     ),
-          
-      #     box(
-      #       plotlyOutput("expmod_plot"),
-      #       width = 12
-      #     ),
-          
-      #     br(), br(), br(),
-      #     withMathJax(
-      #       includeMarkdown("code/docs/expmod_descriptions.Rmd")
-      #     )
-      #   )
-      # ),
-      
-      # Pane with model text
-      # tabItem(
-      #   tabName = "expmod_sub1",
-        
-      #   fluidPage(
-      #     withMathJax(
-      #       includeMarkdown("code/docs/expmod_detailed.Rmd")
-      #     )
-      #   )
-      # ),
-      
-      # # Pane with comparison between models
-      # tabItem(
-      #   tabName = "tables",
-        
-      #   fluidPage(
-      #     verbatimTextOutput("expmod_tables_lastupdate"),
-          
-      #     dataTableOutput("expmod_tables")
-      #   )
-      # ),
       
       # Pane with wvv data
       tabItem(
@@ -870,89 +810,7 @@ server <- function(input, output, session) {
     }
   )
   
-  # output$expmod_plot <- renderPlotly({
-  #   validate(
-  #     need(
-  #       input$expmod_countries != "",
-  #       'Please select a country to analyse.'
-  #     )
-  #   )
-    
-  #   plotdata <- data %>%
-  #     filter(
-  #       Country.Region %in% c(input$expmod_countries)
-  #     ) %>%
-  #     mutate(
-  #       Country.Region = factor(Country.Region, levels = c(input$expmod_countries))
-  #     ) %>%
-  #     group_by(Country.Region) %>%
-  #     mutate(
-  #       LeadCases = ifelse(
-  #         is.na(lead(Cases)),
-  #         Inf,
-  #         lead(Cases)
-  #       )
-  #     ) %>%
-  #     ungroup %>% {
-  #       LastDayBecoreConfirmedCase <-
-  #         (.) %>% arrange(Date) %>% filter(LeadCases > 0) %>% summarize(min(Date)) %>% pull()
-  #       (.) %>% filter(Date >= LastDayBecoreConfirmedCase)
-  #     } %>%
-  #     select(-LeadCases) %>%
-  #     mutate(
-  #       "t" = (Date - as.Date(min(Date))) %>% as.numeric
-  #     )
-    
-  #   modelfit <- .fit_nls(input$expmod_countries, plotdata, F)
-  #   .get_plots(modelfit, input$expmod_countries, plotdata)
-  # })
-  
-  # output$expmod_tables_lastupdate <- renderText({
-  #   paste(
-  #     "Models were last updated at:",
-  #     file.info("code/data/all_models.csv")$mtime,
-  #     "(Central European Time)",
-  #     sep = " "
-  #   )
-  # })
-  
-  # output$expmod_tables <- renderDataTable({
-  #   all_models <- "code/data/all_models.csv" %>%
-  #     read_delim(
-  #       .,
-  #       delim = ";"
-  #     )
-    
-  #   all_models
-  # })
-  
   output$wirvsvirus <- renderPlotly({
-    # wvv.data <- make.wvv.data()
-    # wvv.data %<>% left_join(
-    #   .,
-    #   dplyr::select(
-    #     data,
-    #     Country.Region,
-    #     Population
-    #   ),
-    #   by = c(
-    #     "Country" = "Country.Region"
-    #   )
-    # ) %>%
-    #   mutate(
-    #     Cases.high = ifelse(
-    #       Cases.high >= Population & !is.na(Population),
-    #       Population,
-    #       Cases.high
-    #     ),
-    #     Cases.low = ifelse(
-    #       Cases.low >= Population & !is.na(Population),
-    #       Population,
-    #       Cases.low
-    #     )
-    #   )
-    
-    
     make_estimate_plot <- function(input) {
       if (input$wvv.compare_ouput == "confirmed_cases") {
         firstDate <- 
@@ -988,22 +846,9 @@ server <- function(input, output, session) {
         as.Date
       wvv.data2 <- wvv.data %>%
         filter(`Date ` >= cutoff_date)
-      
-      # wvv.data2 <- wvv.data %>% filter(
-      #   Country %in% input$wvv.countries,
-      #   Date >= firstDate
-      # ) %>%
-      #   mutate(
-      #     "Date " = as.Date(Date - input$wvv.death_delay)
-      #   ) %>%
-      #   filter(Cases.high > 0)
+
       
       p <- ggplot(
-        # data = filter(
-        #   wvv.data,
-        #   Country %in% input$wvv.countries,
-        #   Date >= firstDate
-        # ),
         data = wvv.data %>% filter(Date >= cutoff_date),
         aes(
           colour = Country
@@ -1197,3 +1042,5 @@ server <- function(input, output, session) {
   
 }
 shinyApp(ui = ui, server = server)
+
+
