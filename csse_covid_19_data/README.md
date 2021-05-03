@@ -215,6 +215,7 @@ Date: Location | Change | Files affected | Reason/Other notes | Source
 * April 22, 2021 | Ohio, US | To match Ohio’s new reporting standards, the Ohio death time series is being overwritten with date of death data, and the entire time series will be updated with each time Ohio updates their death data. This is expected to occur approximately twice per week. | [Data Source](https://coronavirus.ohio.gov/static/dashboards/COVIDDeathData_CountyOfResidence.csv)
 * April 26, 2021 | Ohio, US | To match Ohio’s new reporting standards, the Ohio death time series is being overwritten with date of death data, and the entire time series will be updated with each time Ohio updates their death data. This is expected to occur approximately twice per week. | [Data Source](https://coronavirus.ohio.gov/static/dashboards/COVIDDeathData_CountyOfResidence.csv)
 * April 28, 2021 | Ohio, US | To match Ohio’s new reporting standards, the Ohio death time series is being overwritten with date of death data, and the entire time series will be updated with each time Ohio updates their death data. This is expected to occur approximately twice per week. | [Data Source](https://coronavirus.ohio.gov/static/dashboards/COVIDDeathData_CountyOfResidence.csv)
+* May 3, 2021 | Ohio, US | To match Ohio’s new reporting standards, the Ohio death time series is being overwritten with date of death data, and the entire time series will be updated with each time Ohio updates their death data. This is expected to occur approximately twice per week. | [Data Source](https://coronavirus.ohio.gov/static/dashboards/COVIDDeathData_CountyOfResidence.csv)
 
 
 ## Retrospective reporting of (probable) cases and deaths
@@ -318,6 +319,7 @@ Date: Location | Change | Reason/Other notes | Source
 * April 15, 2021: Nebraksa, US | Removal of 21 duplicated deaths | [Source](https://siouxlandnews.com/news/coronavirus/covid-19-in-nebraska-04-15-2021)
 * April 17, 2021: Missouri, US | Removal of 11,454 double counted cases | [Source 1](https://www.kmbc.com/article/covid-19-live-updates-coronavirus-in-kansas-city-missouri-kansas-coronavirus-04162021/36144667#), [Source 2](https://showmestrong.mo.gov/data/public-health/statewide/)
 * April 20, 2021: Alabama, US | Inclusion of 1110 backlogged cases from October 23, 2020 to April 6, 2021. 1058 are in residents of Mobile County | [Source](https://alpublichealth.maps.arcgis.com/apps/MapSeries/index.html?appid=d84846411471404c83313bfe7ab2a367) and see [issue #3984](https://github.com/CSSEGISandData/COVID-19/issues/3984)
+* April 26, 2021: Alaska, US | Inclusion of 12 deaths over the past several months identified through death certificate review | [Source](https://alaska-native-news.com/covid-19-daily-summary-april-26-2021/55402/)
 * April 26, 2021: New Jersey, US | Removal of ~10,400 duplicated confirmed and probable cases from the state total | Communication with state health department and [news source](https://www.nj.com/coronavirus/2021/04/nj-covid-updates-outdoor-capacities-to-increase-indoor-proms-can-have-dancing-heres-the-latest-april-27-2021.html)
 * April 27, 2021: West Virginia, US | Removal of 162 deaths found to not be due to COVID-19 | [Source 1](https://www.wvnews.com/news/wvnews/west-virginia-health-officer-162-deaths-found-not-to-be-covid-related-to-be-removed/article_3bb21c72-638b-5e07-a041-e343239aa340.html), [Source 2](https://www.wvnews.com/news/wvnews/west-virginia-dhhr-reports-3-new-covid-19-related-deaths-removes-162-previously-reported/article_c4bbd8b8-61f5-5423-aeef-97599f6c5f2e.html)
 
@@ -371,7 +373,7 @@ United States
 * Ohio: Providing death data twice per week (normally Tuesdays and Sundays).
 * Oklahoma: Only updating deaths and county-level case data on Tuesdays. State level case data updated Monday-Friday.
 * Rhode Island: Providing state level data Monday-Friday. County level cases and death data is released once per week.
-* South Dakota: Providing data Monday-Saturday.
+* South Dakota: Providing data Monday-Friday.
 * Tennessee: Providing data Monday-Friday.
 * Washington: Did not update October 10-12 due to data entry issue. As of December 20, only updating Monday-Saturday.
 * Wyoming: Providing data Monday-Friday.
