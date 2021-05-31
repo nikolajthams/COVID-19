@@ -218,6 +218,7 @@ Date: Location | Change | Files affected | Reason/Other notes | Source
 * May 3, 2021 | Ohio, US | To match Ohio’s new reporting standards, the Ohio death time series is being overwritten with date of death data, and the entire time series will be updated with each time Ohio updates their death data. This is expected to occur approximately twice per week. | [Data Source](https://coronavirus.ohio.gov/static/dashboards/COVIDDeathData_CountyOfResidence.csv)
 * May 4, 2021 | Kansas, US | Update Labette, Kansas deaths based on correct data from state dashboard | [KS Dashboard](https://www.coronavirus.kdheks.gov/160/COVID-19-in-Kansas)
 * May 10, 2021 | Ohio, US | To match Ohio’s new reporting standards, the Ohio death time series is being overwritten with date of death data, and the entire time series will be updated with each time Ohio updates their death data. This is expected to occur approximately twice per week. | [Data Source](https://coronavirus.ohio.gov/static/dashboards/COVIDDeathData_CountyOfResidence.csv)
+* May 17, 2021 | Ohio, US | To match Ohio’s new reporting standards, the Ohio death time series is being overwritten with date of death data, and the entire time series will be updated with each time Ohio updates their death data. This is expected to occur approximately twice per week. | [Data Source](https://coronavirus.ohio.gov/static/dashboards/COVIDDeathData_CountyOfResidence.csv)
 
 
 ## Retrospective reporting of (probable) cases and deaths
@@ -321,10 +322,24 @@ Date: Location | Change | Reason/Other notes | Source
 * April 15, 2021: Nebraksa, US | Removal of 21 duplicated deaths | [Source](https://siouxlandnews.com/news/coronavirus/covid-19-in-nebraska-04-15-2021)
 * April 17, 2021: Missouri, US | Removal of 11,454 double counted cases | [Source 1](https://www.kmbc.com/article/covid-19-live-updates-coronavirus-in-kansas-city-missouri-kansas-coronavirus-04162021/36144667#), [Source 2](https://showmestrong.mo.gov/data/public-health/statewide/)
 * April 20, 2021: Alabama, US | Inclusion of 1110 backlogged cases from October 23, 2020 to April 6, 2021. 1058 are in residents of Mobile County | [Source](https://alpublichealth.maps.arcgis.com/apps/MapSeries/index.html?appid=d84846411471404c83313bfe7ab2a367) and see [issue #3984](https://github.com/CSSEGISandData/COVID-19/issues/3984)
+* April 20, 2021: Knox County, Texas, US | Negative cases due to cleaning of historical data | See [Announcement](https://github.com/CSSEGISandData/COVID-19/issues/4056)
 * April 26, 2021: Alaska, US | Inclusion of 12 deaths over the past several months identified through death certificate review | [Source](https://alaska-native-news.com/covid-19-daily-summary-april-26-2021/55402/)
 * April 26, 2021: New Jersey, US | Removal of ~10,400 duplicated confirmed and probable cases from the state total | Communication with state health department and [news source](https://www.nj.com/coronavirus/2021/04/nj-covid-updates-outdoor-capacities-to-increase-indoor-proms-can-have-dancing-heres-the-latest-april-27-2021.html)
 * April 27, 2021: West Virginia, US | Removal of 162 deaths found to not be due to COVID-19 | [Source 1](https://www.wvnews.com/news/wvnews/west-virginia-health-officer-162-deaths-found-not-to-be-covid-related-to-be-removed/article_3bb21c72-638b-5e07-a041-e343239aa340.html), [Source 2](https://www.wvnews.com/news/wvnews/west-virginia-dhhr-reports-3-new-covid-19-related-deaths-removes-162-previously-reported/article_c4bbd8b8-61f5-5423-aeef-97599f6c5f2e.html)
-
+* May 5, 2021: Bergen County, Nnew Jersey, US | Addition of over 1100 backlogged antigen cases | See [Announcement](https://github.com/CSSEGISandData/COVID-19/issues/4055)
+* May 7, 2021: Ravali County, Montana, US | Publication of 12 backlogged deaths | [Source](https://billingsgazette.com/news/state-and-regional/montana-reports-149-new-covid-19-cases-12-more-deaths-confirmed/article_b3dec548-4789-599d-9414-e5b56d9ec273.html)
+* May 13, 2021: Alabama, US | Inclusion of 306 backlogged cases | See [announcement](https://github.com/CSSEGISandData/COVID-19/issues/4087)
+* May 14, 2021: Alabama, US | Inclusion of 4,877 backlogged cases | See [announcement](https://github.com/CSSEGISandData/COVID-19/issues/4087)
+* May 15, 2021: Alabama, US | Inclusion of 1,235 backlogged cases | See [announcement](https://github.com/CSSEGISandData/COVID-19/issues/4087)
+* May 18, 2021: Missouri, US | Weekly death certificate review resulted in a large spike in deaths, particularly in rural counties | See [announcement](https://github.com/CSSEGISandData/COVID-19/issues/4099)
+* May 19, 2021: New Castle County, Delaware, US | Large spike in cases due to reporting delays with multiple laboratories | See [announcement](https://github.com/CSSEGISandData/COVID-19/issues/4121)
+* May 20, 2021: Laramie County, Wyoming, US | 100+ case backlog due to data transfer issues with a health provider | See [announcement](https://github.com/CSSEGISandData/COVID-19/issues/4136)
+* May 20, 2021: France | Reduction of 350,000 duplicate cases without correcting historical data | See [press release](https://www.santepubliquefrance.fr/les-actualites/2021/des-indicateurs-plus-precis-pour-le-suivi-des-cas-confirmes-de-covid-19)
+* May 24, 2021: New Mexico, US | Inclusion of approximately 100 deaths identified through death certificate review | [Source](https://www.kob.com/new-mexico-news/new-mexico-to-add-approximately-100-more-covid-19-deaths-to-states-total/6117386/)
+* May 24, 2021: Brazos County, Texas, US | Inclusion of 628 backlogged cases in daily report | See [announcement](https://github.com/CSSEGISandData/COVID-19/issues/4132)
+* May 26, 2021: Oklahoma, US | An unspecified number of backlogged deaths have resulted in 373 deaths reported | [Source](https://oklahoma.gov/covid19/newsroom/2021/may/situation-update--covid-19-05-26-2021.html)
+* May 27, 2021: Los Angeles, California, US | Addition of 3,857 backlogged cases | See [discourse](https://github.com/CSSEGISandData/COVID-19/issues/4147) including a statement from the LA Times
+* May 27, 2021: Maryland, US | Addition of 538 previously unpublished COVID-19 deaths | [Source](https://southernmarylandchronicle.com/2021/05/27/maryland-department-of-health-vital-statistics-administration-issues-revision-of-covid-19-death-data/)
 
 ## Large-scale back distributions
 This section will serve to notify developers when we are able to successfully backdistribute any of the large instances of retrospective reporting.
@@ -379,6 +394,7 @@ United States
 * South Dakota: Providing data Monday-Friday.
 * Tennessee: Providing data Monday-Friday.
 * Washington: Did not update October 10-12 due to data entry issue. As of December 20, only updating Monday-Saturday.
+* West Virginia: Providing data Monday-Friday.
 * Wyoming: Providing data Monday-Friday.
 
 
